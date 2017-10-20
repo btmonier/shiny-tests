@@ -6,5 +6,5 @@ To run the examples locally, you can install the shiny package in R, and use the
 
 ``` r
 if (!require('shiny')) install.packages("shiny")
-shiny::runGitHub("shiny-tests", "btmonier", subdir = "01-census-test")
+shiny::runGitHub("shiny-tests", "btmonier", subdir = "06-plotly-test2")
 ```
