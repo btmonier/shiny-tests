@@ -1,0 +1,99 @@
+ViDGER Components
+==================
+
+# vsScatterPlot
+x
+y
+data
+type
+d.factor
+title
+grid
+
+
+# vsScatterMatrix
+data
+d.factor
+type
+comp
+title
+grid
+man.title
+
+
+# vsBoxPlot
+data
+d.factor
+type
+title
+legend
+grid
+
+
+# vsDEGMatrix
+data
+padj
+d.factor
+type
+title
+legend
+grid
+
+
+# vsVolcano
+x
+y
+data
+d.factor
+type
+padj
+x.lim
+lfc
+title
+legend
+grid
+data.return
+
+
+# vsVolcanoMatrix
+data
+d.factor
+type
+padj
+x.lim
+lfc
+title
+legend
+grid
+counts
+
+
+# vsMAPlot
+x
+y
+data
+d.factor
+type
+padj
+y.lim
+lfc
+title
+legend
+grid
+
+
+# vsFourWay
+x
+y
+control
+data
+d.factor
+type
+padj
+x.lim
+y.lim
+lfc
+legend
+title
+grid
+

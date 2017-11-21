@@ -1,10 +1,13 @@
 #------------------------------------------------------------------------------
-# Title:  Shiny Test 07 - Modularity - Application
+# Title:  Shiny Test 08 - Crosstalk - Application
 # Author: Brandon Monier (brandon.monier@sdstate.edu)
-# Date:   10.19.17
+# Date:   11.03.17
 #------------------------------------------------------------------------------
 
 # Package logic ----
+
+## Set working directory (LOCAL ONLY)
+setwd("D:/Box Sync/misc-shiny-apps/08-plotly-test4")
 
 ## CRAN
 pack.man <- function(pkg){
@@ -13,7 +16,8 @@ pack.man <- function(pkg){
     install.packages(new.pkg, dependencies = TRUE)
   sapply(pkg, require, character.only = TRUE)
 }
-packages <- c("crosstalk", "shiny", "DT", "tidyr", "plotly")
+packages <- c("crosstalk", "dplyr", "DT", "plotly", "shiny", "shinycssloaders",
+			        "tidyr")
 pack.man(packages)
 
 ## Bioconductor
@@ -25,7 +29,7 @@ if (!require("edgeR")) biocLite("edgeR")
 
 # Sources ----
 source("vidgerUI.R")
-# source("vidgerServer.R")
+source("vidgerServer.R")
 
 
 
