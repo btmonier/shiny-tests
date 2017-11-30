@@ -7,7 +7,7 @@
 # Package logic ----
 
 ## Set working directory (FOR LOCAL TESTING ONLY)
-# setwd("D:/Box Sync/misc-shiny-apps/11-plotly-test7")
+setwd("D:/Box Sync/misc-shiny-apps/11-plotly-test7")
 
 ## CRAN
 pack.man <- function(pkg){
@@ -27,8 +27,8 @@ if (!require("edgeR")) biocLite("edgeR")
 if (!require("limma")) biocLite("limma")
 
 ## Example data files
-f1 <- as.matrix(read.csv("count-data.csv", header = TRUE, row.names = 1))
-f2 <- read.csv("col-data.csv", header = TRUE, row.names = 1)
+# f1 <- as.matrix(read.csv("count-data.csv", header = TRUE, row.names = 1))
+# f2 <- read.csv("col-data.csv", header = TRUE, row.names = 1)
 
 
 

@@ -424,7 +424,7 @@ vidgerServer <- function(input, output) {
         incProgress()
         fit.edger <- glmFit(dge, design)
         lrt.edger <- glmLRT(fit.edger, contrast = cont)
-        res <- topTags(lrt.edger, n = nrow(pas.cts), sort.by = "none")
+        res <- topTags(lrt.edger, n = nrow(cts), sort.by = "none")
         res <- as.data.frame(res)
         datobj <- res[order(row.names(res)), ]
         datobj$baseMean <- rowMeans(cts)
