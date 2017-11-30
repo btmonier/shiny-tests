@@ -7,7 +7,7 @@
 # Package logic ----
 
 ## Set working directory (FOR LOCAL TESTING ONLY)
-setwd("D:/Box Sync/misc-shiny-apps/11-plotly-test7")
+# setwd("D:/Box Sync/misc-shiny-apps/11-plotly-test7")
 
 ## CRAN
 pack.man <- function(pkg){
