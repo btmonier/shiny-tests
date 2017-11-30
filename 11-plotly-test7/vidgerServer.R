@@ -5,6 +5,8 @@
 #------------------------------------------------------------------------------
 
 vidgerServer <- function(input, output) {
+  f1 <- as.matrix(read.csv("count-data.csv", header = TRUE, row.names = 1))
+  f2 <- read.csv("col-data.csv", header = TRUE, row.names = 1)
 
   output$file1 <- renderUI({
     if (input$examplechoice == "yes") {
