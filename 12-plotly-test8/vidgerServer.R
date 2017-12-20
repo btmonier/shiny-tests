@@ -797,7 +797,7 @@ vidgerServer <- function(input, output) {
     if (input$dgemethod == "limma") {
       if (input$dgeexpsetup == "exp1") {
         withProgress(message = "Running limma-voom...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- limma.exp1(
             fact = input$dgeexp1a,
             cts = cts,
@@ -806,10 +806,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp2") {
         withProgress(message = "Running limma-voom...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- limma.exp2(
             fact1 = input$dgeexp2a,
             fact2 = input$dgeexp2b,
@@ -819,10 +820,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]       
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp3") {
         withProgress(message = "Running limma-voom...", value = 0, {
-          incProgress()        
+          incProgress(1/2)     
           de.genes <- limma.exp3(
             fact1 = input$dgeexp3a,
             fact2 = input$dgeexp3b,
@@ -833,10 +835,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp4") {
         withProgress(message = "Running limma-voom...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- limma.exp4(
             fact1 = input$dgeexp4a,
             fact2 = input$dgeexp4b,
@@ -847,12 +850,13 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       }
     } else if (input$dgemethod == "edger") {
       if (input$dgeexpsetup == "exp1") {
         withProgress(message = "Running edgeR...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- edger.exp1(
             fact = input$dgeexp1a,
             cts = cts,
@@ -862,10 +866,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp2") {
         withProgress(message = "Running edgeR...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- edger.exp2(
             fact1 = input$dgeexp2a,
             fact2 = input$dgeexp2b,
@@ -876,10 +881,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp3") {
         withProgress(message = "Running edgeR...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- edger.exp3(
             fact1 = input$dgeexp3a,
             fact2 = input$dgeexp3b,
@@ -891,10 +897,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp4") {
         withProgress(message = "Running edgeR...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- edger.exp4(
             fact1 = input$dgeexp4a,
             fact2 = input$dgeexp4b,
@@ -906,12 +913,13 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       }
     } else if (input$dgemethod == "deseq") {
       if (input$dgeexpsetup == "exp1") {
         withProgress(message = "Running DESeq2...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- deseq.exp1(
             fact = input$dgeexp1a,
             cts = cts,
@@ -920,10 +928,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp2") {
         withProgress(message = "Running DESeq2...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- deseq.exp2(
             fact1 = input$dgeexp2a,
             fact2 = input$dgeexp2b,
@@ -933,10 +942,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp3") {
         withProgress(message = "Running DESeq2...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- deseq.exp3(
             fact1 = input$dgeexp3a,
             fact2 = input$dgeexp3b,
@@ -947,10 +957,11 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       } else if (input$dgeexpsetup == "exp4") {
         withProgress(message = "Running DESeq2...", value = 0, {
-          incProgress()
+          incProgress(1/2)
           de.genes <- deseq.exp4(
             fact1 = input$dgeexp4a,
             fact2 = input$dgeexp4b,
@@ -961,6 +972,7 @@ vidgerServer <- function(input, output) {
           )
           fit.names <- de.genes[[2]]
           fit.cont <- de.genes[[1]]
+          incProgress(2/2)
         })
       }
     } 
@@ -1511,29 +1523,52 @@ vidgerServer <- function(input, output) {
 
   ## BIC - reactive - get variable counts
   bicout <- eventReactive(input$gobic, {
-      num <- input$bicvarnumber
-      cts <- ddsout()[[1]]
-      cts <- assay(cts)
-      tran <- ddstran()[[1]]
-      tran <- assay(tran)
-      topID <- order(rowVars(cts), decreasing = TRUE)
-      cts.var <- tran[topID, ]
-      cts.var <- cts.var[1:num, ]
-      if (input$bicalg == "qubic") {
+    num <- input$bicvarnumber
+    cts <- ddsout()[[1]]
+    cts <- assay(cts)
+    tran <- ddstran()[[1]]
+    tran <- assay(tran)
+    topID <- order(rowVars(cts), decreasing = TRUE)
+    cts.var <- tran[topID, ]
+    cts.var <- cts.var[1:num, ]
+    if (input$bicalg == "qubic") {
+      withProgress(message = "Running BCQU...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCQU() )
-      } else if (input$bicalg == "bimax") {
+        incProgress(2/2)
+      })
+    } else if (input$bicalg == "bimax") {
+      withProgress(message = "Running BCBimax...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCBimax() )
-      } else if (input$bicalg == "cc") {
+        incProgress(2/2)
+      })
+    } else if (input$bicalg == "cc") {
+      withProgress(message = "Running BCCC...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCCC() )
-      } else if (input$bicalg == "plaid") {
+        incProgress(2/2)
+      })
+    } else if (input$bicalg == "plaid") {
+      withProgress(message = "Running BCPlaid...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCPlaid() )
-      } else if (input$bicalg == "spectral") {
+        incProgress(2/2)
+      })
+    } else if (input$bicalg == "spectral") {
+      withProgress(message = "Running BCSpectal...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCSpectral() )
-      } else if (input$bicalg == "xmotifs") {
+        incProgress(2/2)
+      })
+    } else if (input$bicalg == "xmotifs") {
+      withProgress(message = "Running BCXmotifs...", value = 0, {
+        incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCXmotifs() )
-      }            
-      return(list(res, cts.var))
-    # }
+        incProgress(2/2)
+      })
+    }            
+    return(list(res, cts.var))
   })
 
   ## BIC - input - choose cluster
@@ -1613,18 +1648,30 @@ vidgerServer <- function(input, output) {
   ## BIC - visualize - Bicluster heatmap
   output$bicheatplot <- renderPlot({
     res <- bicout()[[1]]
-    cts.var <- bicout()[[2]]
-    n <- input$bicclustnumber
-    n <- as.numeric(n)
-    drawHeatmap(cts.var, res, 1)
-  })
-
-  output$debugdge <- renderPrint({
-    if (input$goqc == 0) {
+    if (res@Number < 1) {
       return()
     } else {
-      tmp <- bicout()[[2]]
-      summary(tmp)
+      n <- input$bicclustnumber
+      n <- as.numeric(n)
+      res <- bicout()[[1]]
+      cts.var <- bicout()[[2]]
+      par(mar = c(10, 6, 3, 5) + 0.1)
+      quheatmap(
+        x = cts.var,
+        bicResult = res,
+        number = n, 
+        showlabel = TRUE
+      )
     }
+    
   })
+
+  # output$debugdge <- renderPrint({
+  #   if (input$goqc == 0) {
+  #     return()
+  #   } else {
+  #     tmp <- bicout()[[2]]
+  #     summary(tmp)
+  #   }
+  # })
 }

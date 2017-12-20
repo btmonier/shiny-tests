@@ -17,7 +17,8 @@ pack.man <- function(pkg){
   sapply(pkg, require, character.only = TRUE)
 }
 packages <- c("crosstalk", "dplyr", "DT", "gtools", "plotly", "shiny", 
-							"shinyBS", "shinycssloaders", "shinythemes", "tibble", "tidyr")
+							"shinyBS", "shinycssloaders", "shinythemes", "tibble", "tidyr",
+							"Rcpp", "Hmisc", "ggplot2", "geneplotter", "locfit")
 pack.man(packages)
 
 ## Bioconductor

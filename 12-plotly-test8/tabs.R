@@ -50,7 +50,7 @@ tab.submit <- tabPanel(
       textInput(
         inputId = "prefilt",
         label = withMathJax("Filter cutoff (count data row sums \\( < n\\))"),
-        value = ""
+        value = 10
       ),
       selectInput(
         inputId = "transform",
@@ -135,8 +135,8 @@ tab.submit <- tabPanel(
           uiOutput("bicsummary"),
           br(),
           uiOutput("headbicheatsummary"),
-          plotOutput("bicheatplot"),
-          verbatimTextOutput("debugdge")
+          plotOutput("bicheatplot", height = 800, width = 600)
+          # verbatimTextOutput("debugdge")
         )  
       )
     )
@@ -197,12 +197,12 @@ tab.deg <- tabPanel(
         textInput(
           inputId = "dgepadjcutoff",
           label = withMathJax("Adj. \\(p\\)-value cutoff"),
-          value = ""
+          value = 0.05
         ),
         textInput(
           inputId = "dgefcmin",
           label = "Min. fold change",
-          value = ""
+          value = 1
         )
       ),
       uiOutput("dgeexpedgernorm"),
