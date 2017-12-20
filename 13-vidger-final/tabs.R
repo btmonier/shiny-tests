@@ -105,7 +105,15 @@ tab.submit <- tabPanel(
           # verbatimTextOutput("debugdge"),
           plotlyOutput("corplot1"),
           br(),
-          plotlyOutput("corplot2")
+          plotlyOutput("corplot2"),
+          br(),
+          uiOutput("headcor2"),
+          plotOutput("corplot3", width = 600, height = 550),
+          div(style = "display:inline-block", uiOutput("downloadcorplot2pdf")),
+          div(style = "display:inline-block", uiOutput("downloadcorplot2png")),
+          br(),
+          br(),
+          br()
         ),
         tabPanel(
           title = "PCA",

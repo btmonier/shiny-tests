@@ -443,3 +443,18 @@ bicPlot <- function(n, res, cts.var) {
     showlabel = TRUE
   )  
 }
+
+## Sample Distance Matrix
+sampdistPlot <- function(cts) {
+  cts <- assay(cts)
+  sampledists <- dist(t(cts))
+  sdm <- as.matrix(sampledists)
+  pheatmap(sdm)
+}
+
+
+# cts <- ddstran()[[1]]
+# cts <- assay(cts)
+# sampledists <- dist(t(cts))
+# sdm <- as.matrix(sampledists)
+# pheatmap(sdm)

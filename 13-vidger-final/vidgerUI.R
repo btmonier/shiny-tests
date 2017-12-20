@@ -10,6 +10,8 @@ source("tabs.R")
 
 
 # User interface ----
+
+
 vidgerUI <- navbarPage(
 	theme = shinytheme("cerulean"),
 	title = "ViDGER",

@@ -5,7 +5,10 @@
 #------------------------------------------------------------------------------
 
 # Change file upload size to 30 MB
-options(shiny.maxRequestSize = 30 * 1024^2)
+options(
+  shiny.maxRequestSize = 30 * 1024^2,
+  shiny.sanitize.errors = TRUE
+)
 
 
 
@@ -1700,7 +1703,9 @@ vidgerServer <- function(input, output) {
       paste0("cluster-", n, "-ids.csv")
     },
     content = function(file) {
-      write.csv(bicout2()[[1]], file, row.names = FALSE)
+      cts.nam <- bicout2()[[1]]
+      cts.nam <- data.frame(IDs = cts.nam)
+      write.csv(cts.nam, file, row.names = FALSE, col.names = TRUE)
     }
   )
 
@@ -1757,7 +1762,7 @@ vidgerServer <- function(input, output) {
         style = "color:grey"
       )
     } else {
-      h4("Correlation Analysis (click on cells")
+      h4("Interactive Correlation Analysis (click on cells)")
     }
   })
 
@@ -1806,7 +1811,7 @@ vidgerServer <- function(input, output) {
     }
   })
 
-  ## HEAT - visualization - count plot
+  ## COR - visualization - scatterplot
   output$corplot2 <- renderPlotly({
     if (input$goqc == 0) {
       return()
@@ -1837,12 +1842,70 @@ vidgerServer <- function(input, output) {
     }
   })
 
+  ## COR - header (2) - Correlation analysis
+  output$headcor2 <- renderUI({
+    if (input$goqc == 0) {
+      return()
+    } else {
+      h4("Sample Distance Matrix")
+    }
+  })
 
+  ## COR - visualization - sample distance matrix
+  output$corplot3 <- renderPlot({
+    if (input$goqc == 0) {
+      return()
+    } else {
+      sampdistPlot(
+        cts = ddstran()[[1]]
+      )
+    }
+  })
 
+  ## COR - Show download button - sample distance matrix (PDF)
+  output$downloadcorplot2pdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("downloadcorplot2pdfimg", "Download Plot (PDF)")
+    }     
+  })
 
+  ## COR - Download plot - sample distance matrix (PDF)
+  output$downloadcorplot2pdfimg <- downloadHandler(
+    filename =  function() {
+      paste("sample-dists.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+      sampdistPlot(
+        cts = ddstran()[[1]]
+      )
+      dev.off()
+    } 
+  )
 
+  ## COR - Show download button - sample distance matrix (PNG)
+  output$downloadcorplot2png <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("downloadcorplot2pngimg", "Download Plot (PNG)")
+    }     
+  })
 
-
-
+  ## COR - Download plot - sample distance matrix (PNG)
+  output$downloadcorplot2pngimg <- downloadHandler(
+    filename =  function() {
+      paste("sample-dists.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750) 
+      sampdistPlot(
+        cts = ddstran()[[1]]
+      )
+      dev.off()
+    } 
+  )    
 
 }
