@@ -65,7 +65,10 @@ tab.submit <- tabPanel(
       br(),
       h4("3. Launch Overview"),
       actionButton(inputId = "goqc", "Submit", icon = icon("space-shuttle")),
-      uiOutput("opttran")
+      br(),
+      p(
+        "After you click 'submit', you may proceed to the 'DEG Analysis' tab for differential gene expression analyses."
+      )
     ),
     mainPanel(
       tabsetPanel(
@@ -95,6 +98,14 @@ tab.submit <- tabPanel(
           plotlyOutput("barplot"),
           br(),
           br()
+        ),
+        tabPanel(
+          title = "Correlation",
+          uiOutput("headcor"),
+          # verbatimTextOutput("debugdge"),
+          plotlyOutput("corplot1"),
+          br(),
+          plotlyOutput("corplot2")
         ),
         tabPanel(
           title = "PCA",
@@ -135,8 +146,12 @@ tab.submit <- tabPanel(
           uiOutput("bicsummary"),
           br(),
           uiOutput("headbicheatsummary"),
-          plotOutput("bicheatplot", height = 800, width = 600)
-          # verbatimTextOutput("debugdge")
+          plotOutput("bicheatplot", height = 800, width = 600),
+          div(style = "display:inline-block", uiOutput("downloadbicfilt")),
+          div(style = "display:inline-block", uiOutput("downloadbicplotpdf")),
+          br(),
+          br(),
+          br()
         )  
       )
     )
@@ -147,7 +162,7 @@ tab.submit <- tabPanel(
 
 # DEG Analysis ----
 tab.deg <- tabPanel(
-  title = "DGE Analysis ", icon = icon("bar-chart"), 
+  title = "DEG Analysis ", icon = icon("bar-chart"), 
   fluid = TRUE,
   sidebarLayout(
     sidebarPanel(

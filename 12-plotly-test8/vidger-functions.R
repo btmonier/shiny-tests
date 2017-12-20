@@ -6,6 +6,14 @@
 
 # HOUSE KEEPING FUNCTIONS
 
+## CRAN Install
+pack.man <- function(pkg){
+  new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
+  if (length(new.pkg)) 
+    install.packages(new.pkg, dependencies = TRUE)
+  sapply(pkg, require, character.only = TRUE)
+}
+
 ## Size factor extraction (for normalization)
 getSizeFact <- function(rc.data) {
 	geomMean <- function(x) { 
@@ -418,4 +426,20 @@ deseq.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl) {
   )
   dds <- DESeq(dds)
   return(list(dds, design))
+}
+
+
+
+# PLOT Functions
+
+## Bicluster plots
+bicPlot <- function(n, res, cts.var) {
+  n <- as.numeric(n)
+  par(mar = c(10, 4, 3, 5) + 0.1, yaxt = "n")
+  quheatmap(
+    x = cts.var,
+    bicResult = res,
+    number = n, 
+    showlabel = TRUE
+  )  
 }

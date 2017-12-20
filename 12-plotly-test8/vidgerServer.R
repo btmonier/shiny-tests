@@ -230,7 +230,8 @@ vidgerServer <- function(input, output) {
           color = ~key
         ) %>%
         layout(
-          yaxis = list(title = lab)
+          xaxis = list(title = lab),
+          yaxis = list(title = "Frequency")
         )
       })
     })
@@ -1309,7 +1310,7 @@ vidgerServer <- function(input, output) {
         style = "color:grey"
       )
     } else {
-      h4("Interactive Heatmap")
+      h4("Interactive Heatmap (click on cells)")
     }
   })
 
@@ -1328,31 +1329,31 @@ vidgerServer <- function(input, output) {
   })
 
   ## HEAT - data - choose transformation
-  heattran <- reactive({
-    if (input$goqc == 0) {
-      return()
-    } else {
-      dds <- ddsout()[[1]]
-      if (input$transform == "log") {
-        tmp <- normTransform(dds)
-        tmp <- assay(tmp)
-        lab <- "log<sub>2</sub>(counts + 1)"
-      } else if (input$ransform == "rlog") {
-        tmp <- rlog(dds)
-        tmp <- assay(tmp)
-        lab <- "rlog(counts)"
-      } else if (input$transform == "vst") {
-        tmp <- vst(dds)
-        tmp <- assay(tmp)
-        lab <- "vst(counts)"
-      } else if (input$transform == "raw") {
-        tmp <- dds
-        tmp <- counts(dds)
-        lab <- "Raw counts"
-      }
-    }
-    return(list(tmp, lab))    
-  })
+  # heattran <- reactive({
+  #   if (input$goqc == 0) {
+  #     return()
+  #   } else {
+  #     dds <- ddsout()[[1]]
+  #     if (input$transform == "log") {
+  #       tmp <- normTransform(dds)
+  #       tmp <- assay(tmp)
+  #       lab <- "log<sub>2</sub>(counts + 1)"
+  #     } else if (input$ransform == "rlog") {
+  #       tmp <- rlog(dds)
+  #       tmp <- assay(tmp)
+  #       lab <- "rlog(counts)"
+  #     } else if (input$transform == "vst") {
+  #       tmp <- vst(dds)
+  #       tmp <- assay(tmp)
+  #       lab <- "vst(counts)"
+  #     } else if (input$transform == "raw") {
+  #       tmp <- dds
+  #       tmp <- counts(dds)
+  #       lab <- "Raw counts"
+  #     }
+  #   }
+  #   return(list(tmp, lab))    
+  # })
 
   ## HEAT - data - get variable IDs
   heattran2 <- reactive({
@@ -1360,7 +1361,8 @@ vidgerServer <- function(input, output) {
       return()
     } else {
       dds.counts <- ddsout()[[3]]
-      heat.counts <- heattran()[[1]]
+      heat.counts <- ddstran()[[1]]
+      heat.counts <- assay(heat.counts)
       num <- input$heatnumber
       topID <- order(rowMeans(dds.counts), decreasing = TRUE)
       heat.mat <- heat.counts[topID, ]
@@ -1532,37 +1534,37 @@ vidgerServer <- function(input, output) {
     cts.var <- tran[topID, ]
     cts.var <- cts.var[1:num, ]
     if (input$bicalg == "qubic") {
-      withProgress(message = "Running BCQU...", value = 0, {
+      withProgress(message = "Running QUBIC...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCQU() )
         incProgress(2/2)
       })
     } else if (input$bicalg == "bimax") {
-      withProgress(message = "Running BCBimax...", value = 0, {
+      withProgress(message = "Running Bimax...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCBimax() )
         incProgress(2/2)
       })
     } else if (input$bicalg == "cc") {
-      withProgress(message = "Running BCCC...", value = 0, {
+      withProgress(message = "Running CC...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCCC() )
         incProgress(2/2)
       })
     } else if (input$bicalg == "plaid") {
-      withProgress(message = "Running BCPlaid...", value = 0, {
+      withProgress(message = "Running Plaid...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCPlaid() )
         incProgress(2/2)
       })
     } else if (input$bicalg == "spectral") {
-      withProgress(message = "Running BCSpectal...", value = 0, {
+      withProgress(message = "Running Spectal...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCSpectral() )
         incProgress(2/2)
       })
     } else if (input$bicalg == "xmotifs") {
-      withProgress(message = "Running BCXmotifs...", value = 0, {
+      withProgress(message = "Running Xmotifs...", value = 0, {
         incProgress(1/2)
         res <- biclust::biclust(x = cts.var, method = BCXmotifs() )
         incProgress(2/2)
@@ -1651,27 +1653,196 @@ vidgerServer <- function(input, output) {
     if (res@Number < 1) {
       return()
     } else {
-      n <- input$bicclustnumber
-      n <- as.numeric(n)
-      res <- bicout()[[1]]
-      cts.var <- bicout()[[2]]
-      par(mar = c(10, 6, 3, 5) + 0.1)
-      quheatmap(
-        x = cts.var,
-        bicResult = res,
-        number = n, 
-        showlabel = TRUE
+      bicPlot(
+        n = input$bicclustnumber,
+        res = bicout()[[1]],
+        cts.var = bicout()[[2]]
       )
     }
-    
+  })
+
+  ## BIC - reactive - get cluster names
+  bicout2 <- eventReactive(input$gobic, {
+    res <- bicout()[[1]]
+    cts.var <- bicout()[[2]]
+    rn <- res@RowxNumber
+    col.num <- as.numeric(input$bicclustnumber)
+    select <- rn[, col.num]
+    cts.nam <- cts.var[which(select), ]
+    cts.nam <- row.names(cts.nam)
+    return(list(cts.nam))
+  })
+
+  ## BIC - Show download button (FILTERED)
+  output$downloadbicfilt <- renderUI({
+    validate(
+      need(
+        expr = !is.null(input$gobic),
+        message = ""   
+      )
+    )
+    if(input$gobic == 0) {
+      return()
+    } else {
+      res <- bicout()[[1]]
+      if (res@Number < 1) {
+        return()
+      } else {
+        downloadButton("downloadbicclust", "Download Cluster IDs")
+      }
+    }     
+  })
+
+  ## BIC - Download data
+  output$downloadbicclust <- downloadHandler(
+    filename = function() {
+      n <- as.numeric(input$bicclustnumber)
+      paste0("cluster-", n, "-ids.csv")
+    },
+    content = function(file) {
+      write.csv(bicout2()[[1]], file, row.names = FALSE)
+    }
+  )
+
+  ## BIC - Show download button (FILTERED)
+  output$downloadbicplotpdf <- renderUI({
+    validate(
+      need(
+        expr = !is.null(input$gobic),
+        message = ""   
+      )
+    )
+    if(input$gobic == 0) {
+      return()
+    } else {
+      res <- bicout()[[1]]
+      if (res@Number < 1) {
+        return()
+      } else {
+        downloadButton("downloadbicplotpdfimg", "Download Plot (PDF)")
+      }
+    }     
+  })
+
+  ## BIC - Download plot
+  output$downloadbicplotpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("bicPlot.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 6, height = 8) # open the pdf device
+      bicPlot(
+        n = input$bicclustnumber,
+        res = bicout()[[1]],
+        cts.var = bicout()[[2]]
+      )
+      dev.off()
+    } 
+  )    
+
+
+
+  ### B R E A K ###
+
+
+
+  ## COR - header (2) - Correlation analysis
+  output$headcor <- renderUI({
+    if (input$goqc == 0) {
+      p(
+        br(),
+        em(
+          "Load data and click the 'submit' button to see the results."
+        ), 
+        style = "color:grey"
+      )
+    } else {
+      h4("Correlation Analysis (click on cells")
+    }
+  })
+
+  ## COR - reactive - correlation matrix
+  corout <- eventReactive(input$goqc, {
+    cts <- ddstran()[[1]]
+    cts <- assay(cts)
+    cor.mat <- cor(cts)
+    return(list(cor.mat, cts))
   })
 
   # output$debugdge <- renderPrint({
   #   if (input$goqc == 0) {
   #     return()
   #   } else {
-  #     tmp <- bicout()[[2]]
-  #     summary(tmp)
+  #     tmp <- corout()[[1]]
+  #     tmp
   #   }
   # })
+
+  ## COR - visaulization - correlation matrix (Plotly)
+  output$corplot1 <- renderPlotly({
+    if (input$goqc == 0) {
+      return()
+    } else {
+      cor.mat <- corout()[[1]]
+      cor.mat <- as.matrix(cor.mat)
+      tooltips <- paste0(
+        "<b>R:</b> ", round(cor.mat, 3)
+      )
+      tooltips <- matrix(tooltips, ncol = ncol(cor.mat), byrow = FALSE)
+      plot_ly(
+        x = colnames(cor.mat),
+        y = rownames(cor.mat),
+        z = cor.mat,
+        type = "heatmap",
+        text = tooltips,
+        hoverinfo = "text",
+        source = "corplot",
+      ) %>%
+      layout(
+        xaxis = list(title = ""),
+        yaxis = list(title = ""),
+        margin = list(l = 100)
+      )
+    }
+  })
+
+  ## HEAT - visualization - count plot
+  output$corplot2 <- renderPlotly({
+    if (input$goqc == 0) {
+      return()
+    } else {
+      s.cor <- event_data("plotly_click", source = "corplot")
+      cts.tran <- corout()[[2]]
+      cts.tran <- as.data.frame(cts.tran)
+      x <- s.cor[["x"]]
+      y <- s.cor[["y"]]
+      tooltips <- paste0(
+        "<b>ID:</b> ", rownames(cts.tran)
+      )
+      plot_ly(
+        data = cts.tran,
+        type = "scatter",
+        mode = "markers",
+        x = cts.tran[, x],
+        y = cts.tran[, y],
+        text = tooltips,
+        marker = list(size = 2),
+        hoverinfo = "text" 
+      ) %>%
+      layout(
+        title = paste(y, "vs.", x),
+        xaxis = list(title = x),
+        yaxis = list(title = y)
+      )
+    }
+  })
+
+
+
+
+
+
+
+
+
 }
