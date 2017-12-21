@@ -48,8 +48,8 @@ air.dds <- DESeqDataSetFromMatrix(
 
 
 ## Pre-filtering
-pas.dds <- pas.dds[rowSums(counts(pas.dds)) > 1, ]
-air.dds <- air.dds[rowSums(counts(air.dds)) > 1, ]
+pas.dds <- pas.dds[rowSums(counts(pas.dds)) > 10, ]
+air.dds <- air.dds[rowSums(counts(air.dds)) > 10, ]
 
 
 ## Run DESeq2

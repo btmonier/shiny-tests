@@ -68,8 +68,12 @@ vidgerServer <- function(input, output) {
       coldata <- read.csv(coldata$datapath, header = TRUE, row.names = 1)      
     }
 
+    cols <- colnames(coldata)
+    coldata[cols] <- lapply(coldata[cols], factor)
     cts <- cts[, rownames(coldata)]
-    cts.filt <- cts[rowSums(cts) > input$prefilt, ]
+    n <- input$prefilt
+    n <- as.numeric(n)
+    cts.filt <- cts[rowSums(cts) > n, ]
     
     dds <- DESeqDataSetFromMatrix(
       countData = cts.filt,
@@ -1051,7 +1055,7 @@ vidgerServer <- function(input, output) {
     }
   })
   
-  # DEG - Filter Data 
+  ## DEG - Filter Data 
   dgeout3 <- reactive({
     if (input$godge == 0) {
       return()
@@ -1059,11 +1063,20 @@ vidgerServer <- function(input, output) {
       tmp <- dgeout2()[[1]]
       tmp$padj <- round(tmp$padj, 3)
       tmp[is.na(tmp)] <- 1
-      padj <- input$dgepadjcutoff
-      lfc <- input$dgefcmin
+      padj <- as.numeric(input$dgepadjcutoff)
+      lfc <- as.numeric(input$dgefcmin)
       tmp <- tmp[abs(tmp$log2FoldChange) >= lfc, ]
       tmp <- tmp[tmp$padj <= padj, ]
       return(tmp)
+    }
+  })
+  output$debugdge <- renderPrint({
+    if (input$godge == 0) {
+      return()
+    } else {
+      tmp <- dgeout3()
+      test <- list(head = head(tmp), dimensions = dim(tmp))
+      test
     }
   })
 
@@ -1079,7 +1092,9 @@ vidgerServer <- function(input, output) {
 
   # DEG - Conditional plot
   output$dgeplot <- renderPlotly({
-    if (input$godge == 0) {
+    check <- dgeout3()
+    check <- nrow(check)
+    if (input$godge == 0 | check < 1) {
       return()
     } else {
       s <- input$mytable_rows_selected
@@ -1317,7 +1332,6 @@ vidgerServer <- function(input, output) {
     }
   })
 
-
   ## HEAT - input - Choose number of variable IDs
   output$heatnumber <- renderUI({
     if(input$goqc == 0) {
@@ -1330,33 +1344,6 @@ vidgerServer <- function(input, output) {
       )
     }
   })
-
-  ## HEAT - data - choose transformation
-  # heattran <- reactive({
-  #   if (input$goqc == 0) {
-  #     return()
-  #   } else {
-  #     dds <- ddsout()[[1]]
-  #     if (input$transform == "log") {
-  #       tmp <- normTransform(dds)
-  #       tmp <- assay(tmp)
-  #       lab <- "log<sub>2</sub>(counts + 1)"
-  #     } else if (input$ransform == "rlog") {
-  #       tmp <- rlog(dds)
-  #       tmp <- assay(tmp)
-  #       lab <- "rlog(counts)"
-  #     } else if (input$transform == "vst") {
-  #       tmp <- vst(dds)
-  #       tmp <- assay(tmp)
-  #       lab <- "vst(counts)"
-  #     } else if (input$transform == "raw") {
-  #       tmp <- dds
-  #       tmp <- counts(dds)
-  #       lab <- "Raw counts"
-  #     }
-  #   }
-  #   return(list(tmp, lab))    
-  # })
 
   ## HEAT - data - get variable IDs
   heattran2 <- reactive({
@@ -1374,9 +1361,6 @@ vidgerServer <- function(input, output) {
     }
     return(list(heat.mat))
   })
-
-
-
 
   ## HEAT - visualization - Plotly heatmap
   output$heatplot1 <- renderPlotly({
@@ -1774,14 +1758,6 @@ vidgerServer <- function(input, output) {
     return(list(cor.mat, cts))
   })
 
-  # output$debugdge <- renderPrint({
-  #   if (input$goqc == 0) {
-  #     return()
-  #   } else {
-  #     tmp <- corout()[[1]]
-  #     tmp
-  #   }
-  # })
 
   ## COR - visaulization - correlation matrix (Plotly)
   output$corplot1 <- renderPlotly({

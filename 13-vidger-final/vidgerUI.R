@@ -18,7 +18,4 @@ vidgerUI <- navbarPage(
   tab.welcome,
   tab.submit,
   tab.deg
-  # tab.heat,
-  # tab.help,
-  # tab.faq
 )

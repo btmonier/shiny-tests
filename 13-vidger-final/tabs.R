@@ -50,7 +50,7 @@ tab.submit <- tabPanel(
       textInput(
         inputId = "prefilt",
         label = withMathJax("Filter cutoff (count data row sums \\( < n\\))"),
-        value = 10
+        value = as.numeric(10)
       ),
       selectInput(
         inputId = "transform",
@@ -65,6 +65,7 @@ tab.submit <- tabPanel(
       br(),
       h4("3. Launch Overview"),
       actionButton(inputId = "goqc", "Submit", icon = icon("space-shuttle")),
+      br(),
       br(),
       p(
         "After you click 'submit', you may proceed to the 'DEG Analysis' tab for differential gene expression analyses."
@@ -102,7 +103,6 @@ tab.submit <- tabPanel(
         tabPanel(
           title = "Correlation",
           uiOutput("headcor"),
-          # verbatimTextOutput("debugdge"),
           plotlyOutput("corplot1"),
           br(),
           plotlyOutput("corplot2"),
@@ -243,6 +243,7 @@ tab.deg <- tabPanel(
           title = "Plots",
           uiOutput("headdgeplots"),
           uiOutput("dgemaincontrasts"),
+          verbatimTextOutput("debugdge"),
           uiOutput("vistype"),
           plotlyOutput("dgeplot"),
           br(),

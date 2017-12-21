@@ -99,6 +99,7 @@ de.genes <- de.genes[order(row.names(de.genes)), ]
 
 ### USER INPUTS
 cts <- pas.cts
+cts <- cts[rowSums(cts) > 10, ]
 coldata <- pas.coldata
 fact1 <- "condition"
 fact2 <- "type"
@@ -135,11 +136,12 @@ fit <- lmFit(cts, design)
 fit.cont <- eBayes(fit)
 
 ### Choose gene tables
-comp <- colnames(design)[3]
-de.genes <- topTable(fit.cont, coef = comp, number = nrow(pas.cts))
+comp <- colnames(design)[2]
+de.genes <- topTable(fit.cont, coef = comp, number = nrow(pas.cts), adjust.method = "bonferroni")
 de.genes <- de.genes[order(row.names(de.genes)), ]
 
-
+de.genes.f <- de.genes[de.genes$logFC >= 1, ]
+de.genes.f <- de.genes[de.genes$adj.P.Val <= 0.05, ]
 
 ## Designs with PAIRING OR BLOCKING
 
