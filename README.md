@@ -15,17 +15,17 @@ shiny::runGitHub("shiny-tests", "btmonier", subdir = "13-vidger-final")
 ## Fix list
 
 ```
-Last updated: 2017-12-20 23:50:14 CST
+Last updated: 2017-12-21 17:54:10 CST
 ```
 
 | Task                                | Completed?     |
 |-------------------------------------|----------------|
-| Add clustering, heatmap to "Submit" | X					     |
-| Add DEG Analysis to "Submit" 				| X              |
-| Add scatter plots to "Submit" 			| X              |
-| Add static images 									| 90% |
-| Sumbit ViDGER to Bioconductor 			|                |
-| Add FAQ with ViDGER down link				|  					     |
-| System info 												| X					     |
-| Fix axis issues (histogram)					| X					     |
+| Add clustering, heatmap to "Submit" | X              |
+| Add DEG Analysis to "Submit" 		  | X              |
+| Add scatter plots to "Submit"       | X              |
+| Add static images 				  | 90%            |
+| Sumbit ViDGER to Bioconductor       |                |
+| Add FAQ with ViDGER down link       |                |
+| System info                         | X              |
+| Fix axis issues (histogram)         | X              |
 | Add DEG overview                    | X              |
