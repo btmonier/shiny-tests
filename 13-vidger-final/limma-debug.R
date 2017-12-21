@@ -70,3 +70,22 @@ names(de.genes2) <- c(
 de.genes2 <- subset(de.genes2, baseMean != 0)
 de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
 names(de.genes2)[1] <- "id"
+
+
+up.ls <- list(a_vs_b = 115, b_vs_a = 106)
+dn.ls <- list(a_vs_b = 106, b_vs_a = 115)
+
+up.ls <- unlist(up.ls)
+dn.ls <- unlist(dn.ls)
+
+up.df <- data.frame(up.ls)
+dn.df <- data.frame(dn.ls)
+
+al.df <- merge(up.df, dn.df, by = 0, all = TRUE)
+
+colnames(al.df) <- c("contrast", "up", "down")
+
+al.df <- melt(al.df)
+
+al.df$contrast <- factor(al.df$contrast)
+al.df$variable <- factor(al.df$variable)

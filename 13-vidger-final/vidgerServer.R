@@ -1070,15 +1070,6 @@ vidgerServer <- function(input, output) {
       return(tmp)
     }
   })
-  output$debugdge <- renderPrint({
-    if (input$godge == 0) {
-      return()
-    } else {
-      tmp <- dgeout3()
-      test <- list(head = head(tmp), dimensions = dim(tmp))
-      test
-    }
-  })
 
   ## DGE - DEBUG
   output$debugdge <- renderPrint({
@@ -1298,7 +1289,7 @@ vidgerServer <- function(input, output) {
     }     
   })
 
-  # Download ALL data
+  ## DEG - Download ALL data
   output$downallData <- downloadHandler(
     filename = function() {
       paste0(input$dgemaincontrasts, "_all_results.csv")
@@ -1309,8 +1300,111 @@ vidgerServer <- function(input, output) {
         file, row.names = FALSE
       )
     }
-  )   
+  )
 
+  ## DEG - Generate overview data
+
+  dgeover <- reactive({
+    if (input$godge == 0) {
+      return()
+    } else{
+      isolate({
+        expset <- input$dgeexpsetup
+      })
+      perm <- dgeout1()[[2]]
+      perm <- colnames(perm)
+      cont.ls <- list()
+      for (i in perm) {
+        cont.ls[[i]] <- contTable <- getContTable(
+          de.genes = dgeout1()[[1]],
+          coef = i,
+          cts = ddsout()[[3]],
+          expset = expset,
+          design = dgeout1()[[2]],
+          fact = input$dgeexp1a
+        )
+      }
+      p <- as.numeric(input$dgepadjcutoff)
+      l <- as.numeric(input$dgefcmin)
+      cont.ls <- llply(cont.ls, subset, abs(log2FoldChange) >= 1)
+      cont.ls <- llply(cont.ls, subset, padj <= 0.05)
+      cont.regup <- llply(cont.ls, subset, log2FoldChange > 0)
+      cont.regdn <- llply(cont.ls, subset, log2FoldChange < 0)
+      cont.regup <- lapply(cont.regup, nrow)
+      cont.regup <- unlist(cont.regup)
+      cont.regdn <- lapply(cont.regdn, nrow)
+      cont.regdn <- unlist(cont.regdn)
+
+      up.df <- data.frame(cont.regup)
+      dn.df <- data.frame(cont.regdn)
+
+      al.df <- merge(up.df, dn.df, by = 0, all = TRUE)
+
+      colnames(al.df) <- c("contrast", "up", "down")
+
+      al.df <- melt(al.df)
+
+      al.df$contrast <- factor(al.df$contrast)
+      al.df$variable <- factor(al.df$variable)      
+    }
+    return(list(al.df))
+  })
+  
+  output$debugdge2 <- renderPrint({
+    if (input$godge == 0) {
+      return()
+    } else {
+      tmp <- dgeover()[[1]]
+      tmp
+    }
+  })
+
+  ## DGE - visualization - DGE overview
+  output$dgeplot2 <- renderPlotly({
+    if (input$godge == 0) {
+      return()
+    } else {
+      comp <- dgeover()[[1]]
+      plot_ly(
+        comp,
+        type = "bar",
+        y = ~value,
+        x = ~contrast,
+        color = ~variable
+      ) %>%
+      layout(
+        margin = list(b = 300),
+        xaxis = list(title = "", tickangle = -90),
+        yaxis = list(title = "Number of IDs")
+      )
+    }
+  })
+
+  # ## DGE - contrast table
+  # dgeout2 <- reactive({
+  #   if(input$godge == 0) {
+  #     return()
+  #   } else {
+  #     isolate({
+  #       expset <- input$dgeexpsetup
+  #     })
+  #     tmp <- dgeout1()[[2]]
+  #     tmp <- colnames(tmp)
+
+  #     for (i in 1:tmp) {
+
+  #     }      
+  #     contTable <- getContTable(
+  #       de.genes = dgeout1()[[1]],
+  #       coef = input$dgemaincontrasts,
+  #       cts = ddsout()[[3]],
+  #       expset = expset,
+  #       design = dgeout1()[[2]],
+  #       fact = input$dgeexp1a
+  #     )
+  #     return(list(contTable))
+  #   }
+  # })  
 
 
   ### ブ レ ー ク  B R E A K  ブ レ ー ク ###
@@ -1889,6 +1983,7 @@ vidgerServer <- function(input, output) {
 
   ### B R E A K ###
 
+  ## SESSION - Add session info verbatim
   output$sessinfo <- renderPrint({
     sessionInfo()
   })

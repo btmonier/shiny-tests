@@ -237,7 +237,9 @@ tab.deg <- tabPanel(
       tabsetPanel(
         tabPanel(
           title = "Overview",
-          uiOutput("headdgeoverview")
+          uiOutput("headdgeoverview"),
+          verbatimTextOutput("debugdge2"),
+          plotlyOutput("dgeplot2", height = 600)
         ),
         tabPanel(
           title = "Plots",

@@ -12,9 +12,10 @@
 ## CRAN
 source("vidger-functions.R")
 packages <- c(
-	"crosstalk", "dplyr", "DT", "gtools", "plotly", "shiny", 
+	"crosstalk", "dplyr", "DT", "gtools", "plotly", "shiny", "plyr",
 	"shinyBS", "shinycssloaders", "shinythemes", "tibble", "tidyr",
-	"Rcpp", "Hmisc", "ggplot2", "geneplotter", "locfit", "GGally", "pheatmap"
+	"Rcpp", "Hmisc", "ggplot2", "geneplotter", "locfit", "GGally", "pheatmap",
+	"reshape2"
 )
 pack.man(packages)
 
