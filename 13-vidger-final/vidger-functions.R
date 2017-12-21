@@ -110,7 +110,8 @@ getContTable <- function(de.genes, coef, cts, expset, design, fact) {
         "baseMean"
       )
       de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()      
+      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+      names(de.genes2)[1] <- "id"      
     }
   } else if (class(de.genes) == "DESeqDataSet") {
     if (expset == "exp1") {
