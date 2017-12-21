@@ -1884,4 +1884,12 @@ vidgerServer <- function(input, output) {
     } 
   )    
 
+
+
+
+  ### B R E A K ###
+
+  output$sessinfo <- renderPrint({
+    sessionInfo()
+  })
 }

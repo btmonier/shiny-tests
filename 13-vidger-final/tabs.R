@@ -160,7 +160,7 @@ tab.submit <- tabPanel(
           br(),
           br(),
           br()
-        )  
+        )
       )
     )
   )
@@ -287,4 +287,14 @@ tab.faq <- tabPanel(
       p("FAQ placeholder")
     )
   )
+)
+
+
+
+# System Info ----
+tab.sessinfo <- tabPanel(
+  title = "Session Info",
+  icon = icon("question-circle"),
+  flud = TRUE,
+  verbatimTextOutput("sessinfo")
 )

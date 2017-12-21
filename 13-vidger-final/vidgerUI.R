@@ -17,5 +17,6 @@ vidgerUI <- navbarPage(
 	title = "ViDGER",
   tab.welcome,
   tab.submit,
-  tab.deg
+  tab.deg,
+  tab.sessinfo
 )
