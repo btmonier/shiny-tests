@@ -4,7 +4,7 @@
 # Date:   12.08.17
 #------------------------------------------------------------------------------
 
-# Change file upload size to 30 MB
+# Change file upload size to 30 MB and sanitize errors
 options(
   shiny.maxRequestSize = 30 * 1024^2,
   shiny.sanitize.errors = TRUE
@@ -209,7 +209,58 @@ vidgerServer <- function(input, output) {
       })
     })
   })
+  
+  ## QC - DOWNLOAD BUTTON - Boxplot (pdf)
+  output$dlqcboxplotpdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcboxplotpdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Boxplot (pdf)
+  output$dlqcboxplotpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-boxplot.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
+      qcBoxPlot(
+        tmp = ddstran()[[1]],
+        lab = ddstran()[[2]],
+        tran = input$transform
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - DOWNLOAD BUTTON - Boxplot (png)
+  output$dlqcboxplotpng <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcboxplotpngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Boxplot (png)
+  output$dlqcboxplotpngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-boxplot.png")
+    },
+    content = function(file) {
+      png(file, width = 900, height = 750)
+      qcBoxPlot(
+        tmp = ddstran()[[1]],
+        lab = ddstran()[[2]],
+        tran = input$transform
+      )
+      dev.off()
+    }
+  )
 
+  
   ## QC - header (2) - histogram
   output$counthist <- renderUI({
     if(input$goqc == 0) {
@@ -243,6 +294,56 @@ vidgerServer <- function(input, output) {
       })
     })
   })
+  
+  ## QC - DOWNLOAD BUTTON - Histogram (pdf)
+  output$dlqchistpdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqchistpdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Histogram (pdf)
+  output$dlqchistpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-histogram.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 9, height = 6.5, onefile = FALSE) # open the pdf device
+      qcHist(
+        tmp = ddstran()[[1]],
+        lab = ddstran()[[2]],
+        tran = input$transform
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - DOWNLOAD BUTTON - Histogram (png)
+  output$dlqchistpng <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqchistpngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Histogram (png)
+  output$dlqchistpngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-histogram.png")
+    },
+    content = function(file) {
+      png(file, width = 900, height = 750)
+      qcHist(
+        tmp = ddstran()[[1]],
+        lab = ddstran()[[2]],
+        tran = input$transform
+      )
+      dev.off()
+    }
+  )
 
   ## QC - header (2) - barplot
   output$counttotal <- renderUI({
@@ -288,6 +389,67 @@ vidgerServer <- function(input, output) {
         )
       })
     })
+  })
+  
+  ## QC - DOWNLOAD BUTTON - Barplot (pdf)
+  output$dlqcbarplotpdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcbarplotpdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Barplot (pdf)
+  output$dlqcbarplotpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-barplotogram.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
+      qcBarplot(
+        tmp = ddsout()[[1]]
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - DOWNLOAD BUTTON - Barplot (png)
+  output$dlqcbarplotpng <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcbarplotpngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - DOWNLOAD PLOT - Barplot (png)
+  output$dlqcbarplotpngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-barplotogram.png")
+    },
+    content = function(file) {
+      png(file, width = 900, height = 750)
+      qcBarplot(
+        tmp = ddsout()[[1]]
+      )
+      dev.off()
+    }
+  )
+  
+  ## QC - header (2) - barplot
+  output$counttotal <- renderUI({
+    if(input$goqc == 0) {
+      p(
+        br(),
+        em(
+          "Load data and click the 'submit' button to see the results."
+        ), 
+        style = "color:grey"
+      )
+    } else {
+      h4("Total reads")
+    }
   })
 
   ## QC - header (2) - PCA
@@ -355,6 +517,54 @@ vidgerServer <- function(input, output) {
       yaxis = list(title = pca.lab$labels$y)
     )   
   })
+  
+  ## QC - Show download button - PCA (PDF)
+  output$dlqcpcapdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcpcapdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - Download plot - PCA (PDF)
+  output$dlqcpcapdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-pca.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+      qcPCAPlot(
+        tmp = ddstran()[[1]],
+        pcafact = input$pcafact
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - Show download button - PCA (PNG)
+  output$dlqcpcapng <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcpcapngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - Download plot - PCA (PNG)
+  output$dlqcpcapngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-pca.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750) 
+      qcPCAPlot(
+        tmp = ddstran()[[1]],
+        pcafact = input$pcafact
+      )
+      dev.off()
+    } 
+  )    
 
   ## QC - header (2) - MDS
   output$headmds <- renderUI({
@@ -417,6 +627,54 @@ vidgerServer <- function(input, output) {
       yaxis = list(title = "MDS coordinate 2")
     )   
   })
+  
+  ## QC - Show download button - MDS (PDF)
+  output$dlqcmdspdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcmdspdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - Download plot - MDS (PDF)
+  output$dlqcmdspdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-mds.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+      qcMDSPlot(
+        tmp = ddstran()[[1]],
+        mdsfact = input$mdsfact
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - Show download button - MDS (PNG)
+  output$dlqcmdspng <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcmdspngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - Download plot - MDS (PNG)
+  output$dlqcmdspngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-mds.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750) 
+      qcMDSPlot(
+        tmp = ddstran()[[1]],
+        mdsfact = input$mdsfact
+      )
+      dev.off()
+    } 
+  )    
 
 
 
@@ -1475,7 +1733,7 @@ vidgerServer <- function(input, output) {
         type = "heatmap",
         text = tooltips,
         hoverinfo = "text",
-        source = "heatplot",
+        source = "heatplot"
       ) %>%
       layout(
         xaxis = list(title = ""),
@@ -1485,7 +1743,55 @@ vidgerServer <- function(input, output) {
     }
   })
 
-  ### HEAT - select input - choose factor - PCA
+  ## QC - Show download button - Heatmap (PDF)
+  output$dlqcheatplot1pdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcheatplot1pdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - Download plot - Heatmap (PDF)
+  output$dlqcheatplot1pdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-heatmap.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 7.5, onefile = FALSE) # open the pdf device
+      qcHeatMap(
+        heat = heattran2()[[1]],
+        n = input$heatnumber
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - Show download button - Heatmap (PNG)
+  output$dlqcheatplot1png <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcheatplot1pngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - Download plot - Heatmap (PNG)
+  output$dlqcheatplot1pngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-heatmap.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 850) 
+      qcHeatMap(
+        heat = heattran2()[[1]],
+        n = input$heatnumber
+      )
+      dev.off()
+    } 
+  )  
+  
+  ### HEAT - select input - choose factor - HEATMAP
   output$heatfactor <- renderUI({
     tmp <- ddsout()[[2]]
     selectInput(
@@ -1532,6 +1838,57 @@ vidgerServer <- function(input, output) {
     }
   })
 
+  ## QC - Show download button - Heat counts (PDF)
+  output$dlqcheatplot2pdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcheatplot2pdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## QC - Download plot - Heat counts (PDF)
+  output$dlqcheatplot2pdfimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-heat-counts.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+      qcHeatCount(
+        s = event_data("plotly_click", source = "heatplot"),
+        rc.data = counts(ddsout()[[1]]),
+        coldata = ddsout()[[2]],
+        heatfactor = input$heatfactor
+      )
+      dev.off()
+    } 
+  )
+  
+  ## QC - Show download button - Heat counts (PNG)
+  output$dlqcheatplot2png <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqcheatplot2pngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## QC - Download plot - Heat counts (PNG)
+  output$dlqcheatplot2pngimg <- downloadHandler(
+    filename =  function() {
+      paste("qc-heat-counts.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750) 
+      qcHeatCount(
+        s = event_data("plotly_click", source = "heatplot"),
+        rc.data = counts(ddsout()[[1]]),
+        coldata = ddsout()[[2]],
+        heatfactor = input$heatfactor
+      )
+      dev.off()
+    } 
+  )  
 
 
   ### B R E A K ###
@@ -1871,7 +2228,7 @@ vidgerServer <- function(input, output) {
         type = "heatmap",
         text = tooltips,
         hoverinfo = "text",
-        source = "corplot",
+        source = "corplot"
       ) %>%
       layout(
         xaxis = list(title = ""),
@@ -1880,6 +2237,53 @@ vidgerServer <- function(input, output) {
       )
     }
   })
+  
+  ## COR - DOWNLOAD BUTTON - Corplot1 (pdf)
+  output$dlqccorplot1pdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqccorplot1pdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## COR - DOWNLOAD PLOT - Corplot1 (pdf)
+  output$dlqccorplot1pdfimg <- downloadHandler(
+    filename =  function() {
+      paste("cor-matrix.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+      corMatPlot(
+        cor.mat = corout()[[1]]
+      )
+      dev.off()
+    } 
+  )
+  
+  ## COR - DOWNLOAD BUTTON - Corplot1 (png)
+  output$dlqccorplot1png <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqccorplot1pngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## COR - DOWNLOAD PLOT - Corplot1 (png)
+  output$dlqccorplot1pngimg <- downloadHandler(
+    filename =  function() {
+      paste("cor-matrix.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750)
+      corMatPlot(
+        cor.mat = corout()[[1]]
+      )
+      dev.off()
+    }
+  )
+  
 
   ## COR - visualization - scatterplot
   output$corplot2 <- renderPlotly({
@@ -1911,7 +2315,58 @@ vidgerServer <- function(input, output) {
       )
     }
   })
-
+  
+  ## COR - DOWNLOAD BUTTON - corplot2 (pdf)
+  output$dlqccorplot2pdf <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqccorplot2pdfimg", "Download Static R Plot (PDF)")
+    }     
+  })
+  
+  ## COR - DOWNLOAD PLOT - corplot2 (pdf)
+  output$dlqccorplot2pdfimg <- downloadHandler(
+    filename =  function() {
+      paste("cor-scatterplot.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
+      corScatter(
+        s.cor = event_data("plotly_click", source = "corplot"),
+        cts.tran = corout()[[2]],
+        tran = input$transform,
+        lab = ddstran()[[2]]
+      )
+      dev.off()
+    } 
+  )
+  
+  ## COR - DOWNLOAD BUTTON - corplot2 (png)
+  output$dlqccorplot2png <- renderUI({
+    if(input$goqc == 0) {
+      return()
+    } else {
+      downloadButton("dlqccorplot2pngimg", "Download Static R Plot (PNG)")
+    }     
+  })
+  
+  ## COR - DOWNLOAD PLOT - corplot2 (png)
+  output$dlqccorplot2pngimg <- downloadHandler(
+    filename =  function() {
+      paste("cor-scatterplot.png")
+    },
+    content = function(file) {
+      corScatter(
+        s.cor = event_data("plotly_click", source = "corplot"),
+        cts.tran = corout()[[2]],
+        tran = input$transform,
+        lab = ddstran()[[2]]
+      )
+      dev.off()
+    }
+  )
+  
   ## COR - header (2) - Correlation analysis
   output$headcor2 <- renderUI({
     if (input$goqc == 0) {
@@ -1933,16 +2388,16 @@ vidgerServer <- function(input, output) {
   })
 
   ## COR - Show download button - sample distance matrix (PDF)
-  output$downloadcorplot2pdf <- renderUI({
+  output$dlqcorplot3pdf <- renderUI({
     if(input$goqc == 0) {
       return()
     } else {
-      downloadButton("downloadcorplot2pdfimg", "Download Plot (PDF)")
+      downloadButton("dlqcorplot3pdfimg", "Download Plot (PDF)")
     }     
   })
 
   ## COR - Download plot - sample distance matrix (PDF)
-  output$downloadcorplot2pdfimg <- downloadHandler(
+  output$dlqcorplot3pdfimg <- downloadHandler(
     filename =  function() {
       paste("sample-dists.pdf")
     },
@@ -1956,16 +2411,16 @@ vidgerServer <- function(input, output) {
   )
 
   ## COR - Show download button - sample distance matrix (PNG)
-  output$downloadcorplot2png <- renderUI({
+  output$dlqcorplot3png <- renderUI({
     if(input$goqc == 0) {
       return()
     } else {
-      downloadButton("downloadcorplot2pngimg", "Download Plot (PNG)")
+      downloadButton("dlqcorplot3pngimg", "Download Plot (PNG)")
     }     
   })
 
   ## COR - Download plot - sample distance matrix (PNG)
-  output$downloadcorplot2pngimg <- downloadHandler(
+  output$dlqcorplot3pngimg <- downloadHandler(
     filename =  function() {
       paste("sample-dists.png")
     },
@@ -1980,9 +2435,10 @@ vidgerServer <- function(input, output) {
 
 
 
-
   ### B R E A K ###
-
+  
+  
+  
   ## SESSION - Add session info verbatim
   output$sessinfo <- renderPrint({
     sessionInfo()

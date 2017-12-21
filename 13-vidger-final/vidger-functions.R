@@ -452,3 +452,240 @@ sampdistPlot <- function(cts) {
   sdm <- as.matrix(sampledists)
   pheatmap(sdm)
 }
+
+
+## QC PLOTS
+
+### Label conversion
+qcLabConvert <- function(lab, tran) {
+  if (tran == "log") {
+    lab <- expression(paste("log"[2], " (counts + 1)"))
+    return(lab)
+  } else {
+    return(lab)
+  }
+}
+
+
+### Boxplot
+qcBoxPlot <- function(tmp, lab, tran) {
+  tmp <- assay(tmp)
+  box <- as.data.frame(tmp)
+  box <- tidyr::gather(box)
+  
+  lab <- qcLabConvert(lab, tran)
+  
+  p <- ggplot(box, aes(key, value)) +
+    geom_boxplot() +
+    xlab("") +
+    ylab(lab) +
+    ggtitle("Count data distributions - box and whisker") +
+    theme_light() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  print(p)
+}
+
+
+### Histogram
+qcHist <- function(tmp, lab, tran) {
+  tmp <- assay(tmp)
+  hist <- as.data.frame(tmp)
+  hist <- tidyr::gather(hist)
+  
+  lab <- qcLabConvert(lab, tran)
+  
+  p <- ggplot(hist, aes(value, color = key)) +
+    geom_freqpoly() +
+    xlab(lab) +
+    ylab("Frequency") +
+    ggtitle("Count data distributions - histogram") +
+    theme_light()
+  print(p)
+}
+
+
+### Barplot
+qcBarplot <- function(tmp) {
+  tmp <- assay(tmp)
+  bar <- as.data.frame(tmp)
+  bar <- colSums(bar)
+  bar <- as.data.frame(t(bar))
+  bar <- gather(bar)
+  
+  p <- ggplot(bar, aes(key, value)) +
+    geom_bar(stat = "identity", color = "#3d3d3d", fill = "#dddddd") +
+    xlab("") +
+    ylab("Counts") +
+    ggtitle("Total reads") +
+    theme_light() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  print(p)
+}
+
+
+### PCA plot
+qcPCAPlot <- function(tmp, pcafact) {
+  pca.lab <- plotPCA(
+    tmp,
+    intgroup = pcafact
+  )
+  pca <- plotPCA(
+    tmp,
+    intgroup = pcafact,
+    returnData = TRUE
+  )
+  p <- ggplot(pca, aes(PC1, PC2)) +
+    geom_point(aes(shape = group), size = 2) +
+    xlab(pca.lab$labels$x) +
+    ylab(pca.lab$labels$y) +
+    ggtitle("Principle Component Analysis") +
+    theme_light() +
+    scale_shape_discrete(name = pcafact)
+  print(p)
+}
+
+
+### MDS plot
+qcMDSPlot <- function(tmp, mdsfact) {
+  mds <- dist(t(assay(tmp)))
+  mds <- as.matrix(mds)
+  mds <- as.data.frame(colData(tmp)) %>%
+    cbind(cmdscale(mds))
+  
+  p <- ggplot(mds, aes(mds[, "1"], mds["2"])) +
+    geom_point(aes(shape = mds[, mdsfact]), size = 2) +
+    xlab("MDS coordinate 1") +
+    ylab("MDS coordinate 2") +
+    ggtitle("MDS Analysis") +
+    theme_light() +
+    scale_shape_discrete(name = mdsfact)
+  print(p)
+}
+
+
+
+## HEAT
+
+### Heatmap (1) array
+qcHeatMap <- function(heat, n) {
+  n <- as.numeric(n)
+  pheatmap(
+    mat = heat,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    main = paste0("Heatmap of the ", n, " most expressed IDs")
+  )
+}
+
+
+### Heatmap (2) counts
+qcHeatCount <- function(s, rc.data, coldata, heatfactor) {
+  heat.c <- getGenes(
+    rc.data = rc.data, 
+    id = s[["y"]],
+    coldata = coldata
+  )
+  p <- ggplot(heat.c, aes(heat.c[, heatfactor], counts)) +
+    geom_point(
+      position = position_jitter(height = 0, width = 0.05),
+      size = 2,
+      color = "#3d3d3d"
+    ) +
+    stat_summary(
+      fun.data = mean_cl_boot, 
+      geom = "errorbar",
+      width = 0.03, 
+      colour = "#ff5454", 
+      alpha = 0.7
+    ) +
+    stat_summary(
+      fun.y = mean, 
+      geom = "point", 
+      fill = "#ff5454", 
+      pch = 21, 
+      size = 3
+    ) +
+    xlab("") +
+    ylab("Normalized counts") +
+    ggtitle(paste(s[["y"]], "Counts")) +
+    theme_light()
+  print(p)
+}
+
+
+
+## COR
+
+### Correlation matrix
+corMatPlot <- function(cor.mat) {
+  cor.mat <- as.matrix(cor.mat)
+  pheatmap(
+    mat = cor.mat,
+    cluster_rows = FALSE,
+    cluster_cols = FALSE,
+    main = "Correlation analysis"
+  )
+}
+
+### Label converter
+corLabConvert <- function(lab, tran, x, y) {
+  if (tran == "log") {
+    xlab <- bquote(.(x)*": log"[2]*"(counts + 1)")
+    ylab <- bquote(.(y)*": log"[2]*"(counts + 1)")
+    return(list(xlab, ylab))
+  } else if (tran == "rlog") {
+    xlab <- paste0(x, ": rlog(counts)")
+    ylab <- paste0(y, ": rlog(counts)")
+    return(list(xlab, ylab))
+  } else if (tran == "vst") {
+    xlab <- paste0(x, ": vst(counts)")
+    ylab <- paste0(y, ": vst(counts")
+    return(list(xlab, ylab))
+  } else if (tran == "raw") {
+    xlab <- paste0(x, ": raw counts")
+    ylab <- paste0(y, ": raw counts")
+    return(list(xlab, ylab))
+  }
+}
+
+
+### Scatterplot
+corScatter <- function(s.cor, cts.tran, tran, lab) {
+  cts.tran <- as.data.frame(cts.tran)
+  x <- s.cor[["x"]]
+  y <- s.cor[["y"]]
+  
+  lab <- corLabConvert(lab, tran, x, y)
+  xlab <- lab[[1]]
+  ylab <- lab[[2]]
+  
+  p <- ggplot(cts.tran, aes(cts.tran[, x], cts.tran[, y])) +
+    geom_point(size = 0.8) +
+    xlab(xlab) +
+    ylab(ylab) +
+    ggtitle(paste(y, "vs.", x)) +
+    theme_light()
+  print(p)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
