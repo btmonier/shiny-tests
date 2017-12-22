@@ -29,3 +29,4 @@ Last updated: 2017-12-21 17:54:10 CST
 | System info                         | X              |
 | Fix axis issues (histogram)         | X              |
 | Add DEG overview                    | X              |
+| Get link available                  |                |
