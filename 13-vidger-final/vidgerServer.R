@@ -458,7 +458,7 @@ vidgerServer <- function(input, output) {
       p(
         br(),
         em(
-          "Load data and click the 'submit' button to see the results."
+          "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
         ), 
         style = "color:grey"
       )
@@ -572,7 +572,7 @@ vidgerServer <- function(input, output) {
       p(
         br(),
         em(
-          "Load data and click the 'submit' button to see the results."
+          "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
         ), 
         style = "color:grey"
       )
@@ -1675,7 +1675,7 @@ vidgerServer <- function(input, output) {
       p(
         br(),
         em(
-          "Load data and click the 'submit' button to see the results."
+          "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
         ), 
         style = "color:grey"
       )
@@ -1901,7 +1901,7 @@ vidgerServer <- function(input, output) {
       p(
         br(),
         em(
-          "Load data and click the 'submit' button to see the results."
+          "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
         ), 
         style = "color:grey"
       )
@@ -2192,7 +2192,7 @@ vidgerServer <- function(input, output) {
       p(
         br(),
         em(
-          "Load data and click the 'submit' button to see the results."
+          "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
         ), 
         style = "color:grey"
       )

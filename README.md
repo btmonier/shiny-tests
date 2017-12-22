@@ -15,7 +15,7 @@ shiny::runGitHub("shiny-tests", "btmonier", subdir = "13-vidger-final")
 ## Fix list
 
 ```
-Last updated: 2017-12-22 08:06:16 CST
+Last updated: 2017-12-22 09:52:12 CST
 ```
 
 | Task                                | Completed?     |
@@ -30,5 +30,5 @@ Last updated: 2017-12-22 08:06:16 CST
 | Fix axis issues (histogram)         | X              |
 | Add DEG overview                    | X              |
 | Get link available                  |                |
-| Submit and QC split                 |                |
-| About us tab                        |                |
+| Submit and QC split                 | X              |
+| About us tab                        | X              |

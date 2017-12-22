@@ -13,15 +13,15 @@ tab.welcome <- tabPanel(
     mainPanel = mainPanel(
       HTML("<h1>Welcome to the ViDGER Pipeline</h1>"),
       h3("About"),
-      HTML("<p>ViDGER (<b>Vi</b>sualization of <b>D</b>ifferential <b>G</b>ene <b>E</b>xpression using <b>R</b>), is a web-based tool for the analysis of RNA-seq count data. ViDGER is derived from the R package, ViDGER, which can produce information-rich visualizations for the interpreation of differential gene expression (DGE) results from three widely-used tools, <i>Cuffdiff</i>, <i>DESeq2</i>, and <i>edgeR</i>. ViDGER is a <b>user-friendly</b> and <b>interactive</b> Shiny app for gene expression analysis. This app takes advantage of several popular DGE tools (<i>DESeq2</i>, <i>edgeR</i>, and <i>limma</i>) available through Bioconductor in conjunction with the Plotly and DataTable API libraries for R. </p>"),
+      HTML("<p>ViDGER (<b>Vi</b>sualization of <b>D</b>ifferential <b>G</b>ene <b>E</b>xpression using <b>R</b>), is a web-based tool for the analysis of RNA-seq count data. ViDGER is derived from the R package, ViDGER, which can produce information-rich visualizations for the interpretation of differential gene expression (DGE) results from three widely-used tools, <i>Cuffdiff</i>, <i>DESeq2</i>, and <i>edgeR</i>. ViDGER is a <b>user-friendly</b> and <b>interactive</b> Shiny app for gene expression analysis. This app takes advantage of several popular DGE tools (<i>DESeq2</i>, <i>edgeR</i>, and <i>limma</i>) available through Bioconductor in conjunction with the Plotly and DataTable API libraries for R. </p>"),
       h3("Submit and QC"),
-      p("To use this app, all you need to upload is two CSV files: a file of raw read counts and another file for sample treatment data. For further information of how these files should look like, take a look at the demonstration data or go to the help section for a detailed walkthrough."),
+      p("To use this app, all you need to upload is two CSV files: a file of raw read counts and another file for sample treatment data. For further information of how these files should look like, take a look at the demonstration data or go to the help section for a detailed walk through."),
+      h3("Preliminary Analysis"),
+      p("After you have submitted your data, you can analyze the correlation between any treatment sample combination, discover which genes have the highest average expression, plot individual genes and their respective counts, and potentially discover biclusters in your experimental data."),
       h3("DGE Analysis"),
-      p("To determine DGE, you currently have the option of using 3 Bioconductor packages mentioned in the prior sections. DGE can be visualized using common techniques, including volcano plots, MA plots, and heatmaps. Additionally, DGE data sets can be downloaded as CSV files for further analysis in this section."),
-      h3("Help"),
-      p("Need a walkthrough? Look through this tab for detailed information about the pipeline."),
-      h3("FAQ"),
-      p("Need a quick reminder of some arbitrary concepts? Want to know what you can and can't do with this app? Head on over to the FAQ tab for some frequently asked question.")
+      p("To determine DGE, you currently have the option of using 3 Bioconductor packages mentioned in the prior sections. DGE can be visualized using common techniques, including volcano plots, MA plots, and heat maps. Additionally, DGE data sets can be downloaded as CSV files for further analysis in this section."),
+      h3("More"),
+      p("Under this tab, you will find information regarding a step-by-step tutorial on how to analyze RNA-seq data using ViDGER, a frequently asked questions page going over common analytical topics, an about us page detailing the creators of this tool and also session info regarding what is used to make this web-application possible.")
     )
   )
 )
@@ -30,7 +30,7 @@ tab.welcome <- tabPanel(
 
 # Submit and QC page ----
 tab.submit <- tabPanel(
-  title = "Submit and QC ", icon = icon("cogs"), 
+  title = "Submit and QC ", icon = icon("filter"), 
   fluid = TRUE,
   sidebarLayout(
     sidebarPanel(
@@ -68,7 +68,7 @@ tab.submit <- tabPanel(
       br(),
       br(),
       p(
-        "After you click 'submit', you may proceed to the 'DEG Analysis' tab for differential gene expression analyses."
+        "After you click 'submit', you may proceed to either the 'Prelinary Analysis' or 'DGE Analysis' tab for additional analyses."
       )
     ),
     mainPanel(
@@ -106,97 +106,108 @@ tab.submit <- tabPanel(
           br(),
           br(),
           br()
-        ),
-        tabPanel(
-          title = "Correlation",
-          uiOutput("headcor"),
-          plotlyOutput("corplot1"),
-          div(style = "display:inline-block", uiOutput("dlqccorplot1pdf")),
-          div(style = "display:inline-block", uiOutput("dlqccorplot1png")),
-          br(),
-          br(),
-          br(),
-          plotlyOutput("corplot2"),
-          div(style = "display:inline-block", uiOutput("dlqccorplot2pdf")),
-          div(style = "display:inline-block", uiOutput("dlqccorplot2png")),
-          br(),
-          br(),
-          br(),
-          uiOutput("headcor2"),
-          plotOutput("corplot3", width = 600, height = 550),
-          div(style = "display:inline-block", uiOutput("dlqcorplot3pdf")),
-          div(style = "display:inline-block", uiOutput("dlqcorplot3png")),
-          br(),
-          br(),
-          br()
-        ),
-        tabPanel(
-          title = "PCA",
-          uiOutput("headpca"),
-          uiOutput("pcafact"),
-          plotlyOutput("pca"),
-          br(),
-          div(style = "display:inline-block", uiOutput("dlqcpcapdf")),
-          div(style = "display:inline-block", uiOutput("dlqcpcapng")),
-          br(),
-          br(),
-          br()
-        ),
-        tabPanel(
-          title = "MDS",
-          uiOutput("headmds"),
-          uiOutput("mdsfact"),
-          plotlyOutput("mds"),
-          br(),
-          div(style = "display:inline-block", uiOutput("dlqcmdspdf")),
-          div(style = "display:inline-block", uiOutput("dlqcmdspng")),
-          br(),
-          br(),
-          br()
-        ),
-        tabPanel(
-          title = "Heatmap",
-          uiOutput("headheat"),
-          uiOutput("heatnumber"),
-          plotlyOutput("heatplot1"),
-          br(),
-          div(style = "display:inline-block", uiOutput("dlqcheatplot1pdf")),
-          div(style = "display:inline-block", uiOutput("dlqcheatplot1png")),
-          br(),
-          br(),
-          br(),
-          uiOutput("heatfactor"),
-          plotlyOutput("heatplot2"),
-          br(),
-          div(style = "display:inline-block", uiOutput("dlqcheatplot2pdf")),
-          div(style = "display:inline-block", uiOutput("dlqcheatplot2png"))
-        ),
-        tabPanel(
-          title = "Biclustering",
-          uiOutput("headbic"),
-          uiOutput("headbicparameters"),
-          uiOutput("bicvarnumber"),
-          uiOutput("bicalg"),
-          uiOutput("gobic"),
-          br(),
-          br(),
-          uiOutput("headbicsummary"),
-          uiOutput("bicclustnumber"),
-          uiOutput("bicsummary"),
-          br(),
-          uiOutput("headbicheatsummary"),
-          plotOutput("bicheatplot", height = 800, width = 600),
-          div(style = "display:inline-block", uiOutput("downloadbicfilt")),
-          div(style = "display:inline-block", uiOutput("downloadbicplotpdf")),
-          br(),
-          br(),
-          br()
         )
       )
     )
   )
 )
 
+
+
+# Exploratory Analysis
+tab.prelim <- tabPanel(
+  title = "Preliminary Analysis ", icon = icon("search"),
+  fluid = TRUE,
+  mainPanel(
+    tabsetPanel(
+      tabPanel(
+        title = "Correlation",
+        uiOutput("headcor"),
+        plotlyOutput("corplot1"),
+        div(style = "display:inline-block", uiOutput("dlqccorplot1pdf")),
+        div(style = "display:inline-block", uiOutput("dlqccorplot1png")),
+        br(),
+        br(),
+        br(),
+        plotlyOutput("corplot2"),
+        div(style = "display:inline-block", uiOutput("dlqccorplot2pdf")),
+        div(style = "display:inline-block", uiOutput("dlqccorplot2png")),
+        br(),
+        br(),
+        br(),
+        uiOutput("headcor2"),
+        plotOutput("corplot3", width = 600, height = 550),
+        div(style = "display:inline-block", uiOutput("dlqcorplot3pdf")),
+        div(style = "display:inline-block", uiOutput("dlqcorplot3png")),
+        br(),
+        br(),
+        br()
+      ),
+      tabPanel(
+        title = "PCA",
+        uiOutput("headpca"),
+        uiOutput("pcafact"),
+        plotlyOutput("pca"),
+        br(),
+        div(style = "display:inline-block", uiOutput("dlqcpcapdf")),
+        div(style = "display:inline-block", uiOutput("dlqcpcapng")),
+        br(),
+        br(),
+        br()
+      ),
+      tabPanel(
+        title = "MDS",
+        uiOutput("headmds"),
+        uiOutput("mdsfact"),
+        plotlyOutput("mds"),
+        br(),
+        div(style = "display:inline-block", uiOutput("dlqcmdspdf")),
+        div(style = "display:inline-block", uiOutput("dlqcmdspng")),
+        br(),
+        br(),
+        br()
+      ),
+      tabPanel(
+        title = "Heatmap",
+        uiOutput("headheat"),
+        uiOutput("heatnumber"),
+        plotlyOutput("heatplot1"),
+        br(),
+        div(style = "display:inline-block", uiOutput("dlqcheatplot1pdf")),
+        div(style = "display:inline-block", uiOutput("dlqcheatplot1png")),
+        br(),
+        br(),
+        br(),
+        uiOutput("heatfactor"),
+        plotlyOutput("heatplot2"),
+        br(),
+        div(style = "display:inline-block", uiOutput("dlqcheatplot2pdf")),
+        div(style = "display:inline-block", uiOutput("dlqcheatplot2png"))
+      ),
+      tabPanel(
+        title = "Biclustering",
+        uiOutput("headbic"),
+        uiOutput("headbicparameters"),
+        uiOutput("bicvarnumber"),
+        uiOutput("bicalg"),
+        uiOutput("gobic"),
+        br(),
+        br(),
+        uiOutput("headbicsummary"),
+        uiOutput("bicclustnumber"),
+        uiOutput("bicsummary"),
+        br(),
+        uiOutput("headbicheatsummary"),
+        plotOutput("bicheatplot", height = 800, width = 600),
+        div(style = "display:inline-block", uiOutput("downloadbicfilt")),
+        div(style = "display:inline-block", uiOutput("downloadbicplotpdf")),
+        br(),
+        br(),
+        br()
+      )
+    )
+  )
+)
 
 
 # DEG Analysis ----
@@ -294,40 +305,83 @@ tab.deg <- tabPanel(
 
 
 # Help ----
-tab.help <- tabPanel(
-  title = "Help ", icon = icon("question-circle"),
+tab.tutorial <- tabPanel(
+  title = "Tutorial",
   fluid = TRUE,
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      br(),
-      p("Help placeholder")
+      h4("ViDGER Tutorial"),
+      p("Tutorial placeholder")
     )
   )
 )
 
 
-
 # FAQ ----
 tab.faq <- tabPanel(
-  title = "FAQ ",
-  icon = icon("question-circle"),
+  title = "FAQ",
   fluid = TRUE,
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      br(),
+      h4("Frequently Asked Questions"),
       p("FAQ placeholder")
     )
   )
 )
 
 
+# About Us ----
+tab.about <- tabPanel(
+  title = "About Us",
+  fluid = TRUE,
+  sidebarLayout(
+    sidebarPanel = NULL,
+    mainPanel = mainPanel(
+      h4("About Us"),
+      h5(strong("PI")),
+      p(
+        "Dr. Qin Ma", 
+        a(
+          "qin.ma@sdstate.edu", 
+          href="mailto:qin.ma@sdstate.edu"
+        ),
+        "Bioinformatics and Mathematical Biosciences Lab, South Dakota State University"
+      ),
+      h5(strong("Team Members")),
+      p(
+       "Adam McDermaid", 
+        a(
+          "adam.mcdermaid@sdstate.edu", 
+          href="mailto:adam.mcdermaid@sdstate.edu"
+        ),
+       "Bioinformatics and Mathematical Biosciences Lab, South Dakota State University"
+      ),
+      p(
+        "Brandon Monier", 
+        a(
+          "brandon.monier@sdstate.edu", 
+          href="mailto:brandon.monier@sdstate.edu"
+        ),
+        "Department of Biology and Microbiology, South Dakota State University"
+      )
+    )
+  )
+)
+
 
 # System Info ----
 tab.sessinfo <- tabPanel(
   title = "Session Info",
-  icon = icon("question-circle"),
   flud = TRUE,
-  verbatimTextOutput("sessinfo")
+  sidebarLayout(
+    sidebarPanel = NULL,
+    mainPanel = mainPanel(
+      h4("R Session Info"),
+      verbatimTextOutput("sessinfo")
+    )
+  )
 )
+
+
