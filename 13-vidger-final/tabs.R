@@ -201,7 +201,7 @@ tab.submit <- tabPanel(
 
 # DEG Analysis ----
 tab.deg <- tabPanel(
-  title = "DEG Analysis ", icon = icon("bar-chart"), 
+  title = "DGE Analysis ", icon = icon("bar-chart"), 
   fluid = TRUE,
   sidebarLayout(
     sidebarPanel(
