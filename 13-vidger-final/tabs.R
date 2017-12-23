@@ -39,7 +39,8 @@ tab.submit <- tabPanel(
         inputId = "examplechoice",
         label = "How do you want to start?",
         choices = c(
-          "Start with some example data." = "yes",
+          "Start with a small example data set." = "yes1",
+          "Start with a big example data set." = "yes2",
           "Load my own data." = "no"  
         )
       ),
@@ -94,10 +95,14 @@ tab.submit <- tabPanel(
           div(style = "display:inline-block", uiOutput("dlqcboxplotpdf")),
           div(style = "display:inline-block", uiOutput("dlqcboxplotpng")),
           br(),
+          br(),
+          br(),
           uiOutput("counthist"),
           plotlyOutput("hist"),
           div(style = "display:inline-block", uiOutput("dlqchistpdf")),
           div(style = "display:inline-block", uiOutput("dlqchistpng")),
+          br(),
+          br(),
           br(),
           uiOutput("counttotal"),
           plotlyOutput("barplot"),
@@ -182,7 +187,10 @@ tab.prelim <- tabPanel(
         plotlyOutput("heatplot2"),
         br(),
         div(style = "display:inline-block", uiOutput("dlqcheatplot2pdf")),
-        div(style = "display:inline-block", uiOutput("dlqcheatplot2png"))
+        div(style = "display:inline-block", uiOutput("dlqcheatplot2png")),
+        br(),
+        br(),
+        br()
       ),
       tabPanel(
         title = "Biclustering",
@@ -201,6 +209,7 @@ tab.prelim <- tabPanel(
         plotOutput("bicheatplot", height = 800, width = 600),
         div(style = "display:inline-block", uiOutput("downloadbicfilt")),
         div(style = "display:inline-block", uiOutput("downloadbicplotpdf")),
+        div(style = "display:inline-block", uiOutput("downloadbicplotpng")),
         br(),
         br(),
         br()
@@ -281,7 +290,18 @@ tab.deg <- tabPanel(
           title = "Overview",
           uiOutput("headdgeoverview"),
           verbatimTextOutput("debugdge2"),
-          plotlyOutput("dgeplot2", height = 600)
+          uiOutput("dgeoverview"),
+          uiOutput("dldgeoverviewtbl"),
+          br(),
+          br(),
+          br(),
+          plotlyOutput("dgeplot2", height = 600),
+          br(),
+          div(style = "display:inline-block", uiOutput("dldgeoverpdf")),
+          div(style = "display:inline-block", uiOutput("dldgeoverpng")),
+          br(),
+          br(),
+          br()
         ),
         tabPanel(
           title = "Plots",
@@ -291,7 +311,13 @@ tab.deg <- tabPanel(
           uiOutput("vistype"),
           plotlyOutput("dgeplot"),
           br(),
+          div(style = "display:inline-block", uiOutput("dldgemavolpdf")),
+          div(style = "display:inline-block", uiOutput("dldgemavolpng")),
+          br(),
+          br(),
+          br(),
           DT::dataTableOutput("mytable"),
+          br(),
           div(style = "display:inline-block", uiOutput("downloadfilt")),
           div(style = "display:inline-block", uiOutput("downloadall")),
           br(),
@@ -342,7 +368,7 @@ tab.about <- tabPanel(
       h4("About Us"),
       h5(strong("PI")),
       p(
-        "Dr. Qin Ma", 
+        "Dr. Qin Ma, ", 
         a(
           "qin.ma@sdstate.edu", 
           href="mailto:qin.ma@sdstate.edu"
@@ -351,7 +377,7 @@ tab.about <- tabPanel(
       ),
       h5(strong("Team Members")),
       p(
-       "Adam McDermaid", 
+       "Adam McDermaid, ", 
         a(
           "adam.mcdermaid@sdstate.edu", 
           href="mailto:adam.mcdermaid@sdstate.edu"
@@ -359,7 +385,7 @@ tab.about <- tabPanel(
        "Bioinformatics and Mathematical Biosciences Lab, South Dakota State University"
       ),
       p(
-        "Brandon Monier", 
+        "Brandon Monier, ", 
         a(
           "brandon.monier@sdstate.edu", 
           href="mailto:brandon.monier@sdstate.edu"

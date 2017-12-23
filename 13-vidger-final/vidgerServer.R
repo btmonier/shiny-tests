@@ -19,12 +19,15 @@ vidgerServer <- function(input, output) {
   source("vidger-functions.R")
 
   ## Example data
-  f1 <- as.matrix(read.csv("count-data.csv", header = TRUE, row.names = 1))
-  f2 <- read.csv("col-data.csv", header = TRUE, row.names = 1)
+  f1a <- as.matrix(read.csv("count-data-small.csv", header=TRUE, row.names=1))
+  f1b <- read.csv("col-data-small.csv", header=TRUE, row.names=1)
+  
+  f2a <- as.matrix(read.csv("count-data-big.csv", header=TRUE, row.names=1))
+  f2b <- read.csv("col-data-big.csv", header=TRUE, row.names=1)
 
   ## Data load option - count data
   output$file1 <- renderUI({
-    if (input$examplechoice == "yes") {
+    if (input$examplechoice != "no") {
       return()
     } else if (input$examplechoice == "no") {
       fileInput(
@@ -41,7 +44,7 @@ vidgerServer <- function(input, output) {
 
   ## Data load option - metadata
   output$file2 <- renderUI({
-    if (input$examplechoice == "yes") {
+    if (input$examplechoice != "no") {
       return()
     } else if (input$examplechoice == "no") {
       fileInput(
@@ -58,9 +61,12 @@ vidgerServer <- function(input, output) {
 
 	## QC - reactive - load and add data to DESeqDataSet class
 	ddsout <- eventReactive(input$goqc, {
-    if (input$examplechoice == "yes") {
-      cts <- f1
-      coldata <- f2
+    if (input$examplechoice == "yes1") {
+      cts <- f1a
+      coldata <- f1b
+    } else if (input$examplechoice == "yes2") {
+      cts <- f2a
+      coldata <- f2b
     } else if (input$examplechoice == "no") {
       cts <- input$file1
       coldata <- input$file2
@@ -113,7 +119,7 @@ vidgerServer <- function(input, output) {
         style = "color:grey"
       )
     } else {
-      h4("Count data (first 6 rows)")
+      h4("Count data (first 5 rows and last 5 rows)")
     }
   })
 
@@ -145,9 +151,9 @@ vidgerServer <- function(input, output) {
   })
 
   ### QC - verbatim console - count data head
-  output$fileoutputcts <- renderPrint({
-    cts <- ddsout()[[3]]
-    head(cts)
+  output$fileoutputcts <- renderPrint(width = 400, {
+    cts <- ddsout()[[4]]
+    trubble(cts)
   })
 
   ### QC - verbatim console - metadata
@@ -403,7 +409,7 @@ vidgerServer <- function(input, output) {
   ## QC - DOWNLOAD PLOT - Barplot (pdf)
   output$dlqcbarplotpdfimg <- downloadHandler(
     filename =  function() {
-      paste("qc-barplotogram.pdf")
+      paste("qc-barplot.pdf")
     },
     content = function(file) {
       pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
@@ -426,7 +432,7 @@ vidgerServer <- function(input, output) {
   ## QC - DOWNLOAD PLOT - Barplot (png)
   output$dlqcbarplotpngimg <- downloadHandler(
     filename =  function() {
-      paste("qc-barplotogram.png")
+      paste("qc-barplot.png")
     },
     content = function(file) {
       png(file, width = 900, height = 750)
@@ -479,6 +485,9 @@ vidgerServer <- function(input, output) {
 
   ## QC - visualize - PCA
   output$pca <- renderPlotly({
+    validate(
+      need(input$pcafact != "", "")
+    )
     tmp <- ddstran()[[1]]
     lab <- ddstran()[[2]]
     validate(
@@ -700,6 +709,9 @@ vidgerServer <- function(input, output) {
 
   ## DEG - exp. setup 1 - two group comparisons - choose comparisons
   output$dgeexp1b <- renderUI({
+    validate(
+      need(input$dgeexp1a != "", "")
+    )
     if (input$goqc == 0) {
       return()
     } else {
@@ -760,6 +772,9 @@ vidgerServer <- function(input, output) {
 
   ## DEG - exp. setup 2 - mult. group comparisons - group comb. choices
   output$dgeexp2c <- renderUI({
+    validate(
+      need(input$dgeexp2a != "", "")
+    )
     if (input$goqc == 0) {
       return()
     } else {
@@ -1313,25 +1328,20 @@ vidgerServer <- function(input, output) {
     }
   })
   
-  ## DEG - Filter Data 
+  ## DEG - Filter Data
   dgeout3 <- reactive({
     if (input$godge == 0) {
       return()
     } else {
       tmp <- dgeout2()[[1]]
-      tmp$padj <- round(tmp$padj, 3)
-      tmp[is.na(tmp)] <- 1
+      # is.na(tmp$padj) <- 1
+      # tmp$padj <- round(tmp$padj, 3)
       padj <- as.numeric(input$dgepadjcutoff)
       lfc <- as.numeric(input$dgefcmin)
       tmp <- tmp[abs(tmp$log2FoldChange) >= lfc, ]
       tmp <- tmp[tmp$padj <= padj, ]
       return(tmp)
     }
-  })
-
-  ## DGE - DEBUG
-  output$debugdge <- renderPrint({
-    dim(dgeout3())
   })
 
   # DEG - Shared data
@@ -1341,6 +1351,9 @@ vidgerServer <- function(input, output) {
 
   # DEG - Conditional plot
   output$dgeplot <- renderPlotly({
+    validate(
+      need(input$dgemaincontrasts != "", "")
+    )
     check <- dgeout3()
     check <- nrow(check)
     if (input$godge == 0 | check < 1) {
@@ -1476,10 +1489,15 @@ vidgerServer <- function(input, output) {
 
   # DEG - Conditional table
   output$mytable <- DT::renderDataTable({
+    validate(
+      need(input$dgemaincontrasts != "", "")
+    )
     if (input$godge == 0) {
       return()
     } else {
-      tmp <- dgeout3() %>% mutate_if(is.numeric, round, digits = 3)
+      tmp <- dgeout3() %>% mutate_if(is.numeric, round, digits = 4)
+      # tmp <- dgeout3()
+      tmp <- tmp[complete.cases(tmp), ]
       m2 <- tmp[share()$selection(),]
       dt <- DT::datatable(tmp)
       if (NROW(m2) == 0) {
@@ -1561,14 +1579,11 @@ vidgerServer <- function(input, output) {
   )
 
   ## DEG - Generate overview data
-
-  dgeover <- reactive({
+  dgeover0 <- reactive({
     if (input$godge == 0) {
       return()
     } else{
-      isolate({
-        expset <- input$dgeexpsetup
-      })
+      expset <- input$dgeexpsetup
       perm <- dgeout1()[[2]]
       perm <- colnames(perm)
       cont.ls <- list()
@@ -1582,40 +1597,35 @@ vidgerServer <- function(input, output) {
           fact = input$dgeexp1a
         )
       }
-      p <- as.numeric(input$dgepadjcutoff)
-      l <- as.numeric(input$dgefcmin)
-      cont.ls <- llply(cont.ls, subset, abs(log2FoldChange) >= 1)
-      cont.ls <- llply(cont.ls, subset, padj <= 0.05)
-      cont.regup <- llply(cont.ls, subset, log2FoldChange > 0)
-      cont.regdn <- llply(cont.ls, subset, log2FoldChange < 0)
-      cont.regup <- lapply(cont.regup, nrow)
-      cont.regup <- unlist(cont.regup)
-      cont.regdn <- lapply(cont.regdn, nrow)
-      cont.regdn <- unlist(cont.regdn)
-
-      up.df <- data.frame(cont.regup)
-      dn.df <- data.frame(cont.regdn)
-
-      al.df <- merge(up.df, dn.df, by = 0, all = TRUE)
-
-      colnames(al.df) <- c("contrast", "up", "down")
-
-      al.df <- melt(al.df)
-
-      al.df$contrast <- factor(al.df$contrast)
-      al.df$variable <- factor(al.df$variable)      
+      return(list(cont.ls))
     }
-    return(list(al.df))
   })
   
-  output$debugdge2 <- renderPrint({
-    if (input$godge == 0) {
-      return()
-    } else {
-      tmp <- dgeover()[[1]]
-      tmp
-    }
+  dgeover <- reactive({
+    p <- as.numeric(input$dgepadjcutoff)
+    lf <- as.numeric(input$dgefcmin)
+    test <- dgeOverTbl(
+      cont.ls = dgeover0()[[1]],
+      lf = lf,
+      p = p
+    )
+    return(list(test))
   })
+  
+  # output$debugdge2 <- renderPrint({
+  #   if (input$godge == 0) {
+  #     return()
+  #   } else {
+  #     p <- as.numeric(input$dgepadjcutoff)
+  #     lf <- as.numeric(input$dgefcmin)
+  #     tmp <- dgeOverTbl(
+  #       cont.ls = dgeover0()[[1]],
+  #       lf = lf,
+  #       p = p
+  #     )
+  #     tmp
+  #   }
+  # })
 
   ## DGE - visualization - DGE overview
   output$dgeplot2 <- renderPlotly({
@@ -1638,33 +1648,225 @@ vidgerServer <- function(input, output) {
     }
   })
 
-  # ## DGE - contrast table
-  # dgeout2 <- reactive({
-  #   if(input$godge == 0) {
-  #     return()
-  #   } else {
-  #     isolate({
-  #       expset <- input$dgeexpsetup
-  #     })
-  #     tmp <- dgeout1()[[2]]
-  #     tmp <- colnames(tmp)
+  ## DGE - Show download button - DGE Overview (PDF)
+  output$dldgeoverpdf <- renderUI({
+    if(input$godge == 0) {
+      return()
+    } else {
+      downloadButton("dldgeoverpdfimg", "Download Static R Plot (PDF)")
+    }
+  })
 
-  #     for (i in 1:tmp) {
+  ## DGE - Download plot - DGE Overview (PDF)
+  output$dldgeoverpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-overview.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
+      dgeOverPlot(
+        comp = dgeover()[[1]]
+      )
+      dev.off()
+    }
+  )
 
-  #     }      
-  #     contTable <- getContTable(
-  #       de.genes = dgeout1()[[1]],
-  #       coef = input$dgemaincontrasts,
-  #       cts = ddsout()[[3]],
-  #       expset = expset,
-  #       design = dgeout1()[[2]],
-  #       fact = input$dgeexp1a
-  #     )
-  #     return(list(contTable))
-  #   }
-  # })  
+  ## DGE - Show download button - DGE Overview (PNG)
+  output$dldgeoverpng <- renderUI({
+    if(input$godge == 0) {
+      return()
+    } else {
+      downloadButton("dldgeoverpngimg", "Download Static R Plot (PNG)")
+    }
+  })
 
+  ## DGE - Download plot - DGE Overview (PNG)
+  output$dldgeoverpngimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-overview.png")
+    },
+    content = function(file) {
+      png(file, width = 900, height = 750)
+      dgeOverPlot(
+        comp = dgeover()[[1]]
+      )
+      dev.off()
+    }
+  )
 
+  ## DGE - Overview table
+  output$dgeoverview <- renderUI({
+    if (input$godge == 0) {
+      return()
+    } else {
+      # cont <- dgeover()[[1]]
+      # colnames(cont) <- c("Comparison", "Regulation", "IDs")
+      DT::dataTableOutput("dgeoverviewtable")
+    }
+  })
+
+  ## DGE - Overview table
+  output$dgeoverviewtable <- DT::renderDataTable(DT::datatable({
+    cont <- dgeover()[[1]]
+    colnames(cont) <- c("Comparison", "Regulation", "IDs")
+    cont
+  }))
+
+  # DGE - Show download button (DGE Overview Table)
+  output$dldgeoverviewtbl <- renderUI({
+    if(input$godge == 0) {
+      return()
+    } else {
+      downloadButton("dldgeoverviewtbl2", "Download Table")
+    }
+  })
+
+  ## DGE - Download DGE Overview Table
+  output$dldgeoverviewtbl2 <- downloadHandler(
+    filename = function() {
+      paste0("dge-overview.csv")
+    },
+    content = function(file) {
+      cont <- dgeover()[[1]]
+      colnames(cont) <- c("Comparison", "Regulation", "IDs")
+      write.csv(
+        cont,
+        file,
+        row.names = FALSE
+      )
+    }
+  )
+
+  
+  ## DGE - Show Download Button - Conditional - MA or Volcano (PDF)
+  output$dldgemavolpdf <- renderUI({
+    validate(
+      need(input$plottype != "", "")
+    )
+    if (input$plottype == "maplot") {
+      ## DGE - Show download button - MA plot (PDF)
+      if(input$goqc == 0) {
+        return()
+      } else {
+        downloadButton("dldgemapdfimg", "Download MA Plot (PDF)")
+      }     
+    } else if (input$plottype == "volplot") {
+      ## DGE - Show download button - Volcano plot (PDF)
+      if(input$goqc == 0) {
+        return()
+      } else {
+        downloadButton("dldgevolpdfimg", "Download Volcano Plot (PDF)")
+      }     
+    }  
+  })
+  
+  
+  
+  ## DGE - Show Download Button - Conditional - MA or Volcano (PNG)
+  output$dldgemavolpng <- renderUI({
+    validate(
+      need(input$plottype != "", "")
+    )
+    if (input$plottype == "maplot") {
+      ## DGE - Show download button - MA plot (PNG)
+      if(input$goqc == 0) {
+        return()
+      } else {
+        downloadButton("dldgemapngimg", "Download MA Plot (PNG)")
+      }     
+    } else if (input$plottype == "volplot") {
+      ## DGE - Show download button - Volcano plot (PNG)
+      if(input$goqc == 0) {
+        return()
+      } else {
+        downloadButton("dldgevolpngimg", "Download Volcano Plot (PNG)")
+      }     
+    }  
+  })
+  
+  
+  
+  ## DGE - Download plot - MA plot (PDF)
+  output$dldgemapdfimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-ma-plot.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 9, height = 6.5, onefile = FALSE)
+      dgeMAPlot(
+        dgeout2 = dgeout2()[[1]],
+        p = as.numeric(input$dgepadjcutoff),
+        l = as.numeric(input$dgefcmin),
+        cont = input$dgemaincontrasts
+      )
+      dev.off()
+    } 
+  )
+  
+  
+  ## DGE - Download plot - MA plot (PNG)
+  output$dldgemapngimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-ma-plot.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 750)
+      dgeMAPlot(
+        dgeout2 = dgeout2()[[1]],
+        p = as.numeric(input$dgepadjcutoff),
+        l = as.numeric(input$dgefcmin),
+        cont = input$dgemaincontrasts
+      )
+      dev.off()
+    } 
+  )  
+
+  
+  
+  
+  
+  ## DGE - Download plot - Volcano plot (PDF)
+  output$dldgevolpdfimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-vol-plot.pdf")
+    },
+    content = function(file) {
+      pdf(file, width = 8, height = 6.5, onefile = FALSE)
+      dgeVolPlot(
+        dgeout2 = dgeout2()[[1]],
+        p = as.numeric(input$dgepadjcutoff),
+        l = as.numeric(input$dgefcmin),
+        cont = input$dgemaincontrasts
+      )
+      dev.off()
+    } 
+  )
+  
+
+  
+  ## DGE - Download plot - Volcano plot (PNG)
+  output$dldgevolpngimg <- downloadHandler(
+    filename =  function() {
+      paste("dge-vol-plot.png")
+    },
+    content = function(file) {
+      png(file, width = 800, height = 650)
+      dgeVolPlot(
+        dgeout2 = dgeout2()[[1]],
+        p = as.numeric(input$dgepadjcutoff),
+        l = as.numeric(input$dgefcmin),
+        cont = input$dgemaincontrasts
+      )
+      dev.off()
+    } 
+  )  
+  
+  
+  
+  
+  
+  
+  
   ### ブ レ ー ク  B R E A K  ブ レ ー ク ###
 
 
@@ -1716,6 +1918,9 @@ vidgerServer <- function(input, output) {
 
   ## HEAT - visualization - Plotly heatmap
   output$heatplot1 <- renderPlotly({
+    validate(
+      need(input$heatnumber != "", "")
+    )
     if (input$goqc == 0) {
       return()
     } else {
@@ -1890,11 +2095,15 @@ vidgerServer <- function(input, output) {
     } 
   )  
 
+  
+  
 
   ### B R E A K ###
 
 
 
+  
+  
   ## BIC - header (2) - Bicluster analysis
   output$headbic <- renderUI({
     if (input$goqc == 0) {
@@ -2053,7 +2262,7 @@ vidgerServer <- function(input, output) {
 
       out <- paste0(
         "This algorithm found ", ids, " IDs amongst ", samp, 
-        " samples in cluster ", clust, "." 
+        " samples in cluster ", clust, ". To see what IDs were found in this cluster, click on the 'Download Cluster IDs' button at the bottom of the page." 
       )
       p(paste(out))
     }
@@ -2087,6 +2296,9 @@ vidgerServer <- function(input, output) {
 
   ## BIC - visualize - Bicluster heatmap
   output$bicheatplot <- renderPlot({
+    validate(
+      need(input$bicclustnumber != "", "")
+    )
     res <- bicout()[[1]]
     if (res@Number < 1) {
       return()
@@ -2167,7 +2379,7 @@ vidgerServer <- function(input, output) {
   ## BIC - Download plot
   output$downloadbicplotpdfimg <- downloadHandler(
     filename =  function() {
-      paste("bicPlot.pdf")
+      paste("biclust-plot.pdf")
     },
     content = function(file) {
       pdf(file, width = 6, height = 8) # open the pdf device
@@ -2180,6 +2392,41 @@ vidgerServer <- function(input, output) {
     } 
   )    
 
+  ## BIC - Show download button (FILTERED) (PNG)
+  output$downloadbicplotpng <- renderUI({
+    validate(
+      need(
+        expr = !is.null(input$gobic),
+        message = ""   
+      )
+    )
+    if(input$gobic == 0) {
+      return()
+    } else {
+      res <- bicout()[[1]]
+      if (res@Number < 1) {
+        return()
+      } else {
+        downloadButton("downloadbicplotpngimg", "Download Plot (PNG)")
+      }
+    }     
+  })
+  
+  ## BIC - Download plot (PNG)
+  output$downloadbicplotpngimg <- downloadHandler(
+    filename =  function() {
+      paste("biclust-plot.png")
+    },
+    content = function(file) {
+      png(file, width = 600, height = 800)
+      bicPlot(
+        n = input$bicclustnumber,
+        res = bicout()[[1]],
+        cts.var = bicout()[[2]]
+      )
+      dev.off()
+    } 
+  )   
 
 
   ### B R E A K ###

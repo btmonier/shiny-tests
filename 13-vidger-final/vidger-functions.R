@@ -499,7 +499,8 @@ qcHist <- function(tmp, lab, tran) {
     xlab(lab) +
     ylab("Frequency") +
     ggtitle("Count data distributions - histogram") +
-    theme_light()
+    theme_light() +
+    scale_color_discrete(name = "Sample")
   print(p)
 }
 
@@ -670,7 +671,176 @@ corScatter <- function(s.cor, cts.tran, tran, lab) {
 
 
 
+## DGE
 
+### Overview plot
+dgeOverPlot <- function(comp) {
+  p <- ggplot(comp, aes(contrast, value)) +
+    geom_bar(
+      stat = "identity", 
+      aes(fill = variable), 
+      color = "#3d3d3d",
+      position = position_dodge()
+    ) +
+    xlab("Comparison") +
+    ylab("Number of IDs") +
+    ggtitle("DGE Comparisons Overview") +
+    theme_light() +
+    scale_fill_manual(
+      name = "Expression",
+      values = c("down" = "#3884ff", "up" = "#ff4949")
+    ) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  print(p)
+}
+
+
+### Get DGE Overview table 
+dgeOverTbl <- function(cont.ls, lf, p) {
+  p <- as.numeric(p)
+  lf <- as.numeric(lf)
+  for (i in 1:length(cont.ls)) {
+    cont.ls[[i]] <- cont.ls[[i]][abs(cont.ls[[i]]$log2FoldChange) >= lf, ]
+    cont.ls[[i]] <- cont.ls[[i]][cont.ls[[i]]$padj <= p, ]
+  }
+  cont.regup <- lapply(cont.ls, subset, log2FoldChange > 0)
+  cont.regdn <- lapply(cont.ls, subset, log2FoldChange < 0)
+  cont.regup <- lapply(cont.regup, nrow)
+  cont.regup <- unlist(cont.regup)
+  cont.regdn <- lapply(cont.regdn, nrow)
+  cont.regdn <- unlist(cont.regdn)
+  up.df <- data.frame(cont.regup)
+  dn.df <- data.frame(cont.regdn)
+  al.df <- merge(up.df, dn.df, by = 0, all = TRUE)
+  colnames(al.df) <- c("contrast", "up", "down")
+  al.df <- melt(al.df)
+  al.df$contrast <- factor(al.df$contrast)
+  al.df$variable <- factor(al.df$variable)
+  return(al.df)
+}
+
+
+### Get MA plot
+dgeMAPlot <- function(dgeout2, p, l, cont) {
+  dge <- dgeout2
+  dge$isPADJ <- ifelse(dge$padj <= p, TRUE, FALSE)
+  dge$isPADJ[is.na(dge$isPADJ)] <- FALSE
+  dge$isLFC <- ifelse(abs(dge$log2FoldChange) >= l, TRUE, FALSE)
+  dge$isDGE <- "No differential expression"
+  dge$isDGE[which(dge$isLFC & dge$isPADJ) ] <- paste(
+    "padj <=", p, "& LFC >=", l
+  )
+
+  p <- ggplot(dge, aes(log10(baseMean), log2FoldChange)) +
+    geom_point(size = 0.7, aes(color = isDGE)) +
+    xlab(bquote("log"[10]*"(base mean)")) +
+    ylab(bquote("log"[2]*"(fold change)")) +
+    ggtitle(paste("MA Plot:", cont)) +
+    theme_light() +
+    scale_color_manual(
+      name = "",
+      values = c("#999999", "#3884ff")
+    ) +
+    guides(colour = guide_legend(override.aes = list(size = 3))) +
+    geom_hline(
+      yintercept = 0, 
+      color = "#3d3d3d", 
+      linetype = "dashed"
+    )
+  print(p)
+}
+
+
+### Volcano plot
+dgeVolPlot <- function(dgeout2, p, l, cont) {
+  dge <- dgeout2
+  dge$isPADJ <- ifelse(dge$padj <= p, TRUE, FALSE)
+  dge$isPADJ[is.na(dge$isPADJ)] <- FALSE
+  dge$isLFC <- ifelse(abs(dge$log2FoldChange) >= l, TRUE, FALSE)
+  dge$isDGE <- "No differential expression"
+  dge$isDGE[which(dge$isLFC & dge$isPADJ) ] <- paste(
+    "padj <=", p, "& LFC >=", l
+  )
+  
+  p <- ggplot(dge, aes(log2FoldChange, -log10(pvalue))) +
+    geom_point(size = 0.6, aes(color = isDGE)) +
+    xlab(bquote("log"[2]*"(fold change)")) +
+    ylab(bquote("-log"[10]*"(p-value)")) +
+    ggtitle(paste("Volcano Plot:", cont)) +
+    theme_light() +
+    scale_color_manual(
+      name = "",
+      values = c("#999999", "#3884ff")
+    ) +
+    guides(colour = guide_legend(override.aes = list(size = 3))) +
+    geom_vline(
+      xintercept = 0, 
+      color = "#3d3d3d", 
+      linetype = "dashed"
+    )
+  print(p)
+}
+
+
+
+## CTS Overview
+trubble <- function(cts) {
+  tmp <- as.data.frame(
+    rbind(
+      cts[1:5, ],
+      ... = rep("...", length(cts[1, ])),
+      cts[(nrow(cts) - 4):(nrow(cts)), ]
+    )
+  )
+  
+  if (ncol(tmp) > 10) {
+    tmp2 <- tmp[, 1:10]
+  } else {
+    tmp2 <- tmp
+  }
+  
+  nr <- nrow(cts)
+  nc <- ncol(cts)
+  
+  if (ncol(tmp) > 10) {
+    output <- paste(
+      "Your pre-processed data contains", nr, "IDs and", nc, "samples. Showing the first 10 samples:\n"
+    )
+  } else {
+    output <- paste(
+      "Your pre-processed data contains", nr, "IDs and", nc, "samples.\n"
+    )
+  }
+  
+  test <- as.matrix(tmp2)
+  test <- rbind(colnames(tmp2), test)
+  # test <- cbind(c("", rownames(tmp2)), test)
+  y <- sprintf(paste0("%",max(nchar(test)),"s"), test)
+  y <- matrix(y, nrow = 12)
+  
+  gen <- c("", rownames(tmp2))
+  gen <- gsub("\\s", " ", format(gen, width = max(nchar(gen))))
+  
+  if (ncol(tmp) > 10) {
+    output2 <- paste("\nSamples not shown:\n\n")
+    output3 <- paste(colnames(tmp[11:ncol(tmp)]))
+  } else {
+    output2 <- NULL
+    output3 <- NULL
+  }
+  
+  
+  cat(output, "\n")
+  for(i in 1:nrow(y)) {
+    cat(gen[i], y[i, ], "\n")
+  }
+  
+  cat(output2)
+  for (i in 1:length(output3)) {
+    cat("  ", output3[i], "\n")
+  }
+  
+}
 
 
 
