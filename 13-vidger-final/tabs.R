@@ -327,8 +327,7 @@ tab.tutorial <- tabPanel(
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      h4("ViDGER Tutorial"),
-      p("Tutorial placeholder")
+      includeMarkdown("./markdown/vidger-tutorial.md")
     )
   )
 )
