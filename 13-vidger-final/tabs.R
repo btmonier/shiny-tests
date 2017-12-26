@@ -11,17 +11,7 @@ tab.welcome <- tabPanel(
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      HTML("<h1>Welcome to the ViDGER Pipeline</h1>"),
-      h3("About"),
-      HTML("<p>ViDGER (<b>Vi</b>sualization of <b>D</b>ifferential <b>G</b>ene <b>E</b>xpression using <b>R</b>), is a web-based tool for the analysis of RNA-seq count data. ViDGER is derived from the R package, ViDGER, which can produce information-rich visualizations for the interpretation of differential gene expression (DGE) results from three widely-used tools, <i>Cuffdiff</i>, <i>DESeq2</i>, and <i>edgeR</i>. ViDGER is a <b>user-friendly</b> and <b>interactive</b> Shiny app for gene expression analysis. This app takes advantage of several popular DGE tools (<i>DESeq2</i>, <i>edgeR</i>, and <i>limma</i>) available through Bioconductor in conjunction with the Plotly and DataTable API libraries for R. </p>"),
-      h3("Submit and QC"),
-      p("To use this app, all you need to upload is two CSV files: a file of raw read counts and another file for sample treatment data. For further information of how these files should look like, take a look at the demonstration data or go to the help section for a detailed walk through."),
-      h3("Preliminary Analysis"),
-      p("After you have submitted your data, you can analyze the correlation between any treatment sample combination, discover which genes have the highest average expression, plot individual genes and their respective counts, and potentially discover biclusters in your experimental data."),
-      h3("DGE Analysis"),
-      p("To determine DGE, you currently have the option of using 3 Bioconductor packages mentioned in the prior sections. DGE can be visualized using common techniques, including volcano plots, MA plots, and heat maps. Additionally, DGE data sets can be downloaded as CSV files for further analysis in this section."),
-      h3("More"),
-      p("Under this tab, you will find information regarding a step-by-step tutorial on how to analyze RNA-seq data using ViDGER, a frequently asked questions page going over common analytical topics, an about us page detailing the creators of this tool and also session info regarding what is used to make this web-application possible.")
+      includeMarkdown("./markdown/welcome.md")
     )
   )
 )
@@ -351,8 +341,7 @@ tab.faq <- tabPanel(
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      h4("Frequently Asked Questions"),
-      p("FAQ placeholder")
+      includeMarkdown("./markdown/faq.md")
     )
   )
 )
@@ -365,33 +354,7 @@ tab.about <- tabPanel(
   sidebarLayout(
     sidebarPanel = NULL,
     mainPanel = mainPanel(
-      h4("About Us"),
-      h5(strong("PI")),
-      p(
-        "Dr. Qin Ma, ", 
-        a(
-          "qin.ma@sdstate.edu", 
-          href="mailto:qin.ma@sdstate.edu"
-        ),
-        "Bioinformatics and Mathematical Biosciences Lab, South Dakota State University"
-      ),
-      h5(strong("Team Members")),
-      p(
-       "Adam McDermaid, ", 
-        a(
-          "adam.mcdermaid@sdstate.edu", 
-          href="mailto:adam.mcdermaid@sdstate.edu"
-        ),
-       "Bioinformatics and Mathematical Biosciences Lab, South Dakota State University"
-      ),
-      p(
-        "Brandon Monier, ", 
-        a(
-          "brandon.monier@sdstate.edu", 
-          href="mailto:brandon.monier@sdstate.edu"
-        ),
-        "Department of Biology and Microbiology, South Dakota State University"
-      )
+      includeMarkdown("./markdown/about-us.md")
     )
   )
 )

@@ -21,9 +21,9 @@ Last updated: 2017-12-22 20:27:55 CST
 | Task                                | Completed?     |
 |-------------------------------------|----------------|
 | Add clustering, heatmap to "Submit" | X              |
-| Add DEG Analysis to "Submit" 		  | X              |
+| Add DEG Analysis to "Submit" 		    | X              |
 | Add scatter plots to "Submit"       | X              |
-| Add static images 				  | X              |
+| Add static images 				          | X              |
 | Sumbit ViDGER to Bioconductor       |                |
 | Add FAQ with ViDGER down link       | In progress... |
 | System info                         | X              |
