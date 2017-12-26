@@ -19,11 +19,11 @@ vidgerServer <- function(input, output) {
   source("vidger-functions.R")
 
   ## Example data
-  f1a <- as.matrix(read.csv("count-data-small.csv", header=TRUE, row.names=1))
-  f1b <- read.csv("col-data-small.csv", header=TRUE, row.names=1)
+  f1a <- as.matrix(read.csv("./data/count-data-small.csv", header=TRUE, row.names=1))
+  f1b <- read.csv("./data/col-data-small.csv", header=TRUE, row.names=1)
   
-  f2a <- as.matrix(read.csv("count-data-big.csv", header=TRUE, row.names=1))
-  f2b <- read.csv("col-data-big.csv", header=TRUE, row.names=1)
+  f2a <- as.matrix(read.csv("./data/count-data-big.csv", header=TRUE, row.names=1))
+  f2b <- read.csv("./data/col-data-big.csv", header=TRUE, row.names=1)
 
   ## Data load option - count data
   output$file1 <- renderUI({
