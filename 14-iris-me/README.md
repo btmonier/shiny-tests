@@ -10,3 +10,11 @@
 ## About
 This application is designed to test the functionality of main effects testing 
 in addition to main effects with grouping factors.
+
+## Get local app
+Copy and paste this into your R environment:
+
+``` r
+if (!require('shiny')) install.packages("shiny")
+shiny::runGitHub("shiny-tests", "btmonier", subdir = "14-iris-me")
+```
