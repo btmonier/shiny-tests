@@ -8,14 +8,14 @@ To run the examples locally, you can install the shiny package in R, and use the
 
 ``` r
 if (!require('shiny')) install.packages("shiny")
-shiny::runGitHub("shiny-tests", "btmonier", subdir = "13-vidger-final")
+shiny::runGitHub("shiny-tests", "btmonier", subdir = "14-iris-me")
 ```
 
 
 ## Fix list
 
 ```
-Last updated: 2017-12-26 17:18:01 CST
+Last updated: 2018-02-02 10:06:31 CST
 ```
 
 | Task                                | Completed?     |
@@ -24,11 +24,11 @@ Last updated: 2017-12-26 17:18:01 CST
 | Add DEG Analysis to "Submit" 		    | X              |
 | Add scatter plots to "Submit"       | X              |
 | Add static images 				          | X              |
-| Sumbit ViDGER to Bioconductor       |                |
-| Add FAQ with ViDGER down link       | In progress... |
+| Sumbit ViDGER to Bioconductor       | In progress... |
+| Add FAQ with ViDGER down link       | X              |
 | System info                         | X              |
 | Fix axis issues (histogram)         | X              |
 | Add DEG overview                    | X              |
-| Get link available                  |                |
+| Get link available                  | X              |
 | Submit and QC split                 | X              |
 | About us tab                        | X              |
