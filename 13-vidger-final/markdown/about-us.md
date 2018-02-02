@@ -14,7 +14,7 @@
 
 
 * **Mr. Brandon Monier** ([brandon.monier@sdstate.edu](mailto:brandon.monier@sdstate.edu))  
-  Department of Biological and Microbiological Sciences  
+  Department of Biology and Microbiology  
   *South Dakota State University*
 
 ***

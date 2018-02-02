@@ -11,7 +11,6 @@
 	* [DGE Analysis](#ia-dge-analysis)
 
 <br>
-<br>
 
 ### Accessibility <a id="accessibility"></a>
 ViDGER can be freely accessed directly through (**ADD LINK**) or through R using the following commands:
@@ -23,7 +22,6 @@ shiny::runGitHub("shiny-tests", "btmonier", subdir = "13-vidger-final")
 
 Typically, the link will provide an easier route to using ViDGER.  In circumstances where internet connections will be limited (such as during travel), loading ViDGER through R while internet is still available will allow users to utilize ViDGER without an internet connection later on.
 
-<br>
 <br>
 
 ### Input Data <a id="input-data"></a>
@@ -39,7 +37,6 @@ The data used for this tutorial are derived from 28 *Vitis vinifera* samples wit
 
 <img src="../img/vid-tut-02.png" alt="Test" style="width: 50%;"/>
 
-<br>
 <br>
 
 ### Expedited Analysis <a id="expedited-analysis"></a>
