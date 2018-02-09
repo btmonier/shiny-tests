@@ -118,6 +118,25 @@ getContTable <- function(
       de.genes2 <- subset(de.genes2, baseMean != 0)
       de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
       names(de.genes2)[1] <- "id"      
+    } else if (expset == "exp5" | expset == "exp6") {
+      de.genes2 <- glmLRT(
+        glmfit = de.genes,
+        contrast = design[, coef]
+      )
+      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+      de.genes2 <- as.data.frame(de.genes2)
+      de.genes2$baseMean <- rowMeans(cts)
+      names(de.genes2) <- c(
+        "log2FoldChange",
+        "logCPM",
+        "LR",
+        "pvalue",
+        "padj",
+        "baseMean"
+      )
+      de.genes2 <- subset(de.genes2, baseMean != 0)
+      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+      names(de.genes2)[1] <- "id"
     }
   } else if (class(de.genes) == "DESeqDataSet") {
     if (expset == "exp1") {
@@ -352,6 +371,69 @@ edger.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl,
   fit.edger <- glmFit(dge, design)
   return(list(fit.edger, design))
 }
+
+## EDGER - EXP5 - main effects only
+edger.exp5 <- function(fact, fact.levl, cts, coldata, perm.h, norm) {
+
+  coldata[, fact] <- relevel(x = coldata[, fact], ref = fact.levl)
+
+  design <- model.matrix(~ 0 + coldata[, fact])
+  rownames(design) <- rownames(coldata)
+  colnames(design) <- levels(coldata[, fact])
+  perm.c <- gsub(pattern = "_VS_", replacement = "-", perm.h)
+  cont <- makeContrasts(contrasts = perm.c, levels = design)
+  colnames(cont) <- perm.h
+
+  dge <- DGEList(counts = cts)
+  dge <- calcNormFactors(dge, method = norm)
+  dge <- estimateGLMCommonDisp(dge, design)
+  dge <- estimateGLMTrendedDisp(dge, design)
+  # dge <- estimateGLMTagwiseDisp(dge, design)
+  fit.edger <- glmFit(dge, design)
+
+  return(list(fit.edger, cont))
+}
+
+
+
+
+
+
+
+
+## EDGER - EXP6 - main effects + grouping factor
+edger.exp6 <- function(
+  me.fact, me.levl, gp.fact, gp.levl, cts, coldata, perm.h, norm) {
+  
+  cts <- cts[, which(coldata[, gp.fact] == gp.levl)]
+  coldata <- coldata[which(coldata[, gp.fact] == gp.levl), ]
+  
+  coldata[] <- lapply(coldata, function(x) if(is.factor(x)) factor(x) else x)
+  coldata[, me.fact] <- relevel(x = coldata[, me.fact], ref = me.levl)
+  
+  design <- model.matrix(~ 0 + coldata[, me.fact])
+  rownames(design) <- rownames(coldata)
+  colnames(design) <- levels(coldata[, me.fact])
+  perm.c <- gsub(pattern = "_VS_", replacement = "-", perm.h)
+  cont <- makeContrasts(contrasts = perm.c, levels = design)
+  colnames(cont) <- perm.h
+
+  dge <- DGEList(counts = cts)
+  dge <- calcNormFactors(dge, method = norm)
+  dge <- estimateGLMCommonDisp(dge, design)
+  dge <- estimateGLMTrendedDisp(dge, design)
+  # dge <- estimateGLMTagwiseDisp(dge, design)
+  fit.edger <- glmFit(dge, design)
+
+  return(list(fit.edger, cont))
+}
+
+
+
+
+
+
+
 
 
 
