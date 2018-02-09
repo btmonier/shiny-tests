@@ -7,7 +7,7 @@
 # Package logic ----
 
 ## Set working directory (FOR LOCAL TESTING ONLY)
-# setwd("D:/Box Sync/misc-shiny-apps/12-plotly-test8")
+# setwd("D:/Box Sync/misc-github-repos/shiny-tests/12-plotly-test8")
 
 ## CRAN
 source("vidger-functions.R")
