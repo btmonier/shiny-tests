@@ -688,7 +688,7 @@ irisServer <- function(input, output) {
 
 
 
-  ##### ブ レ ー ク  B R E A K  ブ レ ー ク #####
+  ##### B R E A K #####
 
 
 
@@ -1141,10 +1141,6 @@ irisServer <- function(input, output) {
     } else {
       if (input$dgeexpsetup == "exp6") {
         tmp1 <- ddsout()[[2]]
-        # gp.fact <- input$dgeexp6c
-        # tmp1 <- tmp1[which(tmp1[, gp.fact] == input$dgeexp6d), ]
-        # tmp2 <- input$dgeexp6a 
-        # tmp3 <- unique(tmp1[, tmp2])
         tmp2 <- tmp1[which(tmp1[, input$dgeexp6a] == input$dgeexp6b), ]
         tmp2[] <- lapply(tmp2, function(x) if(is.factor(x)) factor(x) else x)
         tmp2 <- levels(tmp2[, input$dgeexp6c])
@@ -1478,6 +1474,38 @@ irisServer <- function(input, output) {
           fit.cont <- de.genes[[1]]
           incProgress(2/2)
         })
+      } else if (input$dgeexpsetup == "exp5") {
+        withProgress(message = "Running edgeR...", value = 0, {
+          incProgress(1/2)
+          de.genes <- edger.exp5(
+            fact = input$dgeexp5a,
+            fact.levl = input$dgeexp5b,
+            cts = cts,
+            coldata = coldata,
+            perm.h = input$dgeexp5c,
+            norm = input$dgeexpedgernorm
+          )
+          fit.names <- de.genes[[2]]
+          fit.cont <- de.genes[[1]]
+          incProgress(2/2)
+        })
+      } else if (input$dgeexpsetup == "exp6") {
+        withProgress(message = "Running edgeR...", value = 0, {
+          incProgress(1/2)
+          de.genes <- edger.exp6(
+            me.fact = input$dgeexp6c,
+            me.levl = input$dgeexp6d,
+            gp.fact = input$dgeexp6a,
+            gp.levl = input$dgeexp6b,
+            cts = cts,
+            coldata = coldata,
+            perm.h = input$dgeexp6e,
+            norm = input$dgeexpedgernorm
+          )
+          fit.names <- de.genes[[2]]
+          fit.cont <- de.genes[[1]]
+          incProgress(2/2)
+        })        
       }
     } else if (input$dgemethod == "deseq") {
       if (input$dgeexpsetup == "exp1") {
@@ -2314,6 +2342,12 @@ irisServer <- function(input, output) {
   
   ### HEAT - select input - choose factor - HEATMAP
   output$heatfactor <- renderUI({
+    s <- event_data("plotly_click", source = "heatplot")
+    validate(
+      need(
+        s != "", 
+        message = "")
+    )    
     tmp <- ddsout()[[2]]
     selectInput(
       inputId = "heatfactor",
@@ -2328,6 +2362,12 @@ irisServer <- function(input, output) {
       return()
     } else {
       s <- event_data("plotly_click", source = "heatplot")
+      validate(
+        need(
+          s != "", 
+          message = "Click on one of the heatmap cells to view this plot!"
+        )
+      )
       rc.data <- counts(ddsout()[[1]])
       test <- getGenes(
         rc.data = rc.data, 
@@ -2354,7 +2394,7 @@ irisServer <- function(input, output) {
         title = paste(s[["y"]], "Counts"),
         xaxis = list(title = paste(input$fact)),
         yaxis = list(title = "Normalized counts")
-      )
+      )      
     }
   })
 
@@ -2864,6 +2904,12 @@ irisServer <- function(input, output) {
       withProgress(message = "Rendering count plot...", value = 0, {
         incProgress()
         s.cor <- event_data("plotly_click", source = "corplot")
+        validate(
+          need(
+            s.cor != "", 
+            message = "Click on one of the heatmap cells to view this plot!"
+          )
+        )        
         cts.tran <- corout()[[2]]
         cts.tran <- as.data.frame(cts.tran)
         x <- s.cor[["x"]]
