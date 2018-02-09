@@ -236,6 +236,24 @@ tab.deg <- tabPanel(
         selected = "",
         multiple = FALSE
       ),
+      br(),
+      h4("2. DGE Parameters"),
+      uiOutput("dgemethod"),
+      splitLayout(
+        textInput(
+          inputId = "dgepadjcutoff",
+          label = withMathJax("Adj. \\(p\\)-value cutoff"),
+          value = 0.05
+        ),
+        textInput(
+          inputId = "dgefcmin",
+          label = "Min. fold change",
+          value = 1
+        )
+      ),
+      uiOutput("dgeexpedgernorm"),
+      br(),
+      h4("3. Experimental Parameters"),
       uiOutput("dgeexp1a"),
       uiOutput("dgeexp1b"),
       uiOutput("dgeexp2a"),
@@ -268,23 +286,7 @@ tab.deg <- tabPanel(
       uiOutput("dgeexpform6c"),
       uiOutput("dgeexpform6d"),
       br(),
-      h4("2. DGE Parameters"),
-      uiOutput("dgemethod"),
-      splitLayout(
-        textInput(
-          inputId = "dgepadjcutoff",
-          label = withMathJax("Adj. \\(p\\)-value cutoff"),
-          value = 0.05
-        ),
-        textInput(
-          inputId = "dgefcmin",
-          label = "Min. fold change",
-          value = 1
-        )
-      ),
-      uiOutput("dgeexpedgernorm"),
-      br(),
-      h4("3. Launch Analysis"),
+      h4("4. Launch Analysis"),
       actionButton("godge", "Submit", icon = icon("space-shuttle"))
     ),
     mainPanel = mainPanel(
