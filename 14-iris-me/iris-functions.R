@@ -137,6 +137,24 @@ getContTable <- function(
       de.genes2 <- subset(de.genes2, baseMean != 0)
       de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
       names(de.genes2)[1] <- "id"
+    } else if (expset == "exp7") {
+      de.genes2 <- glmLRT(
+        glmfit = de.genes,
+        coef = coef
+      )
+      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+      de.genes2 <- as.data.frame(de.genes2)
+      de.genes2$baseMean <- rowMeans(cts)
+      names(de.genes2) <- c(
+        "log2FoldChange",
+        "logCPM",
+        "LR",
+        "pvalue",
+        "padj",
+        "baseMean"
+      )
+      de.genes2 <- subset(de.genes2, baseMean != 0)
+      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()      
     }
   } else if (class(de.genes) == "DESeqDataSet") {
     if (expset == "exp1") {
@@ -190,6 +208,14 @@ getContTable <- function(
       de.genes2 <- results(
         object = de.genes,
         contrast = c(fact6, coef2[1], coef2[2])
+      )
+      de.genes2 <- as.data.frame(de.genes2)
+      de.genes2 <- subset(de.genes2, baseMean != 0)
+      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+    } else if (expset == "exp7") {
+      de.genes2 <- results(
+        object = de.genes,
+        name = coef
       )
       de.genes2 <- as.data.frame(de.genes2)
       de.genes2 <- subset(de.genes2, baseMean != 0)
@@ -277,6 +303,14 @@ limma.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl) {
   fit <- lmFit(cts, design)
   fit.cont <- eBayes(fit)
   return(list(fit.cont, design))
+}
+
+## LIMMA - EXP 7 - user inputs
+limma.exp7 <- function(cts, mod.matrix) {
+  design <- mod.matrix
+  fit <- lmFit(cts, design)
+  fit <- eBayes(fit)
+  return(list(fit, design))
 }
 
 
@@ -394,13 +428,6 @@ edger.exp5 <- function(fact, fact.levl, cts, coldata, perm.h, norm) {
   return(list(fit.edger, cont))
 }
 
-
-
-
-
-
-
-
 ## EDGER - EXP6 - main effects + grouping factor
 edger.exp6 <- function(
   me.fact, me.levl, gp.fact, gp.levl, cts, coldata, perm.h, norm) {
@@ -428,11 +455,15 @@ edger.exp6 <- function(
   return(list(fit.edger, cont))
 }
 
-
-
-
-
-
+## EDGER - EXP7 - user input
+edger.exp7 <- function(cts, mod.matrix) {
+  design <- mod.matrix
+  dge <- DGEList(counts = cts)
+  dge <- calcNormFactors(dge, method = norm)
+  dge <- estimateDisp(dge, design)
+  fit <- glmQLFit(dge, design)
+  return(list(fit, design))
+}
 
 
 
@@ -580,6 +611,21 @@ deseq.exp6 <- function(
   dds <- DESeq(dds, test = "LRT", reduced = ~1)
   return(list(dds, cont0))
 }
+
+## DESeq2 - EXP7 - user input
+deseq.exp7 <- function(cts, coldata, mod.matrix) {
+  design <- mod.matrix
+  dds <- DESeqDataSetFromMatrix(
+    countData = cts,
+    colData = coldata,
+    design = ~ 1
+  )
+  dds <- DESeq(dds, full = design, modelMatrixType = "standard")
+  return(list(dds, design))
+}
+
+
+
 
 
 # PLOT Functions

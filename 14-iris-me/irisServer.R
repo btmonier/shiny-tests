@@ -1453,6 +1453,17 @@ irisServer <- function(input, output) {
           fit.cont <- de.genes[[1]]
           incProgress(2/2)
         })
+      } else if (input$dgeexpsetup == "exp7") {
+        withProgress(message = "Running limma-voom...", value = 0, {
+          incProgress(1/2)
+          de.genes <- limma.exp7(
+            cts = cts,
+            mod.matrix = mod.matrix()[[1]]
+          )
+          fit.names <- de.genes[[2]]
+          fit.cont <- de.genes[[1]]
+          incProgress(2/2)
+        })
       }
     } else if (input$dgemethod == "edger") {
       if (input$dgeexpsetup == "exp1") {
@@ -1548,6 +1559,18 @@ irisServer <- function(input, output) {
           fit.cont <- de.genes[[1]]
           incProgress(2/2)
         })        
+      } else if (input$dgeexpsetup == "exp7") {
+        withProgress(message = "Running edgeR...", value = 0, {
+          incProgress(1/2)
+          de.genes <- edger.exp7(
+            cts = cts,
+            mod.matrix = mod.matrix()[[1]],
+            norm = input$dgeexpedgernorm
+          )
+          fit.names <- de.genes[[2]]
+          fit.cont <- de.genes[[1]]
+          incProgress(2/2)
+        })        
       }
     } else if (input$dgemethod == "deseq") {
       if (input$dgeexpsetup == "exp1") {
@@ -1637,6 +1660,18 @@ irisServer <- function(input, output) {
           fit.cont <- de.genes[[1]]
           incProgress(2/2)
         })
+      } else if (input$dgeexpsetup == "exp7") {
+        withProgress(message = "Running DESeq2...", value = 0, {
+          incProgress(1/2)
+          de.genes <- deseq.exp7(
+            cts = cts,
+            coldata = coldata,
+            mod.matrix = mod.matrix()[[1]]
+          )
+          fit.names <- de.genes[[2]]
+          fit.cont <- de.genes[[1]]
+          incProgress(2/2)
+        })        
       }
     } 
     return(list(fit.cont, fit.names))
