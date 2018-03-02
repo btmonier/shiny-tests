@@ -15,7 +15,7 @@ require(scatterD3)
 
 ## Load data
 ### Pasilla
-setwd("D:/Box Sync/misc-shiny-apps/00-misc-tests")
+setwd("D:/Box Sync/misc-github-repos/shiny-tests/00-misc-tests")
 
 ### Airway
 data(airway)

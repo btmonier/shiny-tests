@@ -7,7 +7,7 @@
 # Preamble ----
 
 ## Set working directory
-setwd("D:/Box Sync/misc-shiny-apps/00-misc-tests")
+setwd("D:/Box Sync/misc-github-repos/shiny-tests/00-misc-tests")
 
 ## Load data
 pas.cts <- as.matrix(read.csv("count-data.csv", header = TRUE, row.names = 1))
@@ -15,6 +15,7 @@ pas.coldata <- read.csv("col-data.csv", header = TRUE, row.names = 1)
 pas.cts <- pas.cts[, rownames(pas.coldata)]
 
 ## Load packages
+library(DESeq2)
 library(limma)
 library(edgeR)
 library(gtools)
