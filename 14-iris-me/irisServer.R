@@ -1164,7 +1164,7 @@ irisServer <- function(input, output) {
       return()
     } else {
       fileInput(
-        inputId = "modmatfile", 
+        inputId = "mod.matrix", 
         label = "Submit model matrix (CSV)",
         accept = c(
           "text/csv",
@@ -1370,6 +1370,26 @@ irisServer <- function(input, output) {
       )
     }
   })
+
+  ## DEG - user input for model matrix
+  mod.matrix <- eventReactive(input$godge, {
+    mod.matrix <- input$mod.matrix
+    mod.matrix <- as.matrix(
+      read.csv(
+        mod.matrix$datapath, header = TRUE, row.names = 1
+      )
+    )
+    return(list(mod.matrix))
+  })
+
+  # ## DEBUG ##
+  # output$debugdge2 <- renderPrint({
+  #   if (input$godge == 0) {
+  #     return()
+  #   } else {
+  #     mod.matrix()[[1]]
+  #   }
+  # })
 
   ## DEG - analysis - reactive
   dgeout1 <- eventReactive(input$godge, {
@@ -1978,20 +1998,6 @@ irisServer <- function(input, output) {
     return(list(test))
   })
   
-  # output$debugdge2 <- renderPrint({
-  #   if (input$godge == 0) {
-  #     return()
-  #   } else {
-  #     p <- as.numeric(input$dgepadjcutoff)
-  #     lf <- as.numeric(input$dgefcmin)
-  #     tmp <- dgeOverTbl(
-  #       cont.ls = dgeover0()[[1]],
-  #       lf = lf,
-  #       p = p
-  #     )
-  #     tmp
-  #   }
-  # })
 
   ## DGE - visualization - DGE overview
   output$dgeplot2 <- renderPlotly({

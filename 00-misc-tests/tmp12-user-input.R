@@ -17,6 +17,8 @@ type <- pas.coldata[, "type"]
 design <- model.matrix(~ condition * type)
 rownames(design) <- rownames(pas.coldata)
 
+
+
 # Pass model matrix into DESeq2...
 pas.dds <- DESeqDataSetFromMatrix(
   countData = pas.cts,
@@ -26,8 +28,8 @@ pas.dds <- DESeqDataSetFromMatrix(
 pas.dds <- DESeq(pas.dds, full = design, modelMatrixType = "standard")
 
 
-# With limma-voom...
 
+# With limma-voom...
 fit <- lmFit(pas.cts, design)
 fit <- eBayes(fit)
 de.genes2 <- topTable(
@@ -47,5 +49,25 @@ names(de.genes2) <- c(
   "B",
   "baseMean"
 )
-
 de.genes2[de.genes2$padj <= 0.05, ]
+
+
+
+# With edgeR
+y <- DGEList(counts = pas.cts)
+y <- estimateDisp(y, design)
+
+fit <- glmQLFit(y, design)
+qlf <- glmQLFTest(fit, coef = 3)
+
+de.genes2 <- topTags(qlf, n = nrow(pas.cts), sort.by = "none")
+de.genes2 <- as.data.frame(de.genes2)
+de.genes2$baseMean <- rowMeans(pas.cts)
+names(de.genes2) <- c(
+  "log2FoldChange",
+  "logCPM",
+  "LR",
+  "pvalue",
+  "padj",
+  "baseMean"
+)
