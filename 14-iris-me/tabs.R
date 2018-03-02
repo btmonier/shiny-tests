@@ -231,7 +231,8 @@ tab.deg <- tabPanel(
           "Classical interaction design" = "exp3",
           "Additive models - paired or blocking" = "exp4",
           "Main effects" = "exp5",
-          "Main effects with grouping factors" = "exp6"
+          "Main effects with grouping factors" = "exp6",
+          "Custom design (advanced)" = "exp7"
         ),
         selected = "",
         multiple = FALSE
@@ -275,6 +276,7 @@ tab.deg <- tabPanel(
       uiOutput("dgeexp6c"),
       uiOutput("dgeexp6d"),
       uiOutput("dgeexp6e"),
+      uiOutput("dgeexp7a"),
       uiOutput("dgeexpformhead"),
       uiOutput("dgeexpform1"),
       uiOutput("dgeexpform2"),

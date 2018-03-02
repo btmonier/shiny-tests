@@ -1155,6 +1155,26 @@ irisServer <- function(input, output) {
     }
   })   
 
+  ## DEG - exp. setup 7 - user input
+  output$dgeexp7a <- renderUI({
+    validate(
+      need(input$dgemethod != "", "")
+    ) 
+    if (input$goqc == 0) {
+      return()
+    } else {
+      fileInput(
+        inputId = "modmatfile", 
+        label = "Submit model matrix (CSV)",
+        accept = c(
+          "text/csv",
+          "text/comma-separated-values,text/plain",
+          ".csv"
+        )
+      )      
+    }
+  })    
+  
   ## DEG - exp. setup - formula - header
   output$dgeexpformhead <- renderUI({
     if (input$goqc == 0) {
@@ -1166,6 +1186,8 @@ irisServer <- function(input, output) {
         h5(
           strong("Your linear model will look like this:")
         )
+      } else if (input$dgeexpsetup == "exp7") { 
+        return()
       } else {
         h5(
           strong("Your linear model will look like this:")
