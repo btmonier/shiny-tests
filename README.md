@@ -18,17 +18,17 @@ shiny::runGitHub("shiny-tests", "btmonier", subdir = "14-iris-me")
 Last updated: 2018-02-02 10:06:31 CST
 ```
 
-| Task                                | Completed?     |
-|-------------------------------------|----------------|
-| Add clustering, heatmap to "Submit" | X              |
-| Add DEG Analysis to "Submit" 		    | X              |
-| Add scatter plots to "Submit"       | X              |
-| Add static images 				          | X              |
-| Sumbit ViDGER to Bioconductor       | In progress... |
-| Add FAQ with ViDGER down link       | X              |
-| System info                         | X              |
-| Fix axis issues (histogram)         | X              |
-| Add DEG overview                    | X              |
-| Get link available                  | X              |
-| Submit and QC split                 | X              |
-| About us tab                        | X              |
+| Task                                | Completed? |
+|-------------------------------------|------------|
+| Add clustering, heatmap to "Submit" | X          |
+| Add DEG Analysis to "Submit"        | X          |
+| Add scatter plots to "Submit"       | X          |
+| Add static images                   | X          |
+| Sumbit ViDGER to Bioconductor       | X          |
+| Add FAQ with ViDGER down link       | X          |
+| System info                         | X          |
+| Fix axis issues (histogram)         | X          |
+| Add DEG overview                    | X          |
+| Get link available                  | X          |
+| Submit and QC split                 | X          |
+| About us tab                        | X          |
