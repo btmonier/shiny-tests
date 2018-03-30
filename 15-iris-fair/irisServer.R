@@ -3121,11 +3121,133 @@ irisServer <- function(input, output) {
 
 
   ### B R E A K ###
-  
-  
-  
+    
+    
+    
   ## SESSION - Add session info verbatim
   output$sessinfo <- renderPrint({
-    sessionInfo()
+      sessionInfo()
+    })
+
+
+
+  ### B R E A K ###
+
+
+
+  ## GEO - Dynamic Sampling
+  values <- reactiveValues(num_contrib = 0)
+
+  observeEvent(input$addcontrib, ignoreNULL = FALSE, {
+    values$num_contrib <- values$num_contrib + 1
+    num <- values$num_contrib
+    insertUI(
+      selector = "#contrib",
+      where = "beforeEnd",
+      div(
+        id = paste0("contrib", num),
+        textInput(
+          inputId = paste0("contrib-a", num),
+          label = paste0(
+            "3", 
+            LETTERS[num], 
+            ". Contributor ", 
+            num
+          ),
+          width = "500px"
+        )
+      )
+    )
   })
+
+  observeEvent(input$rmvcontrib, {
+    num <- values$num_contrib
+    # Don't let the user remove the very first contrib
+    if (num == 1) {
+      return()
+    }
+    removeUI(selector = paste0("#contrib", num))
+    values$num_contrib <- values$num_contrib - 1
+  })
+
+
+  values2 <- reactiveValues(num_sample = 0)
+
+  observeEvent(input$addsample, ignoreNULL = FALSE, {
+    values2$num_sample <- values2$num_sample + 1
+    num2 <- values2$num_sample
+    insertUI(
+      selector = "#sample",
+      where = "beforeEnd",
+      div(
+        id = paste0("sample", num2),
+        splitLayout(
+          textInput(
+            inputId = paste0("sample-a", num2),
+            label = paste0(
+              "6", LETTERS[1], ".", num2,
+              " Sample Name"
+            ),
+            width = "500px"
+          ),
+          textInput(
+            inputId = paste0("sample-b", num2),
+            label = paste0(
+              "6", LETTERS[2], ".", num2,
+              " Title"
+            ),
+            width = "500px"
+          )
+        ),
+        splitLayout(
+          textInput(
+            inputId = paste0("sample-c", num2),
+            label = paste0(
+              "6", LETTERS[3], ".", num2,
+              " Source Name"
+            ),
+            width = "500px"
+          ),
+          textInput(
+            inputId = paste0("sample-d", num2),
+            label = paste0(
+              "6", LETTERS[4], ".", num2,
+              " Organism"
+            ),
+            width = "500px"
+          )          
+        ),
+        splitLayout(
+          textInput(
+            inputId = paste0("sample-c", num2),
+            label = paste0(
+              "6", LETTERS[5], ".", num2,
+              " Characteristics"
+            ),
+            width = "500px"
+          ),
+          textInput(
+            inputId = paste0("sample-d", num2),
+            label = paste0(
+              "6", LETTERS[6], ".", num2,
+              " Molecule"
+            ),
+            width = "500px"
+          )          
+        ),        
+        tags$hr(style="height: 2px; border:none; color: silver; background-color: silver;")
+      )
+    )
+  })
+
+  observeEvent(input$rmvsample, {
+    num2 <- values2$num_sample
+    # Don't let the user remove the very first sample
+    if (num2 == 1) {
+      return()
+    }
+    removeUI(selector = paste0("#sample", num2))
+    values2$num_sample <- values2$num_sample - 1
+  })
+
 }
