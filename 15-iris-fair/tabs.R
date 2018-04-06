@@ -337,9 +337,8 @@ tab.deg <- tabPanel(
 )
 
 
+
 # GEO ----
-# source("iris-functions.R")
-# source("irisServer.R")
 tab.geo <- tabPanel(
     title = "GEO", icon = icon("database"),
     fluid = TRUE,
@@ -349,73 +348,64 @@ tab.geo <- tabPanel(
             includeMarkdown("./markdown/geo.md"),
             br(),
             h3("Questionnaire"),
-            h4("Series"),
-            p("This section describes the overall experiment."),
-            textInput(
-                inputId = "meta-title",
-                label = "1. Title",
-                value = "",
-                width = "500px"
-            ),
-            textAreaInput2(
-                inputId = "meta-summary",
-                label = "2. Summary",
-                value = "",
-                width = "500px",
-                rows = 5,
-                resize = "vertical"
-            ),
+            uiOutput("geo_series"),
+            uiOutput("geo_01_title"),
+            uiOutput("geo_02_summary"),
             div(id = "contrib"),
-            actionButton("addcontrib", "Add Contributor"),
-            actionButton("rmvcontrib", "Remove Contributor"),
-            br(),
-            br(),     
-            textInput(
-                inputId = "meta-suppfile",
-                label = "4. Supplementary File (optional)",
-                value = "",
-                width = "500px"
-            ),
-            textInput(
-                inputId = "meta-sra",
-                label = "5. SRA Center Name Code (optional)",
-                value = "",
-                width = "500px"
-            ),
-            br(),
-            h4("Samples"),
-            p("This section lists and describes each of the biological Samples under investgation, as well as any protocols that are specific to individual Samples. Additional \"processed data file\" or \"raw file\" columns may be included."),
-            div(id = "sample"),
-            actionButton("addsample", "Add Sample"),
-            actionButton("rmvsample", "Remove Sample"),            
+            uiOutput("geo_03a_contrib_action"),
+            uiOutput("geo_03b_contrib"),
+            uiOutput("geo_04_suppfile"),
+            uiOutput("geo_05_sra"),
+            uiOutput("geo_samples"),
+            uiOutput("geo_samples_list"),
+            uiOutput("geo_protocols"),
+            uiOutput("geo_07_growth_protocol"),
+            uiOutput("geo_08_treatment_protocol"),
+            uiOutput("geo_09_extract_protocol"),
+            uiOutput("geo_10_lib_construct_protocol"),
+            uiOutput("geo_11_lib_strategy"),
+            uiOutput("geo_data_proc_pipeline"),
+            div(id = "data_step"),
+            uiOutput("geo_12a_data_proc_action"),
+            uiOutput("geo_13_genome_build"),
+            uiOutput("geo_14_proc_data_files"),
+            # verbatimTextOutput("geo_debug"),
             br(),
             br(),
-            br(),
-            bsTooltip(
-                id = "meta-title", 
-                title = "Unique title (less than 255 characters) that describes the overall study",
-                placement = "right"
-            ),
-            bsTooltip(
-                id = "meta-summary", 
-                title = "Thorough description of the goals and objectives of this study. The abstract from the associated publication may be suitable. Include as much text as necessary.",
-                placement = "right"
-            ),
-            bsTooltip(
-                id = "contrib", 
-                title = "\"Firstname,Initial,Lastname\". Example: \"John,H,Smith\" or \"Jane,Doe\". Each contributor on a separate line, add as many contributor lines as required.",
-                placement = "right"
-            ),
-            bsTooltip(
-                id = "meta-suppfile", 
-                title = "If you submit a matrix table containing processed data for all samples, include the file name here.",
-                placement = "right"
-            ),
-            bsTooltip(
-                id = "meta-sra", 
-                title = "Only enter a value if your institute already has a Center_Name code registered with SRA. Otherwise, leave empty.",
-                placement = "right"
-            )
+            br()    
+
+
+            # div(id = "sample"),
+            # actionButton("addsample", "Add Sample"),
+            # actionButton("rmvsample", "Remove Sample"),            
+            # br(),
+            # br(),
+            # br(),
+            # bsTooltip(
+            #     id = "meta-title", 
+            #     title = "Unique title (less than 255 characters) that describes the overall study",
+            #     placement = "right"
+            # ),
+            # bsTooltip(
+            #     id = "meta-summary", 
+            #     title = "Thorough description of the goals and objectives of this study. The abstract from the associated publication may be suitable. Include as much text as necessary.",
+            #     placement = "right"
+            # ),
+            # bsTooltip(
+            #     id = "contrib", 
+            #     title = "\"Firstname,Initial,Lastname\". Example: \"John,H,Smith\" or \"Jane,Doe\". Each contributor on a separate line, add as many contributor lines as required.",
+            #     placement = "right"
+            # ),
+            # bsTooltip(
+            #     id = "meta-suppfile", 
+            #     title = "If you submit a matrix table containing processed data for all samples, include the file name here.",
+            #     placement = "right"
+            # ),
+            # bsTooltip(
+            #     id = "meta-sra", 
+            #     title = "Only enter a value if your institute already has a Center_Name code registered with SRA. Otherwise, leave empty.",
+            #     placement = "right"
+            # )
         )
     )
 )
