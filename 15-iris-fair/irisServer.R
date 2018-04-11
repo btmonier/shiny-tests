@@ -3390,7 +3390,9 @@ irisServer <- function(input, output) {
                     h5(
                         paste0(
                             "Based on your metadata, Sample ", i, " is ",
-                            "\"", rownames(ddsout()[[2]])[i], "\"."
+                            "\"", rownames(ddsout()[[2]])[i], "\".",
+                            " You may change the title section if you want",
+                            " something more descriptive."
                         )
                     ),
                     br(),
@@ -3423,7 +3425,9 @@ irisServer <- function(input, output) {
                 textInput(
                     inputId = paste0("geo_sample_title_", i),
                     label = paste0("6A", i, ".", " Title"),
-                    value = "",
+                    value = paste0(
+                        rownames(ddsout()[[2]])[i]
+                    ),
                     width = "500px"
                 )
             })
