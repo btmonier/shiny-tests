@@ -358,6 +358,8 @@ tab.geo <- tabPanel(
             uiOutput("geo_05_sra"),
             uiOutput("geo_samples"),
             uiOutput("geo_samples_list"),
+            verbatimTextOutput("geo_debug"),
+            br(),
             uiOutput("geo_protocols"),
             uiOutput("geo_07_growth_protocol"),
             uiOutput("geo_08_treatment_protocol"),
@@ -369,7 +371,6 @@ tab.geo <- tabPanel(
             uiOutput("geo_12a_data_proc_action"),
             uiOutput("geo_13_genome_build"),
             uiOutput("geo_14_proc_data_files"),
-            # verbatimTextOutput("geo_debug"),
             br(),
             br(),
             br()    
