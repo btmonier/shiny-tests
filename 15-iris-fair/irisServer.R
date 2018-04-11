@@ -19,6 +19,7 @@
 #       08 GEO....... gene expression omnibus metadata generation
 #
 #
+#
 #   IRIS-DGE application layout
 #
 #       IRIS-DGE
@@ -42,7 +43,6 @@
 #               |-  FAQ
 #               |-  About Us
 #               |-  Session Info
-#
 #
 ######################################################################
     
@@ -3247,10 +3247,10 @@ irisServer <- function(input, output) {
         } else {
             list(
                 textInput(
-                        inputId = "geo_01_title",
-                        label = "1. Title",
-                        value = "",
-                        width = "500px"
+                    inputId = "geo_01_title",
+                    label = "1. Title",
+                    value = "",
+                    width = "500px"
                 )
             )
         }    
@@ -3262,12 +3262,12 @@ irisServer <- function(input, output) {
         } else {
             list(
                 textAreaInput2(
-                        inputId = "geo_02_summary",
-                        label = "2. Summary",
-                        value = "",
-                        width = "500px",
-                        rows = 5,
-                        resize = "vertical"
+                    inputId = "geo_02_summary",
+                    label = "2. Summary",
+                    value = "",
+                    width = "500px",
+                    rows = 5,
+                    resize = "vertical"
                 )
             )
         }    
@@ -3308,505 +3308,502 @@ irisServer <- function(input, output) {
         }
     })
 
-        observeEvent(input$rmvcontrib, {
-                num <- values$num_contrib
+    observeEvent(input$rmvcontrib, {
+        num <- values$num_contrib
+        # Don't let the user remove the very first contrib
+        if (num == 1) {
+            return()
+        }
+        removeUI(selector = paste0("#contrib", num))
+        values$num_contrib <- values$num_contrib - 1
+    })
+
+    output$geo_04_suppfile <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                br(),
+                br(),
+                textInput(
+                    inputId = "geo_04_suppfile",
+                    label = "4. Supplementary File (optional)",
+                    value = "",
+                    width = "500px"
+                )
+            )
+        }
+    })
+
+    output$geo_05_sra <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textInput(
+                    inputId = "geo_05_sra",
+                    label = "5. SRA Center Name Code (optional)",
+                    value = "",
+                    width = "500px"
+                )
+            )
+        }
+    })
+    
+    output$geo_samples <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                br(),
+                h4("Samples"),
+                p(
+                    paste(
+                        "This section lists and describes each of the", 
+                        "biological Samples under investgation, as well as", 
+                        "any protocols that are specific to individual", 
+                        "Samples. Additional \"processed data files\" or", 
+                        "\"raw files\" may be included."
+                    )
+                ),
+                p(
+                    paste0(
+                        "Based on your metadata, you have ", 
+                        nrow(ddsout()[[2]]), " samples. Please fill out the ",
+                        "following tabs."
+                    )
+                )
+            )
+        }
+    })  
+
+    output$geo_samples_list <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            nTabs <- nrow(ddsout()[[2]])
+            myTabs = lapply(paste("Sample", 1: nTabs), tabPanel)
+            myTabs <- lapply(seq_len(nTabs), function(i) {
+                tabPanel(
+                    paste0("Sample ", i),
+                    br(),
+                    h5(
+                        paste0(
+                            "Based on your metadata, Sample ", i, " is ",
+                            "\"", rownames(ddsout()[[2]])[i], "\"."
+                        )
+                    ),
+                    br(),
+                    uiOutput(paste0("geo_sample_title_", i)),
+                    uiOutput(paste0("geo_sample_source_", i)),
+                    uiOutput(paste0("geo_sample_organism_", i)),
+                    div(id = paste0("geo_character_", i)),
+                    uiOutput(paste0("geo_character_action_", i)),
+                    br(),
+                    br(),
+                    uiOutput(paste0("geo_sample_molecule_", i)),
+                    uiOutput(paste0("geo_sample_description_", i)),
+                    div(id = paste0("geo_pdfile_", i)),
+                    uiOutput(paste0("geo_pdfile_action_", i)),
+                    br(),
+                    br(),                    
+                    div(id = paste0("geo_rawfile_", i)),
+                    uiOutput(paste0("geo_rawfile_action_", i)),
+                    br(),
+                    br()
+                )
+            })
+            do.call(tabsetPanel, myTabs)
+        }
+    })
+        
+    observe(
+        lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
+            output[[paste0("geo_sample_title_", i)]] <- renderUI({
+                textInput(
+                    inputId = paste0("geo_sample_title_", i),
+                    label = paste0("6A", i, ".", " Title"),
+                    value = "",
+                    width = "500px"
+                )
+            })
+            output[[paste0("geo_sample_source_", i)]] <- renderUI({
+                textInput(
+                    inputId = paste0("geo_sample_source_", i),
+                    label = paste0("6B", i, ".", " Source Name"),
+                    value = "",
+                    width = "500px"
+                )
+            })
+            output[[paste0("geo_sample_organism_", i)]] <- renderUI({
+                textInput(
+                    inputId = paste0("geo_sample_organism_", i),
+                    label = paste0("6C", i, ".", " Organism"),
+                    value = "",
+                    width = "500px"
+                )
+            })
+            output[[paste0("geo_character_action_", i)]] <- renderUI({
+                list(
+                    actionButton(
+                        paste0("add_geo_character_", i),
+                        "Add Characteristic"
+                    ),
+                    actionButton(
+                        paste0("rmv_geo_character_", i),
+                        "Remove Characteristic"
+                    )
+                )
+            })
+            values2 <- reactiveValues(num_character = -1)
+            observeEvent(
+                input[[paste0("add_geo_character_", i)]], 
+                ignoreNULL = FALSE, {
+                if (input$goqc == 0) {
+                    return()
+                } else {
+                    values2$num_character <- values2$num_character + 1
+                    num <- values2$num_character
+                    insertUI(
+                        selector = paste0("#geo_character_", i),
+                        where = "beforeEnd",
+                        div(
+                            id = paste0("geo_character_", i, num),
+                            textInput(
+                                inputId = paste0("geo_character_", i, num),
+                                label = paste0(
+                                    "6D", i, letters[num],
+                                    ". Characteristic ", num
+                                ),
+                                width = "500px"
+                            )
+                        )
+                    )
+                }
+            })
+            observeEvent(input[[paste0("rmv_geo_character_", i)]], {
+                num <- values2$num_character
                 # Don't let the user remove the very first contrib
                 if (num == 1) {
-                        return()
+                    return()
                 }
-                removeUI(selector = paste0("#contrib", num))
-                values$num_contrib <- values$num_contrib - 1
-        })
-
-
-
-        output$geo_04_suppfile <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                br(),
-                                br(),
-                                textInput(
-                                        inputId = "geo_04_suppfile",
-                                        label = "4. Supplementary File (optional)",
-                                        value = "",
-                                        width = "500px"
-                                )
-                        )
-                }
-        })
-
-        output$geo_05_sra <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textInput(
-                                    inputId = "geo_05_sra",
-                                    label = "5. SRA Center Name Code (optional)",
-                                    value = "",
-                                    width = "500px"
-                                )
-                        )
-                }
-        })
-    
-        output$geo_samples <- renderUI({
-                if(input$goqc == 0) {
+                removeUI(selector = paste0("#geo_character_", i, num))
+                values2$num_character <- values2$num_character - 1
+            })          
+            output[[paste0("geo_sample_molecule_", i)]] <- renderUI({
+                textInput(
+                    inputId = paste0("geo_sample_molecule_", i),
+                    label = paste0("6E", i, ".", " Molecule"),
+                    value = "",
+                    width = "500px"
+                )
+            })
+            output[[paste0("geo_sample_description_", i)]] <- renderUI({
+                textInput(
+                    inputId = paste0("geo_sample_description_", i),
+                    label = paste0("6F", i, ".", " Description"),
+                    value = "",
+                    width = "500px"
+                )
+            })
+            output[[paste0("geo_pdfile_action_", i)]] <- renderUI({
+                list(
+                    actionButton(
+                        paste0("add_geo_pdfile_", i),
+                        "Add Proc. Data File"
+                    ),
+                    actionButton(
+                        paste0("rmv_geo_pdfile_", i),
+                        "Remove Proc. Data File"
+                    )
+                )
+            })            
+            values3 <- reactiveValues(num_pdfile = -1)
+            observeEvent(
+                input[[paste0("add_geo_pdfile_", i)]], 
+                ignoreNULL = FALSE, {
+                if (input$goqc == 0) {
                     return()
                 } else {
-                        list(
-                                br(),
-                                h4("Samples"),
-                                p(
-                                        paste(
-                                                "This section lists and describes each of the", 
-                                                "biological Samples under investgation, as well as", 
-                                                "any protocols that are specific to individual", 
-                                                "Samples. Additional \"processed data files\" or", 
-                                                "\"raw files\" may be included."
-                                                
-                                        )
+                    values3$num_pdfile <- values3$num_pdfile + 1
+                    num <- values3$num_pdfile
+                    insertUI(
+                        selector = paste0("#geo_pdfile_", i),
+                        where = "beforeEnd",
+                        div(
+                            id = paste0("geo_pdfile_", i, num),
+                            textInput(
+                                inputId = paste0("geo_pdfile_", i, num),
+                                label = paste0(
+                                    "6G", i, letters[num],
+                                    ". Processed Data File ", num
                                 ),
-                                p(
-                                        paste0(
-                                                "Based on your metadata, you have ", 
-                                                nrow(ddsout()[[2]]), " samples. Please fill out the ",
-                                                "following tabs."
-                                        )
-                                )
+                                width = "500px"
+                            )
                         )
+                    )
                 }
-        })  
-
-        output$geo_samples_list <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        nTabs <- nrow(ddsout()[[2]])
-                        myTabs = lapply(paste("Sample", 1: nTabs), tabPanel)
-                        myTabs <- lapply(seq_len(nTabs), function(i) {
-                                tabPanel(
-                                        paste0("Sample ", i),
-                                        br(),
-                                        h5(
-                                                paste0(
-                                                        "Based on your metadata, Sample ", i, " is ",
-                                                        "\"", rownames(ddsout()[[2]])[i], "\"."
-                                                )
-                                        ),
-                                        br(),
-                                        uiOutput(paste0("geo_sample_title_", i)),
-                                        uiOutput(paste0("geo_sample_source_", i)),
-                                        uiOutput(paste0("geo_sample_organism_", i)),
-                                        div(id = paste0("geo_character_", i)),
-                                        uiOutput(paste0("geo_character_action_", i)),
-                                        br(),
-                                        br(),
-                                        uiOutput(paste0("geo_sample_molecule_", i)),
-                                        uiOutput(paste0("geo_sample_description_", i)),
-                                        div(id = paste0("geo_pdfile_", i)),
-                                        uiOutput(paste0("geo_pdfile_action_", i)),
-                                        br(),
-                                        br(),                    
-                                        div(id = paste0("geo_rawfile_", i)),
-                                        uiOutput(paste0("geo_rawfile_action_", i)),
-                                        br(),
-                                        br()
-                                )
-                        })
-                        do.call(tabsetPanel, myTabs)
-                }
-        })
-        
-        observe(
-                lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
-                        output[[paste0("geo_sample_title_", i)]] <- renderUI({
-                                textInput(
-                                        inputId = paste0("geo_sample_title_", i),
-                                        label = paste0("6A", i, ".", " Title"),
-                                        value = "",
-                                        width = "500px"
-                                )
-                        })
-                        output[[paste0("geo_sample_source_", i)]] <- renderUI({
-                                textInput(
-                                        inputId = paste0("geo_sample_source_", i),
-                                        label = paste0("6B", i, ".", " Source Name"),
-                                        value = "",
-                                        width = "500px"
-                                )
-                        })
-                        output[[paste0("geo_sample_organism_", i)]] <- renderUI({
-                                textInput(
-                                        inputId = paste0("geo_sample_organism_", i),
-                                        label = paste0("6C", i, ".", " Organism"),
-                                        value = "",
-                                        width = "500px"
-                                )
-                        })
-                        output[[paste0("geo_character_action_", i)]] <- renderUI({
-                                list(
-                                        actionButton(
-                                                paste0("add_geo_character_", i),
-                                                "Add Characteristic"
-                                        ),
-                                        actionButton(
-                                                paste0("rmv_geo_character_", i),
-                                                "Remove Characteristic"
-                                        )
-                                )
-                        })
-                        values2 <- reactiveValues(num_character = -1)
-                        observeEvent(
-                                input[[paste0("add_geo_character_", i)]], 
-                                ignoreNULL = FALSE, {
-                                        if (input$goqc == 0) {
-                                                return()
-                                        } else {
-                                                values2$num_character <- values2$num_character + 1
-                                                num <- values2$num_character
-                                                insertUI(
-                                                        selector = paste0("#geo_character_", i),
-                                                        where = "beforeEnd",
-                                                        div(
-                                                                id = paste0("geo_character_", i, num),
-                                                                textInput(
-                                                                        inputId = paste0("geo_character_", i, num),
-                                                                        label = paste0(
-                                                                                "6D", i, letters[num],
-                                                                                ". Characteristic ", num
-                                                                        ),
-                                                                        width = "500px"
-                                                                )
-                                                        )
-                                                )
-                                        }
-                        })
-                        observeEvent(input[[paste0("rmv_geo_character_", i)]], {
-                                num <- values2$num_character
-                                # Don't let the user remove the very first contrib
-                                if (num == 1) {
-                                    return()
-                                }
-                                removeUI(selector = paste0("#geo_character_", i, num))
-                                values2$num_character <- values2$num_character - 1
-                        })          
-                        output[[paste0("geo_sample_molecule_", i)]] <- renderUI({
-                                textInput(
-                                        inputId = paste0("geo_sample_molecule_", i),
-                                        label = paste0("6E", i, ".", " Molecule"),
-                                        value = "",
-                                        width = "500px"
-                                )
-                        })
-                        output[[paste0("geo_sample_description_", i)]] <- renderUI({
-                                textInput(
-                                        inputId = paste0("geo_sample_description_", i),
-                                        label = paste0("6F", i, ".", " Description"),
-                                        value = "",
-                                        width = "500px"
-                                )
-                        })
-                        output[[paste0("geo_pdfile_action_", i)]] <- renderUI({
-                                list(
-                                        actionButton(
-                                                paste0("add_geo_pdfile_", i),
-                                                "Add Proc. Data File"
-                                        ),
-                                        actionButton(
-                                                paste0("rmv_geo_pdfile_", i),
-                                                "Remove Proc. Data File"
-                                        )
-                                )
-                        })            
-                        values3 <- reactiveValues(num_pdfile = -1)
-                        observeEvent(
-                                input[[paste0("add_geo_pdfile_", i)]], 
-                                ignoreNULL = FALSE, {
-                                        if (input$goqc == 0) {
-                                                return()
-                                        } else {
-                                                values3$num_pdfile <- values3$num_pdfile + 1
-                                                num <- values3$num_pdfile
-                                                insertUI(
-                                                        selector = paste0("#geo_pdfile_", i),
-                                                        where = "beforeEnd",
-                                                        div(
-                                                                id = paste0("geo_pdfile_", i, num),
-                                                                textInput(
-                                                                        inputId = paste0("geo_pdfile_", i, num),
-                                                                        label = paste0(
-                                                                                "6G", i, letters[num],
-                                                                                ". Processed Data File ", num
-                                                                        ),
-                                                                        width = "500px"
-                                                                )
-                                                        )
-                                                )
-                                        }
-                        })
-                        observeEvent(input[[paste0("rmv_geo_pdfile_", i)]], {
-                                num <- values3$num_pdfile
-                                # Don't let the user remove the very first contrib
-                                if (num == 1) {
-                                    return()
-                                }
-                                removeUI(selector = paste0("#geo_pdfile_", i, num))
-                                values3$num_pdfile <- values3$num_pdfile - 1
-                        })
-
-                        output[[paste0("geo_rawfile_action_", i)]] <- renderUI({
-                                list(
-                                        actionButton(
-                                                paste0("add_geo_rawfile_", i),
-                                                "Add Raw Data File"
-                                        ),
-                                        actionButton(
-                                                paste0("rmv_geo_rawfile_", i),
-                                                "Remove Raw Data File"
-                                        )
-                                )
-                        })            
-                        values4 <- reactiveValues(num_rawfile = -1)
-                        observeEvent(
-                                input[[paste0("add_geo_rawfile_", i)]], 
-                                ignoreNULL = FALSE, {
-                                        if (input$goqc == 0) {
-                                                return()
-                                        } else {
-                                                values4$num_rawfile <- values4$num_rawfile + 1
-                                                num <- values4$num_rawfile
-                                                insertUI(
-                                                        selector = paste0("#geo_rawfile_", i),
-                                                        where = "beforeEnd",
-                                                        div(
-                                                                id = paste0("geo_rawfile_", i, num),
-                                                                textInput(
-                                                                        inputId = paste0("geo_rawfile_", i, num),
-                                                                        label = paste0(
-                                                                                "6H", i, letters[num],
-                                                                                ". Raw Data File ", num
-                                                                        ),
-                                                                        width = "500px"
-                                                                )
-                                                        )
-                                                )
-                                        }
-                        })
-                        observeEvent(input[[paste0("rmv_geo_rawfile_", i)]], {
-                                num <- values4$num_rawfile
-                                # Don't let the user remove the very first contrib
-                                if (num == 1) {
-                                    return()
-                                }
-                                removeUI(selector = paste0("#geo_rawfile_", i, num))
-                                values4$num_rawfile <- values4$num_rawfile - 1
-                        })            
-
-                })
-        )
-
-        output$geo_debug <- renderPrint({
-                print(input[[paste0("geo_character_", 5, 3)]])
-        })
-
-        output$geo_protocols <- renderUI({
-                if(input$goqc == 0) {
-                    return()
-                } else {
-                        list(
-                                br(),
-                                h4("Protocols"),
-                                p(
-                                        paste(
-                                                "Any of the protocols below which are applicable to ",
-                                                "only a subset of Samples should be included as ",
-                                                "additional entries of the SAMPLES section instead."
-                                        )
-                                )
-                        )
-                }
-        })
-
-        output$geo_07_growth_protocol <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        textAreaInput2(
-                                inputId = "geo_07_growth_protocol",
-                                label = "7. Growth Protocol (optional)",
-                                value = "",
-                                width = "500px",
-                                rows = 5,
-                                resize = "vertical"
-                        )
-                }
-        })
-
-        output$geo_08_treatment_protocol <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textAreaInput2(
-                                        inputId = "geo_08_treatment_protocol",
-                                        label = "8. Treatment Protocol (optional)",
-                                        value = "",
-                                        width = "500px",
-                                        rows = 5,
-                                        resize = "vertical"
-                                )
-                        )
-                }
-        })
-
-        output$geo_09_extract_protocol <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textAreaInput2(
-                                        inputId = "geo_09_extract_protocol",
-                                        label = "9. Extract Protocol",
-                                        value = "",
-                                        width = "500px",
-                                        rows = 5,
-                                        resize = "vertical"
-                                )
-                        )
-                }
-        })
-
-        output$geo_10_lib_construct_protocol <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textAreaInput2(
-                                        inputId = "geo_10_lib_construct_protocol",
-                                        label = "10. Libary Construction Protocol",
-                                        value = "",
-                                        width = "500px",
-                                        rows = 5,
-                                        resize = "vertical"
-                                )
-                        )
-                }
-        })
-
-        output$geo_11_lib_strategy <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textAreaInput2(
-                                        inputId = "geo_11_lib_strategy",
-                                        label = "11. Library Strategy",
-                                        value = "",
-                                        width = "500px",
-                                        rows = 5,
-                                        resize = "vertical"
-                                )
-                        )
-                }
-        })
-
-        output$geo_data_proc_pipeline <- renderUI({
-                if(input$goqc == 0) {
-                    return()
-                } else {
-                        list(
-                                br(),
-                                h4("Data Processing Pipeline"),
-                                p(
-                                        paste(
-                                                "Data processing steps include base-calling, ",
-                                                "alignment, filtering, peak-calling, generation of ",
-                                                "normalized abundance measurements, etc. For each ",
-                                                "step, provide a description, as well as software ",
-                                                "name, version, parameters, if applicable."
-                                        )
-                                )
-                        )
-                }
-        })
-
-        output$geo_12a_data_proc_action <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                actionButton("adddatastep", "Add Data Proc. Step"),
-                                actionButton("rmvdatastep", "Remove Data Proc. Step")
-                        )
-                }    
-        })  
-
-        values5 <- reactiveValues(num_data_step = 0)
-        observeEvent(input$adddatastep, ignoreNULL = FALSE, {
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        values5$num_data_step <- values5$num_data_step + 1
-                        num <- values5$num_data_step
-                        insertUI(
-                                selector = "#data_step",
-                                where = "beforeEnd",
-                                div(
-                                        id = paste0("data_step_", num),
-                                        textInput(
-                                                inputId = paste0("data_step_", num),
-                                                label = paste0(
-                                                        "12", LETTERS[num], 
-                                                        ". Data Processing Step ", num
-                                                ),
-                                                width = "500px"
-                                        )
-                                )
-                        )
-                }
-        })
-        observeEvent(input$rmvdatastep, {
-                num <- values5$num_data_step
+            })
+            observeEvent(input[[paste0("rmv_geo_pdfile_", i)]], {
+                num <- values3$num_pdfile
+                # Don't let the user remove the very first contrib
                 if (num == 1) {
-                        return()
+                    return()
                 }
-                removeUI(selector = paste0("#data_step_", num))
-                values5$num_data_step <- values5$num_data_step - 1
-        })
+                removeUI(selector = paste0("#geo_pdfile_", i, num))
+                values3$num_pdfile <- values3$num_pdfile - 1
+            })
 
-        output$geo_13_genome_build <- renderUI({
-                if(input$goqc == 0) {
-                        return()
+            output[[paste0("geo_rawfile_action_", i)]] <- renderUI({
+                list(
+                    actionButton(
+                        paste0("add_geo_rawfile_", i),
+                        "Add Raw Data File"
+                    ),
+                    actionButton(
+                        paste0("rmv_geo_rawfile_", i),
+                        "Remove Raw Data File"
+                    )
+                )
+            })            
+            values4 <- reactiveValues(num_rawfile = -1)
+            observeEvent(
+                input[[paste0("add_geo_rawfile_", i)]], 
+                ignoreNULL = FALSE, {
+                if (input$goqc == 0) {
+                    return()
                 } else {
-                        list(
-                                br(),
-                                br(),
-                                textInput(
-                                    inputId = "geo_13_genome_build",
-                                    label = "13. Genome Build",
-                                    value = "",
-                                    width = "500px"
-                                )
+                    values4$num_rawfile <- values4$num_rawfile + 1
+                    num <- values4$num_rawfile
+                    insertUI(
+                        selector = paste0("#geo_rawfile_", i),
+                        where = "beforeEnd",
+                        div(
+                            id = paste0("geo_rawfile_", i, num),
+                            textInput(
+                                inputId = paste0("geo_rawfile_", i, num),
+                                label = paste0(
+                                    "6H", i, letters[num],
+                                    ". Raw Data File ", num
+                                ),
+                                width = "500px"
+                            )
                         )
+                    )
                 }
+            })
+            observeEvent(input[[paste0("rmv_geo_rawfile_", i)]], {
+                num <- values4$num_rawfile
+                # Don't let the user remove the very first contrib
+                if (num == 1) {
+                    return()
+                }
+                removeUI(selector = paste0("#geo_rawfile_", i, num))
+                values4$num_rawfile <- values4$num_rawfile - 1
+            })            
         })
+    )
 
-        output$geo_14_proc_data_files <- renderUI({
-                if(input$goqc == 0) {
-                        return()
-                } else {
-                        list(
-                                textInput(
-                                    inputId = "geo_14_proc_data_files",
-                                    label = "14. Processed Data Files Format and Content",
-                                    value = "",
-                                    width = "500px"
-                                )
-                        )
-                }
-        })               
+    output$geo_debug <- renderPrint({
+        print(input[[paste0("geo_character_", 5, 3)]])
+    })
+
+    output$geo_protocols <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                br(),
+                h4("Protocols"),
+                p(
+                    paste(
+                        "Any of the protocols below which are applicable to ",
+                        "only a subset of Samples should be included as ",
+                        "additional entries of the SAMPLES section instead."
+                    )
+                )
+            )
+        }
+    })
+
+    output$geo_07_growth_protocol <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            textAreaInput2(
+                inputId = "geo_07_growth_protocol",
+                label = "7. Growth Protocol (optional)",
+                value = "",
+                width = "500px",
+                rows = 5,
+                resize = "vertical"
+            )
+        }
+    })
+
+    output$geo_08_treatment_protocol <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textAreaInput2(
+                    inputId = "geo_08_treatment_protocol",
+                    label = "8. Treatment Protocol (optional)",
+                    value = "",
+                    width = "500px",
+                    rows = 5,
+                    resize = "vertical"
+                )
+            )
+        }
+    })
+
+    output$geo_09_extract_protocol <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textAreaInput2(
+                    inputId = "geo_09_extract_protocol",
+                    label = "9. Extract Protocol",
+                    value = "",
+                    width = "500px",
+                    rows = 5,
+                    resize = "vertical"
+                )
+            )
+        }
+    })
+
+    output$geo_10_lib_construct_protocol <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textAreaInput2(
+                    inputId = "geo_10_lib_construct_protocol",
+                    label = "10. Libary Construction Protocol",
+                    value = "",
+                    width = "500px",
+                    rows = 5,
+                    resize = "vertical"
+                )
+            )
+        }
+    })
+
+    output$geo_11_lib_strategy <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textAreaInput2(
+                    inputId = "geo_11_lib_strategy",
+                    label = "11. Library Strategy",
+                    value = "",
+                    width = "500px",
+                    rows = 5,
+                    resize = "vertical"
+                )
+            )
+        }
+    })
+
+    output$geo_data_proc_pipeline <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                br(),
+                h4("Data Processing Pipeline"),
+                p(
+                    paste(
+                        "Data processing steps include base-calling, ",
+                        "alignment, filtering, peak-calling, generation of ",
+                        "normalized abundance measurements, etc. For each ",
+                        "step, provide a description, as well as software ",
+                        "name, version, parameters, if applicable."
+                    )
+                )
+            )
+        }
+    })
+
+    output$geo_12a_data_proc_action <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                actionButton("adddatastep", "Add Data Proc. Step"),
+                actionButton("rmvdatastep", "Remove Data Proc. Step")
+            )
+        }    
+    })  
+
+    values5 <- reactiveValues(num_data_step = 0)
+    observeEvent(input$adddatastep, ignoreNULL = FALSE, {
+        if(input$goqc == 0) {
+            return()
+        } else {
+            values5$num_data_step <- values5$num_data_step + 1
+            num <- values5$num_data_step
+            insertUI(
+                selector = "#data_step",
+                where = "beforeEnd",
+                div(
+                    id = paste0("data_step_", num),
+                    textInput(
+                        inputId = paste0("data_step_", num),
+                        label = paste0(
+                            "12", LETTERS[num], 
+                            ". Data Processing Step ", num
+                        ),
+                        width = "500px"
+                    )
+                )
+            )
+        }
+    })
+
+    observeEvent(input$rmvdatastep, {
+        num <- values5$num_data_step
+        if (num == 1) {
+            return()
+        }
+        removeUI(selector = paste0("#data_step_", num))
+        values5$num_data_step <- values5$num_data_step - 1
+    })
+
+    output$geo_13_genome_build <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                br(),
+                br(),
+                textInput(
+                    inputId = "geo_13_genome_build",
+                    label = "13. Genome Build",
+                    value = "",
+                    width = "500px"
+                )
+            )
+        }
+    })
+
+    output$geo_14_proc_data_files <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                textInput(
+                    inputId = "geo_14_proc_data_files",
+                    label = "14. Processed Data Files Format and Content",
+                    value = "",
+                    width = "500px"
+                )
+            )
+        }
+    })               
 
 }
