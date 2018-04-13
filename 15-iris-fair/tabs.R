@@ -446,21 +446,40 @@ tab.geo <- tabPanel(
             uiOutput("geo_03b_contrib"),
             uiOutput("geo_04_suppfile"),
             uiOutput("geo_05_sra"),
+            uiOutput("geo_submit_series"),
+ 
             uiOutput("geo_samples"),
             uiOutput("geo_samples_list"),
+            uiOutput("geo_submit_sample"),
             verbatimTextOutput("geo_debug"),
-            br(),
+
             uiOutput("geo_protocols"),
             uiOutput("geo_07_growth_protocol"),
             uiOutput("geo_08_treatment_protocol"),
             uiOutput("geo_09_extract_protocol"),
             uiOutput("geo_10_lib_construct_protocol"),
             uiOutput("geo_11_lib_strategy"),
+            uiOutput("geo_submit_protocol"),
+
             uiOutput("geo_data_proc_pipeline"),
             div(id = "data_step"),
             uiOutput("geo_12a_data_proc_action"),
             uiOutput("geo_13_genome_build"),
             uiOutput("geo_14_proc_data_files"),
+            uiOutput("geo_submit_pipeline"),
+
+            uiOutput("geo_proc_data"),
+            uiOutput("geo_proc_data_list"),
+            uiOutput("geo_submit_proc_data"),
+            
+            uiOutput("geo_raw_data"),
+            uiOutput("geo_raw_data_list"),
+            uiOutput("geo_submit_raw_data"),
+
+            uiOutput("geo_paired_end"),
+            uiOutput("geo_paired_end_list"),
+            uiOutput("geo_submit_paired_end"),
+
             br(),
             br(),
             br()    
