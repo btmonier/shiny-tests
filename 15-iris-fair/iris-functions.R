@@ -1060,3 +1060,41 @@ trubble <- function(cts) {
   }
   
 }
+
+
+
+# CTS splitter
+cts_split <- function(cts) {
+    # Split raw count matrix by each sample
+    if (file.exists("tmp")) {
+        file.remove(
+            dir(  
+                "tmp", 
+                pattern = "*.txt$", 
+                full.names = TRUE
+            )
+        )
+        setwd("tmp")
+    } else {
+        dir.create(file.path("tmp"))
+        setwd("tmp")
+    }
+    for (i in seq_len(ncol(cts))) {
+        write.file(
+            cbind(
+                rownames(cts),
+                cts[, i, drop = FALSE]
+            ),
+            f = paste0(colnames(cts)[i], ".txt"),
+            row.names = FALSE
+        )
+    }
+    setwd("..")
+    
+    # MD5 sums of raw count data (processed data)
+    md5.l <- lapply(seq_len(ncol(cts)), function(i) {
+        as.vector(md5sum(paste0("tmp/", colnames(cts)[i], ".txt")))
+    })
+    names(md5.l) <- colnames(cts)
+    return(md5.l)
+}
