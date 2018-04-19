@@ -3514,9 +3514,14 @@ irisServer <- function(input, output, session) {
     })
 
     output$geo_debug <- renderPrint({
-        cts_split_out()   
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        # x <- x[nchar(x) > 1]
+        x <- x[!x %in% "NA"]
+        x <- x[order(names(x))]
+        return(x) 
     })
-        
+            
     observe(
         lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
             output[[paste0("geo_sample_title_", i)]] <- renderUI({
@@ -3703,7 +3708,7 @@ irisServer <- function(input, output, session) {
                             "6G", i, letters[num + 1],
                             ". Processed Data File ", num + 1
                         ),
-                        value = ""                       
+                        value = "NA"                       
                     )
                 }
             })
