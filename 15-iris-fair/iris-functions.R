@@ -1066,18 +1066,16 @@ trubble <- function(cts) {
 # CTS splitter
 cts_split <- function(cts) {
     # Split raw count matrix by each sample
+    wd <- paste0("tmp-", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
     if (file.exists("tmp")) {
-        file.remove(
-            dir(  
-                "tmp", 
-                pattern = "*.txt$", 
-                full.names = TRUE
-            )
-        )
         setwd("tmp")
+        dir.create(file.path(wd))
+        setwd(wd)        
     } else {
         dir.create(file.path("tmp"))
         setwd("tmp")
+        dir.create(file.path(wd))
+        setwd(wd)
     }
     for (i in seq_len(ncol(cts))) {
         write.file(
@@ -1089,12 +1087,86 @@ cts_split <- function(cts) {
             row.names = FALSE
         )
     }
-    setwd("..")
+    setwd("../..")
     
     # MD5 sums of raw count data (processed data)
     md5.l <- lapply(seq_len(ncol(cts)), function(i) {
         as.vector(md5sum(paste0("tmp/", colnames(cts)[i], ".txt")))
     })
     names(md5.l) <- colnames(cts)
-    return(md5.l)
+    return(list(md5.l, wd))
+}
+
+
+
+# Proc data file merger
+pdf_sorter <- function(pdf_list, samples) {
+    l3 <- pdf_list
+    n <- substring(names(l3), nchar(names(l3)) - 2)
+    n <- max(as.numeric(n))
+
+    l4 <- lapply(seq(from = 2, to = n), function(i) {
+        l3[grep(paste0("^geo_pdfile_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
+    })
+
+    l5 <- lapply(seq_len(length(samples)), function(i) {
+        paste0("geo_pdfile_", str_pad(i, 3, pad = 0), "_")
+    })
+
+    names(l5) <- l5
+    mylist.names <- names(l5)
+    mylist <- NULL
+    mylist[mylist.names] <- list("")
+    mylist <- rep(list(mylist), length(l4))
+
+    for (i in seq_len(length(l4))) {
+        names(mylist[[i]]) <- paste0(
+            names(mylist[[i]]), str_pad(i + 1, 3, pad = 0)
+        )
+    }
+
+    a <- mylist
+    b <- l4
+    for (i in seq_len(length(l4))) {
+        a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
+    }
+
+    return(a)    
+}
+
+
+
+# Character data file merger
+char_sorter <- function(pdf_list, samples) {
+    l3 <- pdf_list
+    n <- substring(names(l3), nchar(names(l3)) - 2)
+    n <- max(as.numeric(n))
+
+    l4 <- lapply(seq(from = 1, to = n), function(i) {
+        l3[grep(paste0("^geo_character_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
+    })
+
+    l5 <- lapply(seq_len(length(samples)), function(i) {
+        paste0("geo_character_", str_pad(i, 3, pad = 0), "_")
+    })
+
+    names(l5) <- l5
+    mylist.names <- names(l5)
+    mylist <- NULL
+    mylist[mylist.names] <- list("")
+    mylist <- rep(list(mylist), length(l4))
+
+    for (i in seq_len(length(l4))) {
+        names(mylist[[i]]) <- paste0(
+            names(mylist[[i]]), str_pad(i, 3, pad = 0)
+        )
+    }
+
+    a <- mylist
+    b <- l4
+    for (i in seq_len(length(l4))) {
+        a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
+    }
+
+    return(a)    
 }
