@@ -12,12 +12,13 @@
 
 ## CRAN
 source("iris-functions.R")
+source("iris-xlsx.R")
 packages <- c(
 	"crosstalk", "dplyr", "DT", "gtools", "plotly", "shiny", "plyr",
 	"shinyBS", "shinycssloaders", "shinythemes", "tibble", "tidyr",
 	"Rcpp", "Hmisc", "ggplot2", "geneplotter", "locfit", "GGally", 
 	"pheatmap",	"reshape2", "backports", "digest", "fields", "psych",
-	"stringr", "tools"
+	"stringr", "tools", "openxlsx"
 )
 pack.man(packages)
 
