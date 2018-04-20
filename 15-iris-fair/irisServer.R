@@ -69,6 +69,7 @@ irisServer <- function(input, output, session) {
 
     ## DATA - Source exp. method functions
     source("iris-functions.R")
+    source("iris-xlsx.R")
 
     ## DATA - Example data
     f1a <- as.matrix(
@@ -3232,7 +3233,10 @@ irisServer <- function(input, output, session) {
     ###################################################################
     ###################################################################
 
-    ## GEO - Dynamic Sampling
+    #------------------------------------------------------------------
+    # GEO - Series
+    #------------------------------------------------------------------
+
     output$geo_series <- renderUI({
         if(input$goqc == 0) {
             p(
@@ -3282,6 +3286,21 @@ irisServer <- function(input, output, session) {
             )
         }    
     })
+
+    output$geo_xx_overall_design <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            textAreaInput2(
+                inputId = "geo_xx_overall_design",
+                label = "x. Overall Design",
+                value = "",
+                width = "500px",
+                rows = 5,
+                resize = "vertical"
+            )
+        }    
+    })    
 
     output$geo_03a_contrib_action <- renderUI({
         if(input$goqc == 0) {
@@ -3338,7 +3357,7 @@ irisServer <- function(input, output, session) {
                 label = paste0(
                     "3", LETTERS[num], ". Contributor ", num
                 ),
-                value = ""                       
+                value = "NA"                       
             ) 
         }
     })
@@ -3390,7 +3409,13 @@ irisServer <- function(input, output, session) {
             )
         }
     })
+
     
+
+    #------------------------------------------------------------------
+    # GEO - Samples
+    #------------------------------------------------------------------
+
     output$geo_samples <- renderUI({
         if(input$goqc == 0) {
             return()
@@ -3420,12 +3445,6 @@ irisServer <- function(input, output, session) {
                 )
             )
         }
-    })
-    
-    cts_split_out <- eventReactive(input$goqc, {
-        cts <- ddsout()[[4]]
-        cts <- cts_split(cts = cts)
-        return(cts)
     })
 
     output$geo_samples_list <- renderUI({
@@ -3512,21 +3531,15 @@ irisServer <- function(input, output, session) {
             )
         }
     })
-
-    output$geo_debug <- renderPrint({
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_pdfile_", names(x))]
-        # x <- x[nchar(x) > 1]
-        x <- x[!x %in% "NA"]
-        x <- x[order(names(x))]
-        return(x) 
-    })
             
     observe(
         lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
             output[[paste0("geo_sample_title_", i)]] <- renderUI({
                 textInput(
-                    inputId = paste0("geo_sample_title_", i),
+                    inputId = paste0(
+                        "geo_sample_title_", 
+                        str_pad(i, 3, pad = "0")
+                    ),
                     label = paste0("6A", i, ".", " Title"),
                     value = paste0(
                         rownames(ddsout()[[2]])[i]
@@ -3537,7 +3550,10 @@ irisServer <- function(input, output, session) {
 
             output[[paste0("geo_sample_source_", i)]] <- renderUI({
                 textInput(
-                    inputId = paste0("geo_sample_source_", i),
+                    inputId = paste0(
+                        "geo_sample_source_", 
+                        str_pad(i, 3, pad = "0")
+                    ),
                     label = paste0("6B", i, ".", " Source Name"),
                     value = "",
                     width = "500px"
@@ -3546,7 +3562,10 @@ irisServer <- function(input, output, session) {
 
             output[[paste0("geo_sample_organism_", i)]] <- renderUI({
                 textInput(
-                    inputId = paste0("geo_sample_organism_", i),
+                    inputId = paste0(
+                        "geo_sample_organism_", 
+                        str_pad(i, 3, pad = "0")
+                    ),
                     label = paste0("6C", i, ".", " Organism"),
                     value = "",
                     width = "500px"
@@ -3785,6 +3804,93 @@ irisServer <- function(input, output, session) {
         })
     )
 
+    geo_ser_out <- eventReactive(input$geo_submit_series, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("geo_01_title", names(x))]
+        x2 <- x[grep("geo_02_summary", names(x))]
+        xX <- x[grep("geo_xx_overall_design", names(x))]
+        x3 <- x[grep("^geo_contrib_", names(x))]
+        x3 <- x3[!x3 %in% "NA"]
+        x4 <- x[grep("geo_04_suppfile", names(x))]
+        x5 <- x[grep("geo_05_sra", names(x))]
+        x <- c(x1, x2, xX, x3, x4, x5)
+        return(x)
+    })
+
+    geo_sam_out_01 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^geo_sample_title_", names(x))]
+        x2 <- x[grep("^geo_sample_source_", names(x))]
+        x3 <- x[grep("^geo_sample_organism_", names(x))]
+        return(list(x1, x2, x3))
+    })
+
+    geo_sam_out_02 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_character_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[order(names(x))]
+        x <- char_sorter(x, rownames(ddsout()[[2]]))
+        return(x)
+    })
+
+    geo_sam_out_03 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^geo_sample_molecule_", names(x))]
+        x2 <- x[grep("^geo_sample_description_", names(x))]
+        return(list(x1, x2))
+    })
+
+    geo_sam_out_04 <- eventReactive(input$geo_submit_sample, {
+        x <- rownames(ddsout()[[2]])
+        return(x)
+    })    
+
+    geo_sam_out_05 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[order(names(x))]
+        x <- pdf_sorter(x, rownames(ddsout()[[2]]))
+        return(x)
+    })
+
+    # output$geo_debug <- renderPrint({
+    #     return(geo_excel_out())
+    # })
+
+    pdf_out <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        x <- x[nchar(x) > 1]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    raw_out <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_rawfile_", names(x))]
+        x <- x[nchar(x) > 1]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    raw_data_file_out <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^filetype_geo_rawfile_", names(x))]
+        x2 <- x[grep("^filecheck_geo_rawfile_", names(x))]
+        x3 <- x[grep("^instmod_geo_rawfile_", names(x))]
+        x4 <- x[grep("^readlen_geo_rawfile_", names(x))]
+        x5 <- x[grep("^spend_geo_rawfile_", names(x))]
+        x <- c(x1, x2, x3, x4, x5)
+        x <- x[order(names(x))]
+        return(x)
+    })    
+
+
+    #------------------------------------------------------------------
+    # GEO - Protocols
+    #------------------------------------------------------------------
 
     output$geo_protocols <- renderUI({
         if(input$goqc == 0) {
@@ -3879,13 +3985,31 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             list(
-                textAreaInput2(
+                selectInput(
                     inputId = "geo_11_lib_strategy",
                     label = "11. Library Strategy",
-                    value = "",
-                    width = "500px",
-                    rows = 5,
-                    resize = "vertical"
+                    choices = c(
+                        "RNA-Seq" = "rna-seq",
+                        "miRNA-Seq" = "mirna-seq",
+                        "ncRNA-Seq" = "ncrna-seq",
+                        "RNA-Seq (CAGE)" = "rna-seq-cage",
+                        "RNA-Seq (RACE)" = "rna-seq-race",
+                        "ChIP-Seq" = "chip-seq",
+                        "MNase-Seq" = "mnase-seq",
+                        "MBD-Seq" = "mbd-seq",
+                        "MRE-Seq" = "mre-seq",
+                        "Bisulfite-Seq" = "bis-seq",
+                        "Bisulfite-Seq (reduced representation"="bis-seq-red",
+                        "MeDIP-Seq" = "medip-seq",
+                        "DNAse-Hypersensitivity" = "dnase-hyper",
+                        "Tn-Seq" = "tn-seq",
+                        "FAIRE-seq" = "faire-seq",
+                        "SELEX" = "selex",
+                        "RIP-Seq" = "rip-seq",
+                        "ChIA-PET" = "chia-pet",
+                        "OTHER" = "other"
+                    ),            
+                    width = "500px"
                 )
             )
         }
@@ -4024,34 +4148,6 @@ irisServer <- function(input, output, session) {
         }
     })
     
-    pdf_out <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_pdfile_", names(x))]
-        x <- x[nchar(x) > 1]
-        x <- x[order(names(x))]
-        return(x)
-    })
-
-    raw_out <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_rawfile_", names(x))]
-        x <- x[nchar(x) > 1]
-        x <- x[order(names(x))]
-        return(x)
-    })
-
-    raw_data_file_out <- eventReactive(input$geo_submit_raw_data, {
-        x <- reactiveValuesToList(input)
-        x1 <- x[grep("^filetype_geo_rawfile_", names(x))]
-        x2 <- x[grep("^filecheck_geo_rawfile_", names(x))]
-        x3 <- x[grep("^instmod_geo_rawfile_", names(x))]
-        x4 <- x[grep("^readlen_geo_rawfile_", names(x))]
-        x5 <- x[grep("^spend_geo_rawfile_", names(x))]
-        x <- c(x1, x2, x3, x4, x5)
-        x <- x[order(names(x))]
-        return(x)
-    })
-    
     output$geo_proc_data <- renderUI({
         validate(
             need(input$goqc != 0, "")
@@ -4166,7 +4262,6 @@ irisServer <- function(input, output, session) {
             )
         }
     })
-    
     
     output$geo_raw_data <- renderUI({
         validate(
@@ -4453,6 +4548,80 @@ irisServer <- function(input, output, session) {
             })
             do.call(tabsetPanel, myTabs)   
         }
-    })         
+    })
+
+
+    # output$geo_submit_all <- renderUI({
+    #     if(input$goqc == 0) {
+    #         return()
+    #     } else {
+    #         list(
+    #             h4("Submit"),
+    #             actionButton(
+    #                 inputId = "geo_submit_all",
+    #                 label = "Submit to Spreadsheet",
+    #                 icon = icon("table")
+    #             )
+    #         )
+    #     }
+    # })
+
+    output$geo_download_excel <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            downloadButton(
+                "geo_download_excel_2", 
+                "Download Excel file"
+            )
+        }     
+    })
+    
+    output$geo_download_excel_2 <- downloadHandler(
+        filename =  function() {
+            "metadata.xlsx"
+        },
+        content = function(file) {
+            cts <- ddsout()[[4]]
+            cts <- cts_split(cts = cts)
+            wd <- cts[[2]]
+            ser_out <- geo_ser_out()
+            sam_title <- rownames(ddsout()[[2]])
+            sam_out_01 <- geo_sam_out_01()
+            sam_out_02 <- geo_sam_out_02()
+            sam_out_03 <- geo_sam_out_03()
+            sam_out_04 <- geo_sam_out_04()
+            sam_out_05 <- geo_sam_out_05()
+            iris_excel(
+                wd, ser_out, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
+                sam_out_05
+            )
+
+            # setwd(paste0("tmp/", wd))
+            wd2 <- substring(wd, 5)
+            meta <- paste0("metadata-", wd2, ".xlsx")
+            file.rename(meta, file)
+            setwd("../..")
+        },
+        contentType = "application/xlsx"
+    )
+
+    # geo_excel_out <- eventReactive(input$geo_submit_all, {
+    #     cts <- ddsout()[[4]]
+    #     cts <- cts_split(cts = cts)
+    #     wd <- cts[[2]]
+    #     ser_out <- geo_ser_out()
+    #     sam_title <- rownames(ddsout()[[2]])
+    #     sam_out_01 <- geo_sam_out_01()
+    #     sam_out_02 <- geo_sam_out_02()
+    #     sam_out_03 <- geo_sam_out_03()
+    #     sam_out_04 <- geo_sam_out_04()
+    #     sam_out_05 <- geo_sam_out_05()
+    #     tmp <- iris_excel(
+    #         wd, ser_out, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
+    #         sam_out_05
+    #     )
+    #     return(tmp)        
+    # })                  
 
 }

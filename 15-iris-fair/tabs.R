@@ -441,6 +441,7 @@ tab.geo <- tabPanel(
             uiOutput("geo_series"),
             uiOutput("geo_01_title"),
             uiOutput("geo_02_summary"),
+            uiOutput("geo_xx_overall_design"),
             div(id = "contrib"),
             uiOutput("geo_03a_contrib_action"),
             uiOutput("geo_03b_contrib"),
@@ -451,7 +452,6 @@ tab.geo <- tabPanel(
             uiOutput("geo_samples"),
             uiOutput("geo_samples_list"),
             uiOutput("geo_submit_sample"),
-            verbatimTextOutput("geo_debug"),
 
             uiOutput("geo_protocols"),
             uiOutput("geo_07_growth_protocol"),
@@ -480,6 +480,9 @@ tab.geo <- tabPanel(
             uiOutput("geo_paired_end_list"),
             uiOutput("geo_submit_paired_end"),
 
+            uiOutput("geo_submit_all"),
+            uiOutput("geo_download_excel"),
+            verbatimTextOutput("geo_debug"),
             br(),
             br(),
             br()    
