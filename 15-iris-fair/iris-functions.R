@@ -11,11 +11,11 @@
 pack.man <- function(pkg){
   new.pkg <- pkg[!(pkg %in% installed.packages()[, "Package"])]
   if (length(new.pkg)) 
-    install.packages(
-      new.pkg, 
-      dependencies = TRUE,
-      repos="http://mirror.las.iastate.edu/CRAN/"
-    )
+	install.packages(
+	  new.pkg, 
+	  dependencies = TRUE,
+	  repos="http://mirror.las.iastate.edu/CRAN/"
+	)
   sapply(pkg, require, character.only = TRUE)
 }
 
@@ -34,12 +34,12 @@ getSizeFact <- function(rc.data) {
 ## Get normalized counts from different object classes
 getNormCounts <- function(rc.data) {
   if (class(rc.data) == "DESeqDataSet") {
-    nc.data <- BiocGenerics::counts(rc.data, normalize = TRUE)
-    return(nc.data)
+	nc.data <- BiocGenerics::counts(rc.data, normalize = TRUE)
+	return(nc.data)
   } else {
-    sf <- getSizeFact(rc.data)
-    nc.data <- sweep(rc.data, 2, sf, FUN = "/")
-    return(nc.data)
+	sf <- getSizeFact(rc.data)
+	nc.data <- sweep(rc.data, 2, sf, FUN = "/")
+	return(nc.data)
   }
 }
 
@@ -50,7 +50,7 @@ getGenes <- function(rc.data, id, coldata) {
   names(nc.data) <- "counts"
   dat.l <- list(coldata, nc.data)
   nc.data <- Reduce(
-    merge, lapply(dat.l, function(x) data.frame(x, sample = row.names(x)))
+	merge, lapply(dat.l, function(x) data.frame(x, sample = row.names(x)))
   )
   return(nc.data)
 }
@@ -59,168 +59,168 @@ getGenes <- function(rc.data, id, coldata) {
 getContTable <- function(
   de.genes, coef, cts, expset, design, fact, fact5, fact6) {
   if (class(de.genes) == "MArrayLM") {
-    de.genes2 <- topTable(
-      fit = de.genes,
-      coef = coef,
-      number = nrow(cts)
-    )
-    de.genes2 <- de.genes2[order(rownames(de.genes2)), ]
-    de.genes2 <- as.data.frame(de.genes2)
-    de.genes2$baseMean <- rowMeans(cts)
-    names(de.genes2) <- c(
-      "log2FoldChange",
-      "avgexpr",
-      "t",
-      "pvalue",
-      "padj",
-      "B",
-      "baseMean"
-    )
-    de.genes2 <- subset(de.genes2, baseMean != 0)
-    de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-    names(de.genes2)[1] <- "id"    
+	de.genes2 <- topTable(
+	  fit = de.genes,
+	  coef = coef,
+	  number = nrow(cts)
+	)
+	de.genes2 <- de.genes2[order(rownames(de.genes2)), ]
+	de.genes2 <- as.data.frame(de.genes2)
+	de.genes2$baseMean <- rowMeans(cts)
+	names(de.genes2) <- c(
+	  "log2FoldChange",
+	  "avgexpr",
+	  "t",
+	  "pvalue",
+	  "padj",
+	  "B",
+	  "baseMean"
+	)
+	de.genes2 <- subset(de.genes2, baseMean != 0)
+	de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	names(de.genes2)[1] <- "id"    
   } else if (class(de.genes) == "DGEGLM") {
-    if (expset == "exp1" | expset == "exp2") {
-      de.genes2 <- glmLRT(
-        glmfit = de.genes,
-        contrast = design[, coef]
-      )
-      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2$baseMean <- rowMeans(cts)
-      names(de.genes2) <- c(
-        "log2FoldChange",
-        "logCPM",
-        "LR",
-        "pvalue",
-        "padj",
-        "baseMean"
-      )
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"
-    } else if (expset == "exp3" | expset == "exp4") {
-      de.genes2 <- glmLRT(
-        glmfit = de.genes,
-        coef = coef
-      )
-      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2$baseMean <- rowMeans(cts)
-      names(de.genes2) <- c(
-        "log2FoldChange",
-        "logCPM",
-        "LR",
-        "pvalue",
-        "padj",
-        "baseMean"
-      )
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"      
-    } else if (expset == "exp5" | expset == "exp6") {
-      de.genes2 <- glmLRT(
-        glmfit = de.genes,
-        contrast = design[, coef]
-      )
-      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2$baseMean <- rowMeans(cts)
-      names(de.genes2) <- c(
-        "log2FoldChange",
-        "logCPM",
-        "LR",
-        "pvalue",
-        "padj",
-        "baseMean"
-      )
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"
-    } else if (expset == "exp7") {
-      de.genes2 <- glmLRT(
-        glmfit = de.genes,
-        coef = coef
-      )
-      de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2$baseMean <- rowMeans(cts)
-      names(de.genes2) <- c(
-        "log2FoldChange",
-        "logCPM",
-        "LR",
-        "pvalue",
-        "padj",
-        "baseMean"
-      )
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()      
-    }
+	if (expset == "exp1" | expset == "exp2") {
+	  de.genes2 <- glmLRT(
+		glmfit = de.genes,
+		contrast = design[, coef]
+	  )
+	  de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2$baseMean <- rowMeans(cts)
+	  names(de.genes2) <- c(
+		"log2FoldChange",
+		"logCPM",
+		"LR",
+		"pvalue",
+		"padj",
+		"baseMean"
+	  )
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"
+	} else if (expset == "exp3" | expset == "exp4") {
+	  de.genes2 <- glmLRT(
+		glmfit = de.genes,
+		coef = coef
+	  )
+	  de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2$baseMean <- rowMeans(cts)
+	  names(de.genes2) <- c(
+		"log2FoldChange",
+		"logCPM",
+		"LR",
+		"pvalue",
+		"padj",
+		"baseMean"
+	  )
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"      
+	} else if (expset == "exp5" | expset == "exp6") {
+	  de.genes2 <- glmLRT(
+		glmfit = de.genes,
+		contrast = design[, coef]
+	  )
+	  de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2$baseMean <- rowMeans(cts)
+	  names(de.genes2) <- c(
+		"log2FoldChange",
+		"logCPM",
+		"LR",
+		"pvalue",
+		"padj",
+		"baseMean"
+	  )
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"
+	} else if (expset == "exp7") {
+	  de.genes2 <- glmLRT(
+		glmfit = de.genes,
+		coef = coef
+	  )
+	  de.genes2 <- topTags(de.genes2, n = nrow(cts), sort.by = "none")
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2$baseMean <- rowMeans(cts)
+	  names(de.genes2) <- c(
+		"log2FoldChange",
+		"logCPM",
+		"LR",
+		"pvalue",
+		"padj",
+		"baseMean"
+	  )
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()      
+	}
   } else if (class(de.genes) == "DESeqDataSet") {
-    if (expset == "exp1") {
-      coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
-      coef2 <- unlist(coef2)
-      de.genes2 <- results(
-        object = de.genes,
-        contrast = c(fact, coef2[1], coef2[2])
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"      
-    } else if (expset == "exp2") {
-      coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
-      coef2 <- unlist(coef2)
-      de.genes2 <- results(
-        object = de.genes,
-        contrast = c("group", coef2[1], coef2[2])
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"         
-    } else if (expset == "exp3" | expset == "exp4") {
-      names(mcols(de.genes))[grep(
-        "log2 fold change", 
-        mcols(mcols(de.genes))$description
-      )] <- colnames(design)
-      de.genes2 <- results(
-        object = de.genes,
-        contrast = list(coef)
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-      names(de.genes2)[1] <- "id"         
-    } else if (expset == "exp5") {
-      coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
-      coef2 <- unlist(coef2)
-      de.genes2 <- results(
-        object = de.genes,
-        contrast = c(fact5, coef2[1], coef2[2])
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-    } else if (expset == "exp6") {
-      coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
-      coef2 <- unlist(coef2)
-      de.genes2 <- results(
-        object = de.genes,
-        contrast = c(fact6, coef2[1], coef2[2])
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-    } else if (expset == "exp7") {
-      de.genes2 <- results(
-        object = de.genes,
-        name = coef
-      )
-      de.genes2 <- as.data.frame(de.genes2)
-      de.genes2 <- subset(de.genes2, baseMean != 0)
-      de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
-    }
+	if (expset == "exp1") {
+	  coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
+	  coef2 <- unlist(coef2)
+	  de.genes2 <- results(
+		object = de.genes,
+		contrast = c(fact, coef2[1], coef2[2])
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"      
+	} else if (expset == "exp2") {
+	  coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
+	  coef2 <- unlist(coef2)
+	  de.genes2 <- results(
+		object = de.genes,
+		contrast = c("group", coef2[1], coef2[2])
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"         
+	} else if (expset == "exp3" | expset == "exp4") {
+	  names(mcols(de.genes))[grep(
+		"log2 fold change", 
+		mcols(mcols(de.genes))$description
+	  )] <- colnames(design)
+	  de.genes2 <- results(
+		object = de.genes,
+		contrast = list(coef)
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	  names(de.genes2)[1] <- "id"         
+	} else if (expset == "exp5") {
+	  coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
+	  coef2 <- unlist(coef2)
+	  de.genes2 <- results(
+		object = de.genes,
+		contrast = c(fact5, coef2[1], coef2[2])
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	} else if (expset == "exp6") {
+	  coef2 <- strsplit(coef, "_VS_", fixed = TRUE)
+	  coef2 <- unlist(coef2)
+	  de.genes2 <- results(
+		object = de.genes,
+		contrast = c(fact6, coef2[1], coef2[2])
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	} else if (expset == "exp7") {
+	  de.genes2 <- results(
+		object = de.genes,
+		name = coef
+	  )
+	  de.genes2 <- as.data.frame(de.genes2)
+	  de.genes2 <- subset(de.genes2, baseMean != 0)
+	  de.genes2 <- de.genes2 %>% tibble::rownames_to_column()
+	}
   }
   return(de.genes2)
 }
@@ -230,21 +230,21 @@ textAreaInput2 <- function (
   inputId, label, value = "", width = NULL, height = NULL, 
   cols = NULL, rows = NULL, placeholder = NULL, resize = NULL
 ) {
-    value <- restoreInput(id = inputId, default = value)
-    if (!is.null(resize)) {
-        resize <- match.arg(resize, c("both", "none", "vertical", 
-            "horizontal"))
-    }
-    style <- paste("max-width: 100%;", if (!is.null(width)) 
-        paste0("width: ", validateCssUnit(width), ";"), if (!is.null(height)) 
-        paste0("height: ", validateCssUnit(height), ";"), if (!is.null(resize)) 
-        paste0("resize: ", resize, ";"))
-    if (length(style) == 0) 
-        style <- NULL
-    div(class = "form-group", 
-        tags$label(label, `for` = inputId), tags$textarea(id = inputId, 
-        class = "form-control", placeholder = placeholder, style = style, 
-        rows = rows, cols = cols, value))
+	value <- restoreInput(id = inputId, default = value)
+	if (!is.null(resize)) {
+		resize <- match.arg(resize, c("both", "none", "vertical", 
+			"horizontal"))
+	}
+	style <- paste("max-width: 100%;", if (!is.null(width)) 
+		paste0("width: ", validateCssUnit(width), ";"), if (!is.null(height)) 
+		paste0("height: ", validateCssUnit(height), ";"), if (!is.null(resize)) 
+		paste0("resize: ", resize, ";"))
+	if (length(style) == 0) 
+		style <- NULL
+	div(class = "form-group", 
+		tags$label(label, `for` = inputId), tags$textarea(id = inputId, 
+		class = "form-control", placeholder = placeholder, style = style, 
+		rows = rows, cols = cols, value))
 }
 
 
@@ -317,9 +317,9 @@ limma.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl) {
   colnames(design) <- gsub("coldata\\[, fact2\\]*", "", colnames(design))
   colnames(design)[1] <- gsub("\\(|\\)", "", colnames(design)[1])
   colnames(design)[-1:-f1n] <- paste0(
-    colnames(design)[-1:-f1n],
-    "_VS_", 
-    fact2.rlvl
+	colnames(design)[-1:-f1n],
+	"_VS_", 
+	fact2.rlvl
   )
   v <- voom(cts, design)
   fit <- lmFit(cts, design)
@@ -376,7 +376,7 @@ edger.exp2 <- function(fact1, fact2, coldata, cts, perm.h, norm) {
 
 ## EDGER - EXP3 - classical interactions
 edger.exp3 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl, 
-                       norm) {
+					   norm) {
   f1n <- length(levels(coldata[, fact1]))
   coldata[, fact1] <- relevel(x = coldata[, fact1], ref = fact1.rlvl)
   coldata[, fact2] <- relevel(x = coldata[, fact2], ref = fact2.rlvl)
@@ -404,7 +404,7 @@ edger.exp3 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl,
 
 ## EDGER - EXP4 - added effects blocking and paired
 edger.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl,
-                       norm) {
+					   norm) {
   f1n <- length(levels(coldata[, fact1]))
   coldata[, fact1] <- relevel(x = coldata[, fact1], ref = fact1.rlvl)
   coldata[, fact2] <- relevel(x = coldata[, fact2], ref = fact2.rlvl)
@@ -414,9 +414,9 @@ edger.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl,
   colnames(design) <- gsub("coldata\\[, fact2\\]*", "", colnames(design))
   colnames(design)[1] <- gsub("\\(|\\)", "", colnames(design)[1])
   colnames(design)[-1:-f1n] <- paste0(
-    colnames(design)[-1:-f1n],
-    "_VS_", 
-    fact2.rlvl
+	colnames(design)[-1:-f1n],
+	"_VS_", 
+	fact2.rlvl
   )
   # design <- cbind(tmp1, tmp2, tmp3)
   dge <- DGEList(counts = cts)
@@ -504,9 +504,9 @@ deseq.exp1 <- function(fact, coldata, cts, perm.h) {
   design <- paste("~", fact)
   design <- as.formula(design)
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = design
+	countData = cts,
+	colData = coldata,
+	design = design
   )
   dds <- DESeq(dds)
 
@@ -523,9 +523,9 @@ deseq.exp2 <- function(fact1, fact2, coldata, cts, perm.h) {
   cont <- makeContrasts(contrasts = perm.c, levels = design)
   colnames(cont) <- perm.h
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = ~ 1
+	countData = cts,
+	colData = coldata,
+	design = ~ 1
   )
   dds$group <- group.c
   design(dds) <- ~ group
@@ -555,9 +555,9 @@ deseq.exp3 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl) {
   design.dds <- paste("~", fact1, "*", fact2)
   design.dds <- as.formula(design.dds)
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = design.dds
+	countData = cts,
+	colData = coldata,
+	design = design.dds
   )
   dds <- DESeq(dds)
   return(list(dds, design))
@@ -574,17 +574,17 @@ deseq.exp4 <- function(fact1, fact2, coldata, cts, fact1.rlvl, fact2.rlvl) {
   colnames(design) <- gsub("coldata\\[, fact2\\]*", "", colnames(design))
   colnames(design)[1] <- gsub("\\(|\\)", "", colnames(design)[1])
   colnames(design)[-1:-f1n] <- paste0(
-    colnames(design)[-1:-f1n],
-    "_VS_", 
-    fact2.rlvl
+	colnames(design)[-1:-f1n],
+	"_VS_", 
+	fact2.rlvl
   )
   # design <- cbind(tmp1, tmp2, tmp3)
   design.dds <- paste("~", fact1, "+", fact2)
   design.dds <- as.formula(design.dds)
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = design.dds
+	countData = cts,
+	colData = coldata,
+	design = design.dds
   )
   dds <- DESeq(dds)
   return(list(dds, design))
@@ -602,9 +602,9 @@ deseq.exp5 <- function(fact, fact.levl, cts, coldata, perm.h) {
   design.dds <- paste("~", fact)
   design.dds <- as.formula(design.dds)
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = design.dds
+	countData = cts,
+	colData = coldata,
+	design = design.dds
   )
   dds <- DESeq(dds, test = "LRT", reduced = ~1)
   return(list(dds, cont0))
@@ -626,9 +626,9 @@ deseq.exp6 <- function(
   design.dds <- paste("~", me.fact)
   design.dds <- as.formula(design.dds)
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = design.dds
+	countData = cts,
+	colData = coldata,
+	design = design.dds
   )
   dds <- DESeq(dds, test = "LRT", reduced = ~1)
   return(list(dds, cont0))
@@ -638,9 +638,9 @@ deseq.exp6 <- function(
 deseq.exp7 <- function(cts, coldata, mod.matrix) {
   design <- mod.matrix
   dds <- DESeqDataSetFromMatrix(
-    countData = cts,
-    colData = coldata,
-    design = ~ 1
+	countData = cts,
+	colData = coldata,
+	design = ~ 1
   )
   dds <- DESeq(dds, full = design, modelMatrixType = "standard")
   return(list(dds, design))
@@ -657,10 +657,10 @@ bicPlot <- function(n, res, cts.var) {
   n <- as.numeric(n)
   par(mar = c(10, 4, 3, 5) + 0.1, yaxt = "n")
   quheatmap(
-    x = cts.var,
-    bicResult = res,
-    number = n, 
-    showlabel = TRUE
+	x = cts.var,
+	bicResult = res,
+	number = n, 
+	showlabel = TRUE
   )  
 }
 
@@ -678,10 +678,10 @@ sampdistPlot <- function(cts) {
 ### Label conversion
 qcLabConvert <- function(lab, tran) {
   if (tran == "log") {
-    lab <- expression(paste("log"[2], " (counts + 1)"))
-    return(lab)
+	lab <- expression(paste("log"[2], " (counts + 1)"))
+	return(lab)
   } else {
-    return(lab)
+	return(lab)
   }
 }
 
@@ -695,12 +695,12 @@ qcBoxPlot <- function(tmp, lab, tran) {
   lab <- qcLabConvert(lab, tran)
   
   p <- ggplot(box, aes(key, value)) +
-    geom_boxplot() +
-    xlab("") +
-    ylab(lab) +
-    ggtitle("Count data distributions - box and whisker") +
-    theme_light() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+	geom_boxplot() +
+	xlab("") +
+	ylab(lab) +
+	ggtitle("Count data distributions - box and whisker") +
+	theme_light() +
+	theme(axis.text.x = element_text(angle = 90, hjust = 1))
   print(p)
 }
 
@@ -714,12 +714,12 @@ qcHist <- function(tmp, lab, tran) {
   lab <- qcLabConvert(lab, tran)
   
   p <- ggplot(hist, aes(value, color = key)) +
-    geom_freqpoly() +
-    xlab(lab) +
-    ylab("Frequency") +
-    ggtitle("Count data distributions - histogram") +
-    theme_light() +
-    scale_color_discrete(name = "Sample")
+	geom_freqpoly() +
+	xlab(lab) +
+	ylab("Frequency") +
+	ggtitle("Count data distributions - histogram") +
+	theme_light() +
+	scale_color_discrete(name = "Sample")
   print(p)
 }
 
@@ -733,12 +733,12 @@ qcBarplot <- function(tmp) {
   bar <- gather(bar)
   
   p <- ggplot(bar, aes(key, value)) +
-    geom_bar(stat = "identity", color = "#3d3d3d", fill = "#dddddd") +
-    xlab("") +
-    ylab("Counts") +
-    ggtitle("Total reads") +
-    theme_light() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+	geom_bar(stat = "identity", color = "#3d3d3d", fill = "#dddddd") +
+	xlab("") +
+	ylab("Counts") +
+	ggtitle("Total reads") +
+	theme_light() +
+	theme(axis.text.x = element_text(angle = 90, hjust = 1))
   print(p)
 }
 
@@ -746,21 +746,21 @@ qcBarplot <- function(tmp) {
 ### PCA plot
 qcPCAPlot <- function(tmp, pcafact) {
   pca.lab <- plotPCA(
-    tmp,
-    intgroup = pcafact
+	tmp,
+	intgroup = pcafact
   )
   pca <- plotPCA(
-    tmp,
-    intgroup = pcafact,
-    returnData = TRUE
+	tmp,
+	intgroup = pcafact,
+	returnData = TRUE
   )
   p <- ggplot(pca, aes(PC1, PC2)) +
-    geom_point(aes(shape = group), size = 2) +
-    xlab(pca.lab$labels$x) +
-    ylab(pca.lab$labels$y) +
-    ggtitle("Principle Component Analysis") +
-    theme_light() +
-    scale_shape_discrete(name = pcafact)
+	geom_point(aes(shape = group), size = 2) +
+	xlab(pca.lab$labels$x) +
+	ylab(pca.lab$labels$y) +
+	ggtitle("Principle Component Analysis") +
+	theme_light() +
+	scale_shape_discrete(name = pcafact)
   print(p)
 }
 
@@ -770,15 +770,15 @@ qcMDSPlot <- function(tmp, mdsfact) {
   mds <- dist(t(assay(tmp)))
   mds <- as.matrix(mds)
   mds <- as.data.frame(colData(tmp)) %>%
-    cbind(cmdscale(mds))
+	cbind(cmdscale(mds))
   
   p <- ggplot(mds, aes(mds[, "1"], mds["2"])) +
-    geom_point(aes(shape = mds[, mdsfact]), size = 2) +
-    xlab("MDS coordinate 1") +
-    ylab("MDS coordinate 2") +
-    ggtitle("MDS Analysis") +
-    theme_light() +
-    scale_shape_discrete(name = mdsfact)
+	geom_point(aes(shape = mds[, mdsfact]), size = 2) +
+	xlab("MDS coordinate 1") +
+	ylab("MDS coordinate 2") +
+	ggtitle("MDS Analysis") +
+	theme_light() +
+	scale_shape_discrete(name = mdsfact)
   print(p)
 }
 
@@ -790,10 +790,10 @@ qcMDSPlot <- function(tmp, mdsfact) {
 qcHeatMap <- function(heat, n) {
   n <- as.numeric(n)
   pheatmap(
-    mat = heat,
-    cluster_rows = FALSE,
-    cluster_cols = FALSE,
-    main = paste0("Heatmap of the ", n, " most expressed IDs")
+	mat = heat,
+	cluster_rows = FALSE,
+	cluster_cols = FALSE,
+	main = paste0("Heatmap of the ", n, " most expressed IDs")
   )
 }
 
@@ -801,34 +801,34 @@ qcHeatMap <- function(heat, n) {
 ### Heatmap (2) counts
 qcHeatCount <- function(s, rc.data, coldata, heatfactor) {
   heat.c <- getGenes(
-    rc.data = rc.data, 
-    id = s[["y"]],
-    coldata = coldata
+	rc.data = rc.data, 
+	id = s[["y"]],
+	coldata = coldata
   )
   p <- ggplot(heat.c, aes(heat.c[, heatfactor], counts)) +
-    geom_point(
-      position = position_jitter(height = 0, width = 0.05),
-      size = 2,
-      color = "#3d3d3d"
-    ) +
-    stat_summary(
-      fun.data = mean_cl_boot, 
-      geom = "errorbar",
-      width = 0.03, 
-      colour = "#ff5454", 
-      alpha = 0.7
-    ) +
-    stat_summary(
-      fun.y = mean, 
-      geom = "point", 
-      fill = "#ff5454", 
-      pch = 21, 
-      size = 3
-    ) +
-    xlab("") +
-    ylab("Normalized counts") +
-    ggtitle(paste(s[["y"]], "Counts")) +
-    theme_light()
+	geom_point(
+	  position = position_jitter(height = 0, width = 0.05),
+	  size = 2,
+	  color = "#3d3d3d"
+	) +
+	stat_summary(
+	  fun.data = mean_cl_boot, 
+	  geom = "errorbar",
+	  width = 0.03, 
+	  colour = "#ff5454", 
+	  alpha = 0.7
+	) +
+	stat_summary(
+	  fun.y = mean, 
+	  geom = "point", 
+	  fill = "#ff5454", 
+	  pch = 21, 
+	  size = 3
+	) +
+	xlab("") +
+	ylab("Normalized counts") +
+	ggtitle(paste(s[["y"]], "Counts")) +
+	theme_light()
   print(p)
 }
 
@@ -840,31 +840,31 @@ qcHeatCount <- function(s, rc.data, coldata, heatfactor) {
 corMatPlot <- function(cor.mat) {
   cor.mat <- as.matrix(cor.mat)
   pheatmap(
-    mat = cor.mat,
-    cluster_rows = FALSE,
-    cluster_cols = FALSE,
-    main = "Correlation analysis"
+	mat = cor.mat,
+	cluster_rows = FALSE,
+	cluster_cols = FALSE,
+	main = "Correlation analysis"
   )
 }
 
 ### Label converter
 corLabConvert <- function(lab, tran, x, y) {
   if (tran == "log") {
-    xlab <- bquote(.(x)*": log"[2]*"(counts + 1)")
-    ylab <- bquote(.(y)*": log"[2]*"(counts + 1)")
-    return(list(xlab, ylab))
+	xlab <- bquote(.(x)*": log"[2]*"(counts + 1)")
+	ylab <- bquote(.(y)*": log"[2]*"(counts + 1)")
+	return(list(xlab, ylab))
   } else if (tran == "rlog") {
-    xlab <- paste0(x, ": rlog(counts)")
-    ylab <- paste0(y, ": rlog(counts)")
-    return(list(xlab, ylab))
+	xlab <- paste0(x, ": rlog(counts)")
+	ylab <- paste0(y, ": rlog(counts)")
+	return(list(xlab, ylab))
   } else if (tran == "vst") {
-    xlab <- paste0(x, ": vst(counts)")
-    ylab <- paste0(y, ": vst(counts")
-    return(list(xlab, ylab))
+	xlab <- paste0(x, ": vst(counts)")
+	ylab <- paste0(y, ": vst(counts")
+	return(list(xlab, ylab))
   } else if (tran == "raw") {
-    xlab <- paste0(x, ": raw counts")
-    ylab <- paste0(y, ": raw counts")
-    return(list(xlab, ylab))
+	xlab <- paste0(x, ": raw counts")
+	ylab <- paste0(y, ": raw counts")
+	return(list(xlab, ylab))
   }
 }
 
@@ -880,11 +880,11 @@ corScatter <- function(s.cor, cts.tran, tran, lab) {
   ylab <- lab[[2]]
   
   p <- ggplot(cts.tran, aes(cts.tran[, x], cts.tran[, y])) +
-    geom_point(size = 0.8) +
-    xlab(xlab) +
-    ylab(ylab) +
-    ggtitle(paste(y, "vs.", x)) +
-    theme_light()
+	geom_point(size = 0.8) +
+	xlab(xlab) +
+	ylab(ylab) +
+	ggtitle(paste(y, "vs.", x)) +
+	theme_light()
   print(p)
 }
 
@@ -895,21 +895,21 @@ corScatter <- function(s.cor, cts.tran, tran, lab) {
 ### Overview plot
 dgeOverPlot <- function(comp) {
   p <- ggplot(comp, aes(contrast, value)) +
-    geom_bar(
-      stat = "identity", 
-      aes(fill = variable), 
-      color = "#3d3d3d",
-      position = position_dodge()
-    ) +
-    xlab("Comparison") +
-    ylab("Number of IDs") +
-    ggtitle("DGE Comparisons Overview") +
-    theme_light() +
-    scale_fill_manual(
-      name = "Expression",
-      values = c("down" = "#3884ff", "up" = "#ff4949")
-    ) +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+	geom_bar(
+	  stat = "identity", 
+	  aes(fill = variable), 
+	  color = "#3d3d3d",
+	  position = position_dodge()
+	) +
+	xlab("Comparison") +
+	ylab("Number of IDs") +
+	ggtitle("DGE Comparisons Overview") +
+	theme_light() +
+	scale_fill_manual(
+	  name = "Expression",
+	  values = c("down" = "#3884ff", "up" = "#ff4949")
+	) +
+	theme(axis.text.x = element_text(angle = 90, hjust = 1))
   print(p)
 }
 
@@ -919,8 +919,8 @@ dgeOverTbl <- function(cont.ls, lf, p) {
   p <- as.numeric(p)
   lf <- as.numeric(lf)
   for (i in 1:length(cont.ls)) {
-    cont.ls[[i]] <- cont.ls[[i]][abs(cont.ls[[i]]$log2FoldChange) >= lf, ]
-    cont.ls[[i]] <- cont.ls[[i]][cont.ls[[i]]$padj <= p, ]
+	cont.ls[[i]] <- cont.ls[[i]][abs(cont.ls[[i]]$log2FoldChange) >= lf, ]
+	cont.ls[[i]] <- cont.ls[[i]][cont.ls[[i]]$padj <= p, ]
   }
   cont.regup <- lapply(cont.ls, subset, log2FoldChange > 0)
   cont.regdn <- lapply(cont.ls, subset, log2FoldChange < 0)
@@ -947,25 +947,25 @@ dgeMAPlot <- function(dgeout2, p, l, cont) {
   dge$isLFC <- ifelse(abs(dge$log2FoldChange) >= l, TRUE, FALSE)
   dge$isDGE <- "No differential expression"
   dge$isDGE[which(dge$isLFC & dge$isPADJ) ] <- paste(
-    "padj <=", p, "& LFC >=", l
+	"padj <=", p, "& LFC >=", l
   )
 
   p <- ggplot(dge, aes(log10(baseMean), log2FoldChange)) +
-    geom_point(size = 0.7, aes(color = isDGE)) +
-    xlab(bquote("log"[10]*"(base mean)")) +
-    ylab(bquote("log"[2]*"(fold change)")) +
-    ggtitle(paste("MA Plot:", cont)) +
-    theme_light() +
-    scale_color_manual(
-      name = "",
-      values = c("#999999", "#3884ff")
-    ) +
-    guides(colour = guide_legend(override.aes = list(size = 3))) +
-    geom_hline(
-      yintercept = 0, 
-      color = "#3d3d3d", 
-      linetype = "dashed"
-    )
+	geom_point(size = 0.7, aes(color = isDGE)) +
+	xlab(bquote("log"[10]*"(base mean)")) +
+	ylab(bquote("log"[2]*"(fold change)")) +
+	ggtitle(paste("MA Plot:", cont)) +
+	theme_light() +
+	scale_color_manual(
+	  name = "",
+	  values = c("#999999", "#3884ff")
+	) +
+	guides(colour = guide_legend(override.aes = list(size = 3))) +
+	geom_hline(
+	  yintercept = 0, 
+	  color = "#3d3d3d", 
+	  linetype = "dashed"
+	)
   print(p)
 }
 
@@ -978,25 +978,25 @@ dgeVolPlot <- function(dgeout2, p, l, cont) {
   dge$isLFC <- ifelse(abs(dge$log2FoldChange) >= l, TRUE, FALSE)
   dge$isDGE <- "No differential expression"
   dge$isDGE[which(dge$isLFC & dge$isPADJ) ] <- paste(
-    "padj <=", p, "& LFC >=", l
+	"padj <=", p, "& LFC >=", l
   )
   
   p <- ggplot(dge, aes(log2FoldChange, -log10(pvalue))) +
-    geom_point(size = 0.6, aes(color = isDGE)) +
-    xlab(bquote("log"[2]*"(fold change)")) +
-    ylab(bquote("-log"[10]*"(p-value)")) +
-    ggtitle(paste("Volcano Plot:", cont)) +
-    theme_light() +
-    scale_color_manual(
-      name = "",
-      values = c("#999999", "#3884ff")
-    ) +
-    guides(colour = guide_legend(override.aes = list(size = 3))) +
-    geom_vline(
-      xintercept = 0, 
-      color = "#3d3d3d", 
-      linetype = "dashed"
-    )
+	geom_point(size = 0.6, aes(color = isDGE)) +
+	xlab(bquote("log"[2]*"(fold change)")) +
+	ylab(bquote("-log"[10]*"(p-value)")) +
+	ggtitle(paste("Volcano Plot:", cont)) +
+	theme_light() +
+	scale_color_manual(
+	  name = "",
+	  values = c("#999999", "#3884ff")
+	) +
+	guides(colour = guide_legend(override.aes = list(size = 3))) +
+	geom_vline(
+	  xintercept = 0, 
+	  color = "#3d3d3d", 
+	  linetype = "dashed"
+	)
   print(p)
 }
 
@@ -1005,30 +1005,30 @@ dgeVolPlot <- function(dgeout2, p, l, cont) {
 ## CTS Overview
 trubble <- function(cts) {
   tmp <- as.data.frame(
-    rbind(
-      cts[1:5, ],
-      ... = rep("...", length(cts[1, ])),
-      cts[(nrow(cts) - 4):(nrow(cts)), ]
-    )
+	rbind(
+	  cts[1:5, ],
+	  ... = rep("...", length(cts[1, ])),
+	  cts[(nrow(cts) - 4):(nrow(cts)), ]
+	)
   )
   
   if (ncol(tmp) > 10) {
-    tmp2 <- tmp[, 1:10]
+	tmp2 <- tmp[, 1:10]
   } else {
-    tmp2 <- tmp
+	tmp2 <- tmp
   }
   
   nr <- nrow(cts)
   nc <- ncol(cts)
   
   if (ncol(tmp) > 10) {
-    output <- paste(
-      "Your pre-processed data contains", nr, "IDs and", nc, "samples. Showing the first 10 samples:\n"
-    )
+	output <- paste(
+	  "Your pre-processed data contains", nr, "IDs and", nc, "samples. Showing the first 10 samples:\n"
+	)
   } else {
-    output <- paste(
-      "Your pre-processed data contains", nr, "IDs and", nc, "samples.\n"
-    )
+	output <- paste(
+	  "Your pre-processed data contains", nr, "IDs and", nc, "samples.\n"
+	)
   }
   
   test <- as.matrix(tmp2)
@@ -1041,22 +1041,22 @@ trubble <- function(cts) {
   gen <- gsub("\\s", " ", format(gen, width = max(nchar(gen))))
   
   if (ncol(tmp) > 10) {
-    output2 <- paste("\nSamples not shown:\n\n")
-    output3 <- paste(colnames(tmp[11:ncol(tmp)]))
+	output2 <- paste("\nSamples not shown:\n\n")
+	output3 <- paste(colnames(tmp[11:ncol(tmp)]))
   } else {
-    output2 <- NULL
-    output3 <- NULL
+	output2 <- NULL
+	output3 <- NULL
   }
   
   
   cat(output, "\n")
   for(i in 1:nrow(y)) {
-    cat(gen[i], y[i, ], "\n")
+	cat(gen[i], y[i, ], "\n")
   }
   
   cat(output2)
   for (i in 1:length(output3)) {
-    cat("  ", output3[i], "\n")
+	cat("  ", output3[i], "\n")
   }
   
 }
@@ -1065,108 +1065,166 @@ trubble <- function(cts) {
 
 # CTS splitter
 cts_split <- function(cts) {
-    # Split raw count matrix by each sample
-    wd <- paste0("tmp-", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
-    if (file.exists("tmp")) {
-        setwd("tmp")
-        dir.create(file.path(wd))
-        setwd(wd)        
-    } else {
-        dir.create(file.path("tmp"))
-        setwd("tmp")
-        dir.create(file.path(wd))
-        setwd(wd)
-    }
-    for (i in seq_len(ncol(cts))) {
-        write.file(
-            cbind(
-                rownames(cts),
-                cts[, i, drop = FALSE]
-            ),
-            f = paste0(colnames(cts)[i], ".txt"),
-            row.names = FALSE
-        )
-    }
-    setwd("../..")
-    
-    # MD5 sums of raw count data (processed data)
-    md5.l <- lapply(seq_len(ncol(cts)), function(i) {
-        as.vector(md5sum(paste0("tmp/", colnames(cts)[i], ".txt")))
-    })
-    names(md5.l) <- colnames(cts)
-    return(list(md5.l, wd))
+	# Split raw count matrix by each sample
+	wd <- paste0("tmp-", format(Sys.time(), "%Y-%m-%d-%H-%M-%S"))
+	if (file.exists("tmp")) {
+		setwd("tmp")
+		dir.create(file.path(wd))
+		setwd(wd)        
+	} else {
+		dir.create(file.path("tmp"))
+		setwd("tmp")
+		dir.create(file.path(wd))
+		setwd(wd)
+	}
+	for (i in seq_len(ncol(cts))) {
+		write.file(
+			cbind(
+				rownames(cts),
+				cts[, i, drop = FALSE]
+			),
+			f = paste0(colnames(cts)[i], ".txt"),
+			row.names = FALSE
+		)
+	}
+	setwd("../..")
+	
+	# MD5 sums of raw count data (processed data)
+	md5.l <- lapply(seq_len(ncol(cts)), function(i) {
+		as.vector(
+			md5sum(
+				paste0("tmp/", wd, "/", colnames(cts)[i], ".txt")
+			)
+		)
+	})
+	names(md5.l) <- colnames(cts)
+	return(list(md5.l, wd))
 }
 
 
 
 # Proc data file merger
 pdf_sorter <- function(pdf_list, samples) {
-    l3 <- pdf_list
-    n <- substring(names(l3), nchar(names(l3)) - 2)
-    n <- max(as.numeric(n))
+	l3 <- pdf_list
+	n <- substring(names(l3), nchar(names(l3)) - 2)
+	n <- max(as.numeric(n))
 
-    l4 <- lapply(seq(from = 2, to = n), function(i) {
-        l3[grep(paste0("^geo_pdfile_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
-    })
+	l4 <- lapply(seq(from = 2, to = n), function(i) {
+		l3[grep(paste0("^geo_pdfile_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
+	})
 
-    l5 <- lapply(seq_len(length(samples)), function(i) {
-        paste0("geo_pdfile_", str_pad(i, 3, pad = 0), "_")
-    })
+	l5 <- lapply(seq_len(length(samples)), function(i) {
+		paste0("geo_pdfile_", str_pad(i, 3, pad = 0), "_")
+	})
 
-    names(l5) <- l5
-    mylist.names <- names(l5)
-    mylist <- NULL
-    mylist[mylist.names] <- list("")
-    mylist <- rep(list(mylist), length(l4))
+	names(l5) <- l5
+	mylist.names <- names(l5)
+	mylist <- NULL
+	mylist[mylist.names] <- list("")
+	mylist <- rep(list(mylist), length(l4))
 
-    for (i in seq_len(length(l4))) {
-        names(mylist[[i]]) <- paste0(
-            names(mylist[[i]]), str_pad(i + 1, 3, pad = 0)
-        )
-    }
+	for (i in seq_len(length(l4))) {
+		names(mylist[[i]]) <- paste0(
+			names(mylist[[i]]), str_pad(i + 1, 3, pad = 0)
+		)
+	}
 
-    a <- mylist
-    b <- l4
-    for (i in seq_len(length(l4))) {
-        a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
-    }
+	a <- mylist
+	b <- l4
+	for (i in seq_len(length(l4))) {
+		a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
+	}
 
-    return(a)    
+	return(a)    
 }
 
+
+# Raw data file merger
+raw_sorter <- function(pdf_list, samples) {
+	l3 <- pdf_list
+	n <- substring(names(l3), nchar(names(l3)) - 2)
+	n <- max(as.numeric(n))
+
+	l4 <- lapply(seq(from = 1, to = n), function(i) {
+		l3[grep(paste0("^geo_rawfile_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
+	})
+
+	l5 <- lapply(seq_len(length(samples)), function(i) {
+		paste0("geo_rawfile_", str_pad(i, 3, pad = 0), "_")
+	})
+
+	names(l5) <- l5
+	mylist.names <- names(l5)
+	mylist <- NULL
+	mylist[mylist.names] <- list("")
+	mylist <- rep(list(mylist), length(l4))
+
+	for (i in seq_len(length(l4))) {
+		names(mylist[[i]]) <- paste0(
+			names(mylist[[i]]), str_pad(i, 3, pad = 0)
+		)
+	}
+
+	a <- mylist
+	b <- l4
+	for (i in seq_len(length(l4))) {
+		a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
+	}
+
+	return(a)    
+}
 
 
 # Character data file merger
 char_sorter <- function(pdf_list, samples) {
-    l3 <- pdf_list
-    n <- substring(names(l3), nchar(names(l3)) - 2)
-    n <- max(as.numeric(n))
+	l3 <- pdf_list
+	n <- substring(names(l3), nchar(names(l3)) - 2)
+	n <- max(as.numeric(n))
 
-    l4 <- lapply(seq(from = 1, to = n), function(i) {
-        l3[grep(paste0("^geo_character_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
-    })
+	l4 <- lapply(seq(from = 1, to = n), function(i) {
+		l3[grep(paste0("^geo_character_[0-9]{3}_", str_pad(i, 3, pad = 0)),names(l3))]
+	})
 
-    l5 <- lapply(seq_len(length(samples)), function(i) {
-        paste0("geo_character_", str_pad(i, 3, pad = 0), "_")
-    })
+	l5 <- lapply(seq_len(length(samples)), function(i) {
+		paste0("geo_character_", str_pad(i, 3, pad = 0), "_")
+	})
 
-    names(l5) <- l5
-    mylist.names <- names(l5)
-    mylist <- NULL
-    mylist[mylist.names] <- list("")
-    mylist <- rep(list(mylist), length(l4))
+	names(l5) <- l5
+	mylist.names <- names(l5)
+	mylist <- NULL
+	mylist[mylist.names] <- list("")
+	mylist <- rep(list(mylist), length(l4))
 
-    for (i in seq_len(length(l4))) {
-        names(mylist[[i]]) <- paste0(
-            names(mylist[[i]]), str_pad(i, 3, pad = 0)
-        )
-    }
+	for (i in seq_len(length(l4))) {
+		names(mylist[[i]]) <- paste0(
+			names(mylist[[i]]), str_pad(i, 3, pad = 0)
+		)
+	}
 
-    a <- mylist
-    b <- l4
-    for (i in seq_len(length(l4))) {
-        a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
-    }
+	a <- mylist
+	b <- l4
+	for (i in seq_len(length(l4))) {
+		a[[i]][intersect(names(b[[i]]), names(a[[i]]))] <- b[[i]][intersect(names(b[[i]]), names(a[[i]]))]
+	}
 
-    return(a)    
+	return(a)    
 }
+
+
+# Zip files
+zipack <- function(fz, fs, FUN=write.csv, temp.dir=dirname(fz), flags="-r9Xj", ...) {
+  if(!file.exists(temp.dir))  dir.create(temp.dir)
+  if(!is.null(temp.dir)) names(fs) <- file.path(temp.dir, names(fs))
+  
+  # write files to temp dir
+  lapply(1:length(fs), function(i) FUN(fs[[i]], file=names(fs[i]), ...))
+
+  # compress
+  res <- zip(zipfile=fz, files=names(fs), flags = flags)
+  # cleanup
+  lapply(names(fs), unlink)
+  # return path
+  attr(fz, "contentType") =  "application/zip"
+  return(invisible(fz))
+}
+
