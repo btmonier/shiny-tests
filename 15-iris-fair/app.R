@@ -12,7 +12,6 @@
 
 ## CRAN
 source("iris-functions.R")
-source("iris-xlsx.R")
 packages <- c(
 	"crosstalk", "dplyr", "DT", "gtools", "plotly", "shiny", "plyr",
 	"shinyBS", "shinycssloaders", "shinythemes", "tibble", "tidyr",
@@ -34,6 +33,7 @@ if (!require("QUBIC")) biocLite("QUBIC")
 # Sources ----
 source("irisUI.R")
 source("irisServer.R")
+source("iris-xlsx.R")
 
 
 
