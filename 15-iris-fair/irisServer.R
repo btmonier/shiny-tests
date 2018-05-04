@@ -20,7 +20,7 @@
 #       07 SESSION... generate session info
 #       08 GEO....... gene expression omnibus metadata generation
 #
-#
+#---------------------------------------------------------------------
 #
 #   IRIS-DGE application layout
 #
@@ -39,7 +39,7 @@
 #               |-  Overview
 #               |-  Plots
 #           |-  GEO
-#               |- Dynamic sample generation (varies)
+#               |- Dynamic sample generation (see "GEO" layout)
 #           |-  More
 #               |-  Tutorial
 #               |-  FAQ
@@ -47,7 +47,67 @@
 #               |-  Session Info
 #
 #---------------------------------------------------------------------
-
+#
+#   IRIS-DGE gene expression omnibus (GEO) layout
+#   
+#       IRIS-DGE
+#           |-  GEO
+#               |-  Series
+#                   |-  Title
+#                   |-  Summary
+#                   |-  Overall design
+#                   |-  Contributor (DYNAMIC)
+#                   |-  Supplementary file
+#                   |-  SRA center name code
+#               |-  Samples
+#                   |-  Sample name
+#                   |-  Title
+#                   |-  Source name
+#                   |-  Organism
+#                   |-  Chacteristics (BASED ON METADATA)
+#                   |-  Molecule
+#                   |-  Description
+#                   |-  Processed data file (DYNAMIC)
+#                   |-  Raw file (DYNAMIC)
+#               |-  Protocols
+#                   |-  Growth protocol
+#                   |-  Treatment protocol
+#                   |-  Extract protocol
+#                   |-  Library construction protocol
+#                   |-  Library strategy
+#               |-  Data processing pipeline
+#                   |-  Data processing step (DYNAMIC)
+#                   |-  Genome build
+#                   |-  Processed data files format and content
+#               |-  Processed data files
+#                   |-  File name
+#                   |-  File type
+#                   |-  File checksum
+#               |-  Raw files
+#                   |-  File name
+#                   |-  File type
+#                   |-  File checksum
+#                   |-  Instrument model
+#                   |-  Read length
+#                   |-  Single or paired-end
+#               |-  Paired-end experiments (IF RAW FILE -> PAIRED END)
+#                   |-  File name 1
+#                   |-  File name 2
+#                   |-  Average insert size
+#                   |-  Standard deviation
+#               |-  SOLiD experiments (IF RAW FILE -> SOLiD)
+#                   |-  File name 1
+#                   |-  File name 2
+#                   |-  File name 3
+#                   |-  File name 4
+#                   |-  Average insert size
+#                   |-  Standard deviation
+#               |-  Download options
+#                   |-  Metadata (.xlsx)
+#                   |-  Processed data (.zip)
+#                   |-  Both meta- and processed data (.zip)
+#
+#---------------------------------------------------------------------
 
 
 # Change file upload size to 30 MB and sanitize errors
@@ -3245,7 +3305,7 @@ irisServer <- function(input, output, session) {
             )
         } else {
             list(
-                h4("Series"),
+                h4("Series (1 - 6)"),
                 p(
                     HTML(
                         paste0(
@@ -3293,7 +3353,7 @@ irisServer <- function(input, output, session) {
         } else {
             textAreaInput2(
                 inputId = "geo_xx_overall_design",
-                label = "x. Overall Design",
+                label = "3. Overall Design",
                 value = "",
                 width = "500px",
                 rows = 5,
@@ -3331,7 +3391,7 @@ irisServer <- function(input, output, session) {
                             str_pad(num, 3, pad = "0")
                         ),
                         label = paste0(
-                            "3", LETTERS[num], ". Contributor ", num
+                            "4", LETTERS[num], ". Contributor ", num
                         ),
                         width = "500px"
                     )
@@ -3355,7 +3415,7 @@ irisServer <- function(input, output, session) {
                     str_pad(num, 3, pad = "0")
                 ),
                 label = paste0(
-                    "3", LETTERS[num], ". Contributor ", num
+                    "4", LETTERS[num], ". Contributor ", num
                 ),
                 value = "NA"                       
             ) 
@@ -3371,7 +3431,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 textInput(
                     inputId = "geo_04_suppfile",
-                    label = "4. Supplementary File (optional)",
+                    label = "5. Supplementary File (optional)",
                     value = "",
                     width = "500px"
                 )
@@ -3386,7 +3446,7 @@ irisServer <- function(input, output, session) {
             list(
                 textInput(
                     inputId = "geo_05_sra",
-                    label = "5. SRA Center Name Code (optional)",
+                    label = "6. SRA Center Name Code (optional)",
                     value = "",
                     width = "500px"
                 )
@@ -3402,14 +3462,33 @@ irisServer <- function(input, output, session) {
                 actionButton(
                     inputId = "geo_submit_series",
                     label = "Submit Series Info",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
 
+    output$geo_submit_series_check <- renderUI({
+        validate(
+            need(input$geo_submit_series != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_01 <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                hr(),
+                br()
+            )
+        }        
+    })
     
 
     #------------------------------------------------------------------
@@ -3421,7 +3500,7 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             list(
-                h4("Samples"),
+                h4("Samples (7)"),
                 p(
                     paste(
                         "This section lists and describes each of the", 
@@ -3452,10 +3531,10 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             nTabs <- nrow(ddsout()[[2]])
-            # myTabs = lapply(paste("Sample", 1: nTabs), tabPanel)
+
             myTabs <- lapply(seq_len(nTabs), function(i) {
                 tabPanel(
-                    paste0("Sample ", i),
+                    title = paste0("Sample ", i),
                     br(),
                     h5(
                         HTML(
@@ -3473,30 +3552,29 @@ irisServer <- function(input, output, session) {
                     uiOutput(paste0("geo_sample_title_", i)),
                     uiOutput(paste0("geo_sample_source_", i)),
                     uiOutput(paste0("geo_sample_organism_", i)),
-                    div(id = paste0("geo_character_", i)),
-                    uiOutput(paste0("geo_character_action_", i)),
-                    br(),
-                    br(),
                     uiOutput(paste0("geo_sample_molecule_", i)),
                     uiOutput(paste0("geo_sample_description_", i)),
                     br(),
                     p(
                         HTML(
                             paste0(
-                                "<b> 6G", i, "a. Processed Data File 1</b>"
+                                "<b> 7G", i, "a. Processed Data File 1</b>"
                             )
                         )
                     ),
                     p(
                         HTML(
                             paste0(
-                                "<b>NOTE:</b> ",
+                                "<b>Note:</b> ",
                                 "Your processed data file name for the ",
                                 "sample ", "\"", 
                                 "<b>", rownames(ddsout()[[2]])[i], "</b>",
                                 "\"", " is ", "\"", 
                                 "<b>", rownames(ddsout()[[2]])[i], 
-                                ".txt </b>", "\".", " If you would like to ",
+                                ".txt </b>", "\".", 
+                                "This file is the raw counts pertaining ",
+                                "to that sample. ",
+                                "If you would like to ",
                                 "add more processed data files, please enter ",
                                 "values below. If not, <i>please leave blank",
                                 "</i>!"
@@ -3508,7 +3586,8 @@ irisServer <- function(input, output, session) {
                     br(),
                     br(),                    
                     div(id = paste0("geo_rawfile_", i)),
-                    uiOutput(paste0("geo_rawfile_action_", i))
+                    uiOutput(paste0("geo_rawfile_action_", i)),
+                    br()
                 )
             })
             do.call(tabsetPanel, myTabs)
@@ -3520,17 +3599,36 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             list(
-                br(),
                 actionButton(
                     inputId = "geo_submit_sample",
                     label = "Submit Sample Info",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
+
+    output$geo_submit_sample_check <- renderUI({
+        validate(
+            need(input$geo_submit_sample != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_02 <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                hr(),
+                br()
+            )
+        }        
+    })    
             
     observe(
         lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
@@ -3540,7 +3638,7 @@ irisServer <- function(input, output, session) {
                         "geo_sample_title_", 
                         str_pad(i, 3, pad = "0")
                     ),
-                    label = paste0("6A", i, ".", " Title"),
+                    label = paste0("7A", i, ".", " Title"),
                     value = paste0(
                         rownames(ddsout()[[2]])[i]
                     ),
@@ -3554,7 +3652,7 @@ irisServer <- function(input, output, session) {
                         "geo_sample_source_", 
                         str_pad(i, 3, pad = "0")
                     ),
-                    label = paste0("6B", i, ".", " Source Name"),
+                    label = paste0("7B", i, ".", " Source Name"),
                     value = "",
                     width = "500px"
                 )
@@ -3566,86 +3664,86 @@ irisServer <- function(input, output, session) {
                         "geo_sample_organism_", 
                         str_pad(i, 3, pad = "0")
                     ),
-                    label = paste0("6C", i, ".", " Organism"),
+                    label = paste0("7C", i, ".", " Organism"),
                     value = "",
                     width = "500px"
                 )
             })
 
-            output[[paste0("geo_character_action_", i)]] <- renderUI({
-                list(
-                    actionButton(
-                        paste0("add_geo_character_", i),
-                        "Add Characteristic"
-                    ),
-                    actionButton(
-                        paste0("rmv_geo_character_", i),
-                        "Remove Characteristic"
-                    )
-                )
-            })
+            # output[[paste0("geo_character_action_", i)]] <- renderUI({
+            #     list(
+            #         actionButton(
+            #             paste0("add_geo_character_", i),
+            #             "Add Characteristic"
+            #         ),
+            #         actionButton(
+            #             paste0("rmv_geo_character_", i),
+            #             "Remove Characteristic"
+            #         )
+            #     )
+            # })
 
-            values2 <- reactiveValues(num_character = -1)
-            observeEvent(
-                input[[paste0("add_geo_character_", i)]], 
-                ignoreNULL = FALSE, {
-                if (input$goqc == 0) {
-                    return()
-                } else {
-                    values2$num_character <- values2$num_character + 1
-                    num <- values2$num_character
-                    insertUI(
-                        selector = paste0("#geo_character_", i),
-                        where = "beforeEnd",
-                        div(
-                            id = paste0("geo_character_", i, num),
-                            textInput(
-                                inputId = paste0(
-                                    "geo_character_", 
-                                    str_pad(i, 3, pad = "0"), 
-                                    "_",
-                                    str_pad(num, 3, pad = "0")
-                                ),
-                                label = paste0(
-                                    "6D", i, letters[num],
-                                    ". Characteristic ", num
-                                ),
-                                width = "500px"
-                            )
-                        )
-                    )
-                }
-            })
+            # values2 <- reactiveValues(num_character = -1)
+            # observeEvent(
+            #     input[[paste0("add_geo_character_", i)]], 
+            #     ignoreNULL = FALSE, {
+            #     if (input$goqc == 0) {
+            #         return()
+            #     } else {
+            #         values2$num_character <- values2$num_character + 1
+            #         num <- values2$num_character
+            #         insertUI(
+            #             selector = paste0("#geo_character_", i),
+            #             where = "beforeEnd",
+            #             div(
+            #                 id = paste0("geo_character_", i, num),
+            #                 textInput(
+            #                     inputId = paste0(
+            #                         "geo_character_", 
+            #                         str_pad(i, 3, pad = "0"), 
+            #                         "_",
+            #                         str_pad(num, 3, pad = "0")
+            #                     ),
+            #                     label = paste0(
+            #                         "7D", i, letters[num],
+            #                         ". Characteristic ", num
+            #                     ),
+            #                     width = "500px"
+            #                 )
+            #             )
+            #         )
+            #     }
+            # })
 
-            observeEvent(input[[paste0("rmv_geo_character_", i)]], {
-                num <- values2$num_character
-                # Don't let the user remove the very first contrib
-                if (num == 1) {
-                    return()
-                } else {
-                    removeUI(selector = paste0("#geo_character_", i, num))
-                    values2$num_character <- values2$num_character - 1
-                    updateTextInput(
-                        session = session,
-                        inputId = paste0(
-                            "geo_character_",
-                            str_pad(i, 3, pad = "0"), 
-                            "_",
-                            str_pad(num, 3, pad = "0")
-                        ),
-                        label = paste0(
-                            "6D", i, letters[num],
-                            ". Characteristic ", num
-                        ),
-                        value = ""                       
-                    )
-                }
-            })
+            # observeEvent(input[[paste0("rmv_geo_character_", i)]], {
+            #     num <- values2$num_character
+            #     # Don't let the user remove the very first contrib
+            #     if (num == 1) {
+            #         return()
+            #     } else {
+            #         removeUI(selector = paste0("#geo_character_", i, num))
+            #         values2$num_character <- values2$num_character - 1
+            #         updateTextInput(
+            #             session = session,
+            #             inputId = paste0(
+            #                 "geo_character_",
+            #                 str_pad(i, 3, pad = "0"), 
+            #                 "_",
+            #                 str_pad(num, 3, pad = "0")
+            #             ),
+            #             label = paste0(
+            #                 "7D", i, letters[num],
+            #                 ". Characteristic ", num
+            #             ),
+            #             value = ""                       
+            #         )
+            #     }
+            # })
 
             output[[paste0("geo_sample_molecule_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0("geo_sample_molecule_", i),
-                    label = paste0("6E", i, ".", " Molecule"),
+                    label = paste0("7E", i, ".", " Molecule"),
                     value = "",
                     width = "500px"
                 )
@@ -3654,7 +3752,7 @@ irisServer <- function(input, output, session) {
             output[[paste0("geo_sample_description_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0("geo_sample_description_", i),
-                    label = paste0("6F", i, ".", " Description"),
+                    label = paste0("7F", i, ".", " Description"),
                     value = "",
                     width = "500px"
                 )
@@ -3695,7 +3793,7 @@ irisServer <- function(input, output, session) {
                                     str_pad(num + 1, 3, pad = "0")
                                 ),
                                 label = paste0(
-                                    "6G", i, letters[num + 1],
+                                    "7G", i, letters[num + 1],
                                     ". Processed Data File ", num + 1
                                 ),
                                 width = "500px"
@@ -3724,7 +3822,7 @@ irisServer <- function(input, output, session) {
                             str_pad(num + 1, 3, pad = "0")
                         ),
                         label = paste0(
-                            "6G", i, letters[num + 1],
+                            "7G", i, letters[num + 1],
                             ". Processed Data File ", num + 1
                         ),
                         value = "NA"                       
@@ -3767,7 +3865,7 @@ irisServer <- function(input, output, session) {
                                     str_pad(num, 3, pad = "0")
                                 ),
                                 label = paste0(
-                                    "6H", i, letters[num],
+                                    "7H", i, letters[num],
                                     ". Raw Data File ", num
                                 ),
                                 width = "500px"
@@ -3794,7 +3892,7 @@ irisServer <- function(input, output, session) {
                             str_pad(num, 3, pad = "0")
                         ),
                         label = paste0(
-                            "6H", i, letters[num],
+                            "7H", i, letters[num],
                             ". Raw Data File ", num
                         ),
                         value = ""                       
@@ -3804,88 +3902,6 @@ irisServer <- function(input, output, session) {
         })
     )
 
-    geo_ser_out <- eventReactive(input$geo_submit_series, {
-        x <- reactiveValuesToList(input)
-        x1 <- x[grep("geo_01_title", names(x))]
-        x2 <- x[grep("geo_02_summary", names(x))]
-        xX <- x[grep("geo_xx_overall_design", names(x))]
-        x3 <- x[grep("^geo_contrib_", names(x))]
-        x3 <- x3[!x3 %in% "NA"]
-        x4 <- x[grep("geo_04_suppfile", names(x))]
-        x5 <- x[grep("geo_05_sra", names(x))]
-        x <- c(x1, x2, xX, x3, x4, x5)
-        return(x)
-    })
-
-    geo_sam_out_01 <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x1 <- x[grep("^geo_sample_title_", names(x))]
-        x2 <- x[grep("^geo_sample_source_", names(x))]
-        x3 <- x[grep("^geo_sample_organism_", names(x))]
-        return(list(x1, x2, x3))
-    })
-
-    geo_sam_out_02 <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_character_", names(x))]
-        x <- x[!x %in% "NA"]
-        x <- x[order(names(x))]
-        x <- char_sorter(x, rownames(ddsout()[[2]]))
-        return(x)
-    })
-
-    geo_sam_out_03 <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x1 <- x[grep("^geo_sample_molecule_", names(x))]
-        x2 <- x[grep("^geo_sample_description_", names(x))]
-        return(list(x1, x2))
-    })
-
-    geo_sam_out_04 <- eventReactive(input$geo_submit_sample, {
-        x <- rownames(ddsout()[[2]])
-        return(x)
-    })    
-
-    geo_sam_out_05 <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_pdfile_", names(x))]
-        x <- x[!x %in% "NA"]
-        x <- x[order(names(x))]
-        x <- pdf_sorter(x, rownames(ddsout()[[2]]))
-        return(x)
-    })
-
-    # output$geo_debug <- renderPrint({
-    #     return(geo_excel_out())
-    # })
-
-    pdf_out <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_pdfile_", names(x))]
-        x <- x[nchar(x) > 1]
-        x <- x[order(names(x))]
-        return(x)
-    })
-
-    raw_out <- eventReactive(input$geo_submit_sample, {
-        x <- reactiveValuesToList(input)
-        x <- x[grep("^geo_rawfile_", names(x))]
-        x <- x[nchar(x) > 1]
-        x <- x[order(names(x))]
-        return(x)
-    })
-
-    raw_data_file_out <- eventReactive(input$geo_submit_raw_data, {
-        x <- reactiveValuesToList(input)
-        x1 <- x[grep("^filetype_geo_rawfile_", names(x))]
-        x2 <- x[grep("^filecheck_geo_rawfile_", names(x))]
-        x3 <- x[grep("^instmod_geo_rawfile_", names(x))]
-        x4 <- x[grep("^readlen_geo_rawfile_", names(x))]
-        x5 <- x[grep("^spend_geo_rawfile_", names(x))]
-        x <- c(x1, x2, x3, x4, x5)
-        x <- x[order(names(x))]
-        return(x)
-    })    
 
 
     #------------------------------------------------------------------
@@ -3897,7 +3913,7 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             list(
-                h4("Protocols"),
+                h4("Protocols (8 - 12)"),
                 p(
                     HTML(
                         paste(
@@ -3920,7 +3936,7 @@ irisServer <- function(input, output, session) {
         } else {
             textAreaInput2(
                 inputId = "geo_07_growth_protocol",
-                label = "7. Growth Protocol (optional)",
+                label = "8. Growth Protocol (optional)",
                 value = "",
                 width = "500px",
                 rows = 5,
@@ -3936,7 +3952,7 @@ irisServer <- function(input, output, session) {
             list(
                 textAreaInput2(
                     inputId = "geo_08_treatment_protocol",
-                    label = "8. Treatment Protocol (optional)",
+                    label = "9. Treatment Protocol (optional)",
                     value = "",
                     width = "500px",
                     rows = 5,
@@ -3953,7 +3969,7 @@ irisServer <- function(input, output, session) {
             list(
                 textAreaInput2(
                     inputId = "geo_09_extract_protocol",
-                    label = "9. Extract Protocol",
+                    label = "10. Extract Protocol",
                     value = "",
                     width = "500px",
                     rows = 5,
@@ -3970,7 +3986,7 @@ irisServer <- function(input, output, session) {
             list(
                 textAreaInput2(
                     inputId = "geo_10_lib_construct_protocol",
-                    label = "10. Libary Construction Protocol",
+                    label = "11. Libary Construction Protocol",
                     value = "",
                     width = "500px",
                     rows = 5,
@@ -3987,27 +4003,28 @@ irisServer <- function(input, output, session) {
             list(
                 selectInput(
                     inputId = "geo_11_lib_strategy",
-                    label = "11. Library Strategy",
+                    label = "12. Library Strategy",
                     choices = c(
-                        "RNA-Seq" = "rna-seq",
-                        "miRNA-Seq" = "mirna-seq",
-                        "ncRNA-Seq" = "ncrna-seq",
-                        "RNA-Seq (CAGE)" = "rna-seq-cage",
-                        "RNA-Seq (RACE)" = "rna-seq-race",
-                        "ChIP-Seq" = "chip-seq",
-                        "MNase-Seq" = "mnase-seq",
-                        "MBD-Seq" = "mbd-seq",
-                        "MRE-Seq" = "mre-seq",
-                        "Bisulfite-Seq" = "bis-seq",
-                        "Bisulfite-Seq (reduced representation"="bis-seq-red",
-                        "MeDIP-Seq" = "medip-seq",
-                        "DNAse-Hypersensitivity" = "dnase-hyper",
-                        "Tn-Seq" = "tn-seq",
-                        "FAIRE-seq" = "faire-seq",
-                        "SELEX" = "selex",
-                        "RIP-Seq" = "rip-seq",
-                        "ChIA-PET" = "chia-pet",
-                        "OTHER" = "other"
+                        "RNA-Seq" = "RNA-Seq",
+                        "miRNA-Seq" = "miRNA-Seq",
+                        "ncRNA-Seq" = "ncRNA-Seq",
+                        "RNA-Seq (CAGE)" = "RNA-Seq (CAGE)",
+                        "RNA-Seq (RACE)" = "RNA-Seq (RACE)",
+                        "ChIP-Seq" = "ChIP-Seq",
+                        "MNase-Seq" = "MNase-Seq",
+                        "MBD-Seq" = "MBD-Seq",
+                        "MRE-Seq" = "MRE-Seq",
+                        "Bisulfite-Seq" = "Bisulfite-Seq",
+                        "Bisulfite-Seq (reduced representation)" = 
+                            "Bisulfite-Seq (reduced representation)",
+                        "MeDIP-Seq" = "MeDIP-Seq",
+                        "DNAse-Hypersensitivity" = "DNAse-Hypersensitivity",
+                        "Tn-Seq" = "Tn-Seq",
+                        "FAIRE-seq" = "FAIRE-seq",
+                        "SELEX" = "SELEX",
+                        "RIP-Seq" = "RIP-Seq",
+                        "ChIA-PET" = "ChIA-PET",
+                        "OTHER" = "OTHER"
                     ),            
                     width = "500px"
                 )
@@ -4023,20 +4040,46 @@ irisServer <- function(input, output, session) {
                 actionButton(
                     inputId = "geo_submit_protocol",
                     label = "Submit Protocol Info",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
+
+    output$geo_submit_protocol_check <- renderUI({
+        validate(
+            need(input$geo_submit_protocol != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_03 <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                hr(),
+                br()
+            )
+        }        
+    })  
+
+
+
+    #------------------------------------------------------------------
+    # GEO - Data processing pipeline
+    #------------------------------------------------------------------
 
     output$geo_data_proc_pipeline <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             list(
-                h4("Data Processing Pipeline"),
+                h4("Data Processing Pipeline (13 - 15)"),
                 p(
                     HTML(
                         paste(
@@ -4079,9 +4122,12 @@ irisServer <- function(input, output, session) {
                 div(
                     id = paste0("data_step_", num),
                     textInput(
-                        inputId = paste0("data_step_", num),
+                        inputId = paste0(
+                            "data_step_", 
+                            str_pad(num, 3, pad = "0")
+                        ),
                         label = paste0(
-                            "12", LETTERS[num], 
+                            "13", LETTERS[num], 
                             ". Data Processing Step ", num
                         ),
                         width = "500px"
@@ -4095,9 +4141,24 @@ irisServer <- function(input, output, session) {
         num <- values5$num_data_step
         if (num == 1) {
             return()
+        } else {
+            removeUI(selector = paste0("#data_step_", num))
+            values5$num_data_step <- values5$num_data_step - 1
+            updateTextInput(
+                session = session,
+                inputId = paste0(
+                    "data_step_",
+                    str_pad(num, 3, pad = "0")
+                ),
+                label = paste0(
+                    "13", LETTERS[num], 
+                    ". Data Processing Step ", num
+                ),
+                value = "NA"                       
+            ) 
         }
-        removeUI(selector = paste0("#data_step_", num))
-        values5$num_data_step <- values5$num_data_step - 1
+        # removeUI(selector = paste0("#data_step_", num))
+        # values5$num_data_step <- values5$num_data_step - 1
     })
 
     output$geo_13_genome_build <- renderUI({
@@ -4109,7 +4170,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 textInput(
                     inputId = "geo_13_genome_build",
-                    label = "13. Genome Build",
+                    label = "14. Genome Build",
                     value = "",
                     width = "500px"
                 )
@@ -4124,7 +4185,7 @@ irisServer <- function(input, output, session) {
             list(
                 textInput(
                     inputId = "geo_14_proc_data_files",
-                    label = "14. Processed Data Files Format and Content",
+                    label = "15. Processed Data Files Format and Content",
                     value = "",
                     width = "500px"
                 )
@@ -4140,44 +4201,85 @@ irisServer <- function(input, output, session) {
                 actionButton(
                     inputId = "geo_submit_pipeline",
                     label = "Submit Pipeline Info",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
-    
+
+    output$geo_submit_pipeline_check <- renderUI({
+        validate(
+            need(input$geo_submit_pipeline != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_04 <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                hr(),
+                br()
+            )
+        }        
+    })
+  
+
+
+    #------------------------------------------------------------------
+    # GEO - processed data
+    #------------------------------------------------------------------
+
+    output$geo_proc_head <- renderUI({
+        if (input$goqc == 0) {
+            return()
+        } else {
+            list(
+                h4("Processed Data Files (16)")
+            )
+        }
+    })
+
+
     output$geo_proc_data <- renderUI({
         validate(
             need(input$goqc != 0, "")
         )
         validate(
-            need(input$geo_submit_sample != 0, "")
+            need(
+                input$geo_submit_sample != 0, 
+                paste(
+                    "You have not submitted your sample info yet.",
+                    "This tab section will not be populated until",
+                    "you have entered additional processed data",
+                    "via the \"Samples\" section."
+                )
+            )
         )
+
         x <- pdf_out()
-        
         if (length(x) == 0) {
             list(
-                h4("Processed Data Files"),
                 p(
                     HTML(
                         paste(
+                            "<b>Note:</b>",
                             "Based on your sample information, you have", 
                             "<b>", length(x), "</b>", 
                             "additional processed data files.",
-                            "This tab section will not be populated until",
-                            "you have entered additional processed data.",
-                            "This will not affect your final metadata file."
+                            "This will <b>not</b> affect your final metadata",
+                            "file."  
                         )
                     )
-                ),
-                hr(),
-                br()
+                )
             )
         } else {
             list(
-                h4("Processed Data Files"),
                 p(
                     paste(
                         "For each file listed in the \"processed data",
@@ -4194,8 +4296,7 @@ irisServer <- function(input, output, session) {
                             "Please fill out the following tabs.",
                             "Once finished, click on the ",
                             "<b>Submit Additional Processed Data</b> button."
-                        )
-                        
+                        )   
                     )
                 )
             )
@@ -4215,22 +4316,21 @@ irisServer <- function(input, output, session) {
                     h5(
                         HTML(
                             paste0(
-                                "Based on your submission, Proc. Data File ",
-                                i, " is ",
-                                "\"", "<b>",
-                                paste0(x[[i]]), "</b>", "\". "
+                                "Based on your sample submission, Proc. Data",
+                                " File ", i, " is ", 
+                                "\"", "<b>", paste0(x[[i]]), "</b>", "\"."
                             )
                         )
                     ),
                     br(),
                     textInput(
                         inputId = paste0("filetype_", names(x)[i]),
-                        label = paste0("15A", i, ". File Type"),
+                        label = paste0("16A", i, ". File Type"),
                         width = "500px"
                     ),
                     textInput(
                         inputId = paste0("filecheck_", names(x)[i]),
-                        label = paste0("15B", i, ". MD5 File Checksum"),
+                        label = paste0("16B", i, ". MD5 File Checksum"),
                         width = "500px"
                     )
                 )
@@ -4255,41 +4355,81 @@ irisServer <- function(input, output, session) {
                 actionButton(
                     inputId = "geo_submit_proc_data",
                     label = "Submit Additional Processed Data",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
+
+    output$geo_submit_proc_data_check <- renderUI({
+        validate(
+            need(input$geo_submit_proc_data != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_05 <- renderUI({
+        validate(
+            need(input$goqc != 0, "")
+        )
+        list(
+            hr(),
+            br()
+        )   
+    })  
+
+
+
+    #------------------------------------------------------------------
+    # GEO - Raw data
+    #------------------------------------------------------------------
+
+    output$geo_raw_head <- renderUI({
+        if (input$goqc == 0) {
+            return()
+        } else {
+            list(
+                h4("Raw Data Files (17)")
+            )
+        }
+    })        
     
     output$geo_raw_data <- renderUI({
         validate(
             need(input$goqc != 0, "")
         )
         validate(
-            need(input$geo_submit_sample != 0, "")
+            need(
+                input$geo_submit_sample != 0, 
+                paste(
+                    "You have not submitted your sample info yet.",
+                    "This tab section will not be populated until",
+                    "you have entered raw data information."
+                )
+            )
         )
         x <- raw_out()
         
         if (length(x) == 0) {
             list(
-                h4("Raw Data Files"),
                 p(
                     HTML(
                         paste(
+                            "<b>Note:</b>",
                             "You have not yet entered sample information",
-                            "pertaining to raw data files. Please enter this",
-                            "info in order to continue!"
+                            "pertaining to raw data files.",
+                            "<b>Please enter this info in order",
+                            "to continue!</b>"
                         )
                     )
-                ),
-                hr(),
-                br()
+                )
             )
         } else {
             list(
-                h4("Raw Data Files"),
                 p(
                     HTML(
                         paste(
@@ -4319,80 +4459,100 @@ irisServer <- function(input, output, session) {
 
     output$geo_raw_data_list <- renderUI({
         x <- raw_out()
-        myTabs <- lapply(seq_len(length(x)), function(i) {
-            tabPanel(
-                paste0("Raw Data File ", i),
-                br(),
-                h5(
-                    HTML(
-                        paste0(
-                            "Based on your submission, Raw Data File ",
-                            i, " is ",
-                            "\"", "<b>",
-                            paste0(x[[i]]), "</b>", "\". "
+        if (length(x) == 0) {
+            return()
+        } else {
+            myTabs <- lapply(seq_len(length(x)), function(i) {
+                tabPanel(
+                    paste0("Raw Data File ", i),
+                    br(),
+                    h5(
+                        HTML(
+                            paste0(
+                                "Based on your submission, Raw Data File ",
+                                i, " is ",
+                                "\"", "<b>",
+                                paste0(x[[i]]), "</b>", "\". "
+                            )
+                        )
+                    ),
+                    br(),
+                    textInput(
+                        inputId = paste0("filetype_", names(x)[i]),
+                        label = paste0("17A", i, ". File Type"),
+                        width = "500px"
+                    ),
+                    textInput(
+                        inputId = paste0("filecheck_", names(x)[i]),
+                        label = paste0("17B", i, ". MD5 File Checksum"),
+                        width = "500px"
+                    ),
+                    selectInput(
+                        inputId = paste0("instmod_", names(x)[i]),
+                        label = paste0("17C", i, ". Instrument Model"),
+                        choices = c(
+                            "Illumina Genome Analyzer" = 
+                                "Illumina Genome Analyzer",
+                            "Illumina Genome Analyzer II" = 
+                                "Illumina Genome Analyzer II",
+                            "Illumina Genome Analyzer IIx" = 
+                                "Illumina Genome Analyzer IIx",
+                            "Illumina HiSeq 2000" = 
+                                "Illumina HiSeq 2000",
+                            "Illumina HiSeq 1000" = 
+                                "Illumina HiSeq 1000",
+                            "Illumina MiSeq" = 
+                                "Illumina MiSeq",
+                            "AB SOLiD System" = 
+                                "AB SOLiD System",
+                            "AB SOLiD System 2.0" = 
+                                "AB SOLiD System 2.0",
+                            "AB SOLiD System 3.0" = 
+                                "AB SOLiD System 3.0",
+                            "AB SOLiD 4 System" = 
+                                "AB SOLiD 4 System",
+                            "AB SOLiD 4hq System" = 
+                                "AB SOLiD 4hq System",
+                            "AB SOLiD PI System" = 
+                                "AB SOLiD PI System",
+                            "AB 5500xl Genetic Analyzer" = 
+                                "AB 5500xl Genetic Analyzer",
+                            "AB 5500 Genetic Analyzer" = 
+                                "AB 5500 Genetic Analyzer",
+                            "454 GS" = "454 GS",
+                            "454 GS 20" = "454 GS 20",
+                            "454 GS FLX" = "454 GS FLX",
+                            "454 GS Junior" = "454 GS Junior",
+                            "454 GS FLX Titanium" = "454 GS FLX Titanium",
+                            "Helicos HeliScope" = "Helicos HeliScope",
+                            "PacBio RS" = "PacBio RS",
+                            "PacBio RS II" = "PacBio RS II",
+                            "Complete Genomics" = "Complete Genomics",
+                            "Ion Torrent PGM" = "Ion Torrent PGM"
+                        ),
+                        width = "500px"
+                    ),
+                    textInput(
+                        inputId = paste0("readlen_", names(x)[i]),
+                        label = paste0("17D", i, ". Read Length"),
+                        width = "500px"
+                    ),
+                    radioButtons(
+                        inputId = paste0("spend_", names(x)[i]),
+                        label = paste0(
+                            "16E", i, ". Single, Paired-end or SOLiD?"
+                        ),
+                        choices = c(
+                            "Single" = "single",
+                            "Paired-end" = "paired-end",
+                            "SOLiD" = "paired-end (SOLiD)"
                         )
                     )
-                ),
-                br(),
-                textInput(
-                    inputId = paste0("filetype_", names(x)[i]),
-                    label = paste0("16A", i, ". File Type"),
-                    width = "500px"
-                ),
-                textInput(
-                    inputId = paste0("filecheck_", names(x)[i]),
-                    label = paste0("16B", i, ". MD5 File Checksum"),
-                    width = "500px"
-                ),
-                selectInput(
-                    inputId = paste0("instmod_", names(x)[i]),
-                    label = paste0("16C", i, ". Instrument Model"),
-                    choices = c(
-                        "Illumina Genome Analyzer" = "iga_01",
-                        "Illumina Genome Analyzer II" = "iga_02",
-                        "Illumina Genome Analyzer IIx" = "iga_03",
-                        "Illumina HiSeq 2000" = "iga_04",
-                        "Illumina HiSeq 1000" = "iga_05",
-                        "Illumina MiSeq" = "iga_06",
-                        "AB SOLiD System" = "abs_01",
-                        "AB SOLiD System 2.0" = "abs_02",
-                        "AB SOLiD System 3.0" = "abs_03",
-                        "AB SOLiD 4 System" = "abs_04",
-                        "AB SOLiD 4hq System" = "abs_05",
-                        "AB SOLiD PI System" = "abs_06",
-                        "AB 5500xl Genetic Analyzer" = "abs_07",
-                        "AB 5500 Genetic Analyzer" = "abs_08",
-                        "454 GS" = "454_01",
-                        "454 GS 20" = "454_02",
-                        "454 GS FLX" = "454_03",
-                        "454 GS Junior" = "454_04",
-                        "454 GS FLX Titanium" = "454_05",
-                        "Helicos HeliScope" = "hel_01",
-                        "PacBio RS" = "pac_01",
-                        "PacBio RS II" = "pac_02",
-                        "Complete Genomics" = "com_01",
-                        "Ion Torrent PGM" = "ion_01"
-                    ),
-                    width = "500px"
-                ),
-                textInput(
-                    inputId = paste0("readlen_", names(x)[i]),
-                    label = paste0("16D", i, ". Read Length"),
-                    width = "500px"
-                ),
-                radioButtons(
-                    inputId = paste0("spend_", names(x)[i]),
-                    label = paste0("16E", i, ". Single or Paired-end?"),
-                    choices = c(
-                        "Single" = "single",
-                        "Paired-end" = "paired"
-                    )
                 )
-            )
-        })
+            }) 
+        }
         do.call(tabsetPanel, myTabs)
     }) 
-
 
     output$geo_submit_raw_data <- renderUI({
         validate(
@@ -4410,58 +4570,96 @@ irisServer <- function(input, output, session) {
                 actionButton(
                     inputId = "geo_submit_raw_data",
                     label = "Submit Raw Data",
-                    icon = icon("space-shuttle")
-                ),
-                hr(),
-                br()
+                    icon = icon("table")
+                )
             )
         }
     })
 
+    output$geo_submit_raw_data_check <- renderUI({
+        validate(
+            need(input$geo_submit_raw_data != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_06 <- renderUI({
+        validate(
+            need(input$goqc != 0, "")
+        )
+        list(
+            hr(),
+            br()
+        )       
+    })     
+
+
+
+    #------------------------------------------------------------------
+    # GEO - paired end data
+    #------------------------------------------------------------------
+
+    output$geo_pair_head <- renderUI({
+        if (input$goqc == 0) {
+            return()
+        } else {
+            list(
+                h4("Paired-end Experiments (18)")
+            )
+        }
+    })     
 
     output$geo_paired_end <- renderUI({
         validate(
             need(input$goqc != 0, "")
         )
         validate(
-            need(input$geo_submit_raw_data != 0, "")
+            need(
+                input$geo_submit_raw_data != 0, 
+                paste(
+                    "You have not submitted your raw data info yet.",
+                    "This tab section will not be populated until",
+                    "you have submitted single read/paired-end info in the",
+                    "\"Raw Data Files\" section."
+                )
+            )
         )
         x <- raw_data_file_out()
         x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
-        x_pair <- x_pair[x_pair == "paired"]
+        x_pair <- x_pair[x_pair == "paired-end"]
         
         if (length(x_pair) == 0) {
             list(
-                h4("Paired-end Experiments"),
                 p(
                     HTML(
                         paste(
+                            "<b>Note:</b>",
                             "Your raw data does not contain any paired-end",
-                            "data. This will not affect your metadata."
+                            "data. This will <b>not</b> affect your",
+                            "final metadata file."
                         )
                     )
-                ),
-                hr(),
-                br()
+                )
             )
         } else if (length(x_pair) %% 2 != 0) {
             list(
-                h4("Paired-end Experiments"),
                 p(
                     HTML(
                         paste(
+                            "<b>Note:</b>",
                             "It seems that you have an uneven number of",
                             "paired-end read files. Please make sure you have",
-                            "at least two reads per sample."
+                            "<i>two reads per sample.</i>"
                         )
                     )
-                ),
-                hr(),
-                br()
+                )
             )            
         } else {
             list(
-                h4("Paired-end Experiments"),
                 p(
                     HTML(
                         paste(
@@ -4478,7 +4676,7 @@ irisServer <- function(input, output, session) {
                             "Based on your sample information, you have", 
                             "<b>", length(x_pair), "</b>",
                             "file(s) that are paired-end.",
-                            "Please fill out the following tabs."
+                            "Please fill out the following tab(s)."
                         )
                         
                     )
@@ -4491,7 +4689,7 @@ irisServer <- function(input, output, session) {
         # Get raw data metadata...
         x <- raw_data_file_out()
         x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
-        x_pair <- x_pair[x_pair == "paired"]
+        x_pair <- x_pair[x_pair == "paired-end"]
         
         # Get all raw data
         y <- raw_out()
@@ -4503,45 +4701,49 @@ irisServer <- function(input, output, session) {
         tmp_y <- unlist(tmp_y, use.names = FALSE)
 
         x_inst <- x[grep("^instmod_geo_rawfile_", names(x))]
-        x_inst_solid <- x_inst[x_inst == "abs_01" | x_inst == "abs_02" | x_inst == "abs_03" | x_inst == "abs_04" | x_inst == "abs_05" | x_inst == "abs_06"]
-
+        x_inst_solid <- x_inst[x_inst == "AB SOLiD System" 
+        | x_inst == "AB SOLiD System 2.0" 
+        | x_inst == "AB SOLiD System 3.0" 
+        | x_inst == "AB SOLiD 4 System" 
+        | x_inst == "AB SOLiD 4hq System" 
+        | x_inst == "AB SOLiD PI System"]
 
         if(length(x_pair) == 0 | length(x_pair) %% 2 != 0) {
             return()
         } else if (length(x_inst_solid) == 0) {
             myTabs <- lapply(seq_len(length(x_pair) / 2), function(i) {
                 tabPanel(
-                    paste0("Paired-end Read Set", i),
+                    paste0("Paired-end Read Set ", i),
                     br(),
                     h5(
                         HTML(
                             paste0(
-                                "Please enter which file is \"read 1\" ",
-                                "and which file is \"read 2\""
+                                "Please enter which files are <b>Read 1</b> ",
+                                "and <b>Read 2</b>:"
                             )
                         )
                     ),
                     br(),
                     selectInput(
                         inputId = paste0("r1_row_", str_pad(i, 3, pad = "0")),
-                        label = paste0("17A", i, ". File Name 1"),
+                        label = paste0("18A", i, ". File Name 1"),
                         choices = tmp_y,
                         width = "500px"
                     ),
                     selectInput(
                         inputId = paste0("r2_row_", str_pad(i, 3, pad = "0")),
-                        label = paste0("17B", i, ". File Name 2"),
+                        label = paste0("18B", i, ". File Name 2"),
                         choices = tmp_y,
                         width = "500px"
                     ),
                     textInput(
                         inputId = paste0("ais_", str_pad(i, 3, pad = "0")),
-                        label = paste0("17C", i, ". Average Insert Size"),
+                        label = paste0("18C", i, ". Average Insert Size"),
                         width = "500px"
                     ),
                     textInput(
                         inputId = paste0("std_", str_pad(i, 3, pad = "0")),
-                        label = paste0("17D", i, ". Standard Deviation"),
+                        label = paste0("18D", i, ". Standard Deviation"),
                         width = "500px"
                     )
                 )
@@ -4551,28 +4753,591 @@ irisServer <- function(input, output, session) {
     })
 
 
-    # output$geo_submit_all <- renderUI({
-    #     if(input$goqc == 0) {
-    #         return()
-    #     } else {
-    #         list(
-    #             h4("Submit"),
-    #             actionButton(
-    #                 inputId = "geo_submit_all",
-    #                 label = "Submit to Spreadsheet",
-    #                 icon = icon("table")
-    #             )
-    #         )
-    #     }
+    output$geo_submit_paired_end <- renderUI({
+        # Get raw data metadata...
+        x <- raw_data_file_out()
+        x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
+        x_pair <- x_pair[x_pair == "paired-end"]
+        
+        # Get all raw data
+        y <- raw_out()
+        
+        # Get raw data that's paired-end
+        tmp_x <- x_pair
+        names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
+        tmp_y <- y[intersect(names(tmp_x), names(y))]
+        tmp_y <- unlist(tmp_y, use.names = FALSE)
+
+        x_inst <- x[grep("^instmod_geo_rawfile_", names(x))]
+        x_inst_solid <- x_inst[x_inst == "AB SOLiD System" 
+        | x_inst == "AB SOLiD System 2.0" 
+        | x_inst == "AB SOLiD System 3.0" 
+        | x_inst == "AB SOLiD 4 System" 
+        | x_inst == "AB SOLiD 4hq System" 
+        | x_inst == "AB SOLiD PI System"]
+
+        if(length(x_pair) == 0 | length(x_pair) %% 2 != 0) {
+            return()
+        } else if (length(x_inst_solid) == 0) {
+            list(
+                actionButton(
+                    inputId = "geo_submit_paired_end",
+                    label = "Submit Paired-end Data",
+                    icon = icon("table")
+                )
+            )
+        }
+    })
+
+    output$geo_submit_paired_end_check <- renderUI({
+        validate(
+            need(input$geo_submit_paired_end != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_07 <- renderUI({
+        validate(
+            need(input$goqc != 0, "")
+        )
+        list(
+            hr(),
+            br()
+        )        
+    })
+
+
+
+    #------------------------------------------------------------------
+    # GEO - paired end data - SOLiD
+    #------------------------------------------------------------------
+
+    output$geo_solid_head <- renderUI({
+        if (input$goqc == 0) {
+            return()
+        } else {
+            list(
+                h4("Paired-end Experiments - SOLiD Data (19)")
+            )
+        }
+    })
+
+    output$geo_solid <- renderUI({
+        validate(
+            need(input$goqc != 0, "")
+        )
+        validate(
+            need(
+                input$geo_submit_raw_data != 0, 
+                paste(
+                    "You have not submitted your raw data info yet.",
+                    "This tab section will not be populated until",
+                    "you have submitted single read/paired-end info in the",
+                    "\"Raw Data Files\" section."
+                )
+            )
+        )
+        x <- raw_data_file_out()
+        x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
+        x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
+        
+        if (length(x_solid) == 0) {
+            list(
+                p(
+                    HTML(
+                        paste(
+                            "<b>Note:</b>",
+                            "Your raw data does not contain any SOLiD",
+                            "experimental data. This will <b>not</b>",
+                            "affect your final metadata file."
+                        )
+                    )
+                )
+            )
+        } else if (length(x_solid) %% 4 != 0) {
+            list(
+                p(
+                    HTML(
+                        paste(
+                            "<b>Note:</b>",
+                            "It seems that you have an uneven number of",
+                            "SOLiD read files. Please make sure you have",
+                            "<i>four reads per sample.</i>"
+                        )
+                    )
+                )
+            )            
+        } else {
+            list(
+                p(
+                    HTML(
+                        paste(
+                            "For SOLiD paired-end experiments, provide the",
+                            "average insert size and standard deviation",
+                            "if known."
+                        )
+
+                    )
+                ),
+                p(
+                    HTML(
+                        paste(
+                            "Based on your sample information, you have", 
+                            "<b>", length(x_solid), "</b>",
+                            "files that use SOLiD technology.",
+                            "Please fill out the following tab(s)."
+                        )
+                        
+                    )
+                )
+            )
+        }
+    })
+
+    output$geo_solid_list <- renderUI({
+        # Get raw data metadata...
+        x <- raw_data_file_out()
+        x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
+        x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
+        
+        # Get all raw data
+        y <- raw_out()
+        
+        # Get raw data that's paired-end
+        tmp_x <- x_solid
+        names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
+        tmp_y <- y[intersect(names(tmp_x), names(y))]
+        tmp_y <- unlist(tmp_y, use.names = FALSE)
+
+        # Generate tabs
+        if(length(x_solid) == 0 | length(x_solid) %% 4 != 0) {
+            return()
+        } else {
+            myTabs <- lapply(seq_len(length(x_solid) / 4), function(i) {
+                tabPanel(
+                    paste0("SOLiD Set ", i),
+                    br(),
+                    h5(
+                        HTML(
+                            paste0(
+                                "Please enter which files are <b>Read 1,</b> ",
+                                "<b>Read 2</b>, <b>Read 3</b>, and ",
+                                "<b>Read 4</b>:"
+                            )
+                        )
+                    ),
+                    br(),
+                    selectInput(
+                        inputId = paste0(
+                            "solid_r1_row_", str_pad(i, 3, pad = "0")
+                        ),
+                        label = paste0("19A", i, ". File Name 1"),
+                        choices = tmp_y,
+                        width = "500px"
+                    ),
+                    selectInput(
+                        inputId = paste0(
+                            "solid_r2_row_", str_pad(i, 3, pad = "0")
+                        ),
+                        label = paste0("19B", i, ". File Name 2"),
+                        choices = tmp_y,
+                        width = "500px"
+                    ),
+                    selectInput(
+                        inputId = paste0(
+                            "solid_r3_row_", str_pad(i, 3, pad = "0")
+                        ),
+                        label = paste0("19C", i, ". File Name 3"),
+                        choices = tmp_y,
+                        width = "500px"
+                    ),
+                    selectInput(
+                        inputId = paste0(
+                            "solid_r4_row_", str_pad(i, 3, pad = "0")
+                        ),
+                        label = paste0("19D", i, ". File Name 4"),
+                        choices = tmp_y,
+                        width = "500px"
+                    ),                                        
+                    textInput(
+                        inputId = paste0(
+                            "solid_ais_", str_pad(i, 3, pad = "0")),
+                        label = paste0("19E", i, ". Average Insert Size"),
+                        width = "500px"
+                    ),
+                    textInput(
+                        inputId = paste0(
+                            "solid_std_", str_pad(i, 3, pad = "0")
+                        ),
+                        label = paste0("19F", i, ". Standard Deviation"),
+                        width = "500px"
+                    )
+                )
+            })
+            do.call(tabsetPanel, myTabs)   
+        }
+    })    
+
+    output$geo_submit_solid <- renderUI({
+        # Get raw data metadata...
+        x <- raw_data_file_out()
+        x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
+        x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
+        
+        # Get all raw data
+        y <- raw_out()
+        
+        # Get raw data that's paired-end
+        tmp_x <- x_solid
+        names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
+        tmp_y <- y[intersect(names(tmp_x), names(y))]
+        tmp_y <- unlist(tmp_y, use.names = FALSE)
+
+        if(length(x_solid) == 0 | length(x_solid) %% 4 != 0) {
+            return()
+        } else {
+            list(
+                actionButton(
+                    inputId = "geo_submit_solid",
+                    label = "Submit SOLiD Data",
+                    icon = icon("table")
+                )
+            )
+        }
+    })
+
+    output$geo_submit_solid_check <- renderUI({
+        validate(
+            need(input$geo_submit_solid != 0, "")
+        )        
+        list(
+            h5(
+                HTML("<b>Submitted!</b>")
+            )
+        )
+    })
+
+    output$geo_space_08 <- renderUI({
+        validate(
+            need(input$goqc != 0, "")
+        )
+        list(
+            hr(),
+            br()
+        )        
+    })          
+
+
+
+    #------------------------------------------------------------------
+    # GEO - Download options
+    #------------------------------------------------------------------
+
+    geo_ser_out <- eventReactive(input$geo_submit_series, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("geo_01_title", names(x))]
+        x2 <- x[grep("geo_02_summary", names(x))]
+        xX <- x[grep("geo_xx_overall_design", names(x))]
+        x3 <- x[grep("^geo_contrib_", names(x))]
+        x3 <- x3[!x3 %in% "NA"]
+        x4 <- x[grep("geo_04_suppfile", names(x))]
+        x5 <- x[grep("geo_05_sra", names(x))]
+        x <- c(x1, x2, xX, x3, x4, x5)
+        return(x)
+    })
+
+    geo_sam_out_01 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^geo_sample_title_", names(x))]
+        x2 <- x[grep("^geo_sample_source_", names(x))]
+        x3 <- x[grep("^geo_sample_organism_", names(x))]
+        return(list(x1, x2, x3))
+    })
+
+    # geo_sam_out_02 <- eventReactive(input$geo_submit_sample, {
+    #     x <- reactiveValuesToList(input)
+    #     x <- x[grep("^geo_character_", names(x))]
+    #     x <- x[!x %in% "NA"]
+    #     x <- x[order(names(x))]
+    #     x <- char_sorter(x, rownames(ddsout()[[2]]))
+    #     return(x)
     # })
 
-    output$geo_download_excel <- renderUI({
+    geo_sam_out_03 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^geo_sample_molecule_", names(x))]
+        x2 <- x[grep("^geo_sample_description_", names(x))]
+        return(list(x1, x2))
+    })
+
+    geo_sam_out_04 <- eventReactive(input$geo_submit_sample, {
+        x <- rownames(ddsout()[[2]])
+        return(x)
+    })    
+
+    geo_sam_out_05 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[order(names(x))]
+        x <- pdf_sorter(x, rownames(ddsout()[[2]]))
+        return(x)
+    })
+
+    geo_sam_out_06 <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[order(names(x))]
+        x <- raw_sorter(x, rownames(ddsout()[[2]]))
+        return(x)
+    })
+
+    geo_prot_out_01 <- eventReactive(input$geo_submit_protocol, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_0[7-9]|1[0-1]_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_pipe_out_01 <- eventReactive(input$geo_submit_pipeline, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^data_step_", names(x))]
+        x1 <- x1[!x1 %in% "NA"]
+        x2 <- x[grep("^geo_13_genome_build", names(x))]
+        x3 <- x[grep("^geo_14_proc_data_files", names(x))]
+        x <- c(x1, x2, x3)
+        return(x)
+    })
+
+    geo_proc_out_01 <- eventReactive(input$geo_submit_proc_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_proc_out_02 <- eventReactive(input$geo_submit_proc_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^filetype_geo_pdfile", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_proc_out_03 <- eventReactive(input$geo_submit_proc_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^filecheck_geo_pdfile", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_01 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_02 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^filetype_geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_03 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^filecheck_geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_04 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^instmod_geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_05 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^readlen_geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_raw_out_06 <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^spend_geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })                     
+
+    md5_out <- eventReactive(input$geo_submit_sample, {
+        x <- cts_out()[[1]]
+        return(x)
+    })
+
+    cts_out <- eventReactive(input$geo_submit_sample, {
+        cts <- ddsout()[[4]]
+        cts <- cts_split(cts = cts)
+        md5 <- cts[[1]]        
+        wd <- cts[[2]]
+        return(list(md5, wd))
+    })
+
+    pdf_out <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_pdfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    raw_out <- eventReactive(input$geo_submit_sample, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^geo_rawfile_", names(x))]
+        x <- x[!x %in% "NA"]
+        x <- x[!x %in% ""]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    raw_data_file_out <- eventReactive(input$geo_submit_raw_data, {
+        x <- reactiveValuesToList(input)
+        x1 <- x[grep("^filetype_geo_rawfile_", names(x))]
+        x2 <- x[grep("^filecheck_geo_rawfile_", names(x))]
+        x3 <- x[grep("^instmod_geo_rawfile_", names(x))]
+        x4 <- x[grep("^readlen_geo_rawfile_", names(x))]
+        x5 <- x[grep("^spend_geo_rawfile_", names(x))]
+        x <- c(x1, x2, x3, x4, x5)
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_pair_out_01 <- eventReactive(input$geo_submit_paired_end, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^r1_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_pair_out_02 <- eventReactive(input$geo_submit_paired_end, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^r2_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_pair_out_03 <- eventReactive(input$geo_submit_paired_end, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^ais_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_pair_out_04 <- eventReactive(input$geo_submit_paired_end, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^std_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+    
+    geo_solid_out_01 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_r1_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_solid_out_02 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_r2_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_solid_out_03 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_r3_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_solid_out_04 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_r4_row_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    }) 
+
+    geo_solid_out_05 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_ais_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })
+
+    geo_solid_out_06 <- eventReactive(input$geo_submit_solid, {
+        x <- reactiveValuesToList(input)
+        x <- x[grep("^solid_std_", names(x))]
+        x <- x[order(names(x))]
+        return(x)
+    })        
+
+    output$geo_debug <- renderPrint({
+
+    })
+
+    output$geo_downloads <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            list(
+                h4("Download Options"),
+                p(
+                    HTML(
+                        paste(
+                            "Once you have all of your information submitted,",
+                            "please click on one (<i>or more</i>) of the",
+                            "options."
+                        )
+                    )
+                )
+            )
+        } 
+    })
+
+    output$geo_download_excel_1 <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton(
-                "geo_download_excel_2", 
-                "Download Excel file"
+                outputId = "geo_download_excel_2", 
+                label = "Download Metadata (.xlsx)"
             )
         }     
     })
@@ -4582,22 +5347,138 @@ irisServer <- function(input, output, session) {
             "metadata.xlsx"
         },
         content = function(file) {
-            cts <- ddsout()[[4]]
-            cts <- cts_split(cts = cts)
-            wd <- cts[[2]]
+            wd <- cts_out()[[2]]
             ser_out <- geo_ser_out()
+            pdf_out <- pdf_out()
+            raw_out <- raw_out()
             sam_title <- rownames(ddsout()[[2]])
             sam_out_01 <- geo_sam_out_01()
-            sam_out_02 <- geo_sam_out_02()
+            sam_out_02 <- ddsout()[[2]]
             sam_out_03 <- geo_sam_out_03()
             sam_out_04 <- geo_sam_out_04()
             sam_out_05 <- geo_sam_out_05()
+            sam_out_06 <- geo_sam_out_06()
+            prot_out_01 <- geo_prot_out_01()
+            pipe_out_01 <- geo_pipe_out_01()
+            md5_out <- md5_out()
+
+            if (length(pdf_out) == 0) {
+                proc_out_01 <- list()
+                proc_out_02 <- list()
+                proc_out_03 <- list()
+            } else {
+                proc_out_01 <- geo_proc_out_01()
+                proc_out_02 <- geo_proc_out_02()
+                proc_out_03 <- geo_proc_out_03()
+            }
+            
+            if (length(raw_out) == 0) {
+                raw_out_01 <- list()
+                raw_out_02 <- list()
+                raw_out_03 <- list()
+                raw_out_04 <- list()
+                raw_out_05 <- list()
+                raw_out_06 <- list()
+            } else {
+                raw_out_01 <- geo_raw_out_01()
+                raw_out_02 <- geo_raw_out_02()
+                raw_out_03 <- geo_raw_out_03()
+                raw_out_04 <- geo_raw_out_04()
+                raw_out_05 <- geo_raw_out_05()
+                raw_out_06 <- geo_raw_out_06()
+            }
+
+            if (length(raw_out) == 0) {
+                pair_out_01 <- list()
+                pair_out_02 <- list()
+                pair_out_03 <- list()
+                pair_out_04 <- list()
+                solid_out_01 <- list()
+                solid_out_02 <- list()
+                solid_out_03 <- list()
+                solid_out_04 <- list()
+                solid_out_05 <- list()
+                solid_out_06 <- list()
+            } else if (all(raw_out_06 == "single")) {
+                pair_out_01 <- list()
+                pair_out_02 <- list()
+                pair_out_03 <- list()
+                pair_out_04 <- list()
+                solid_out_01 <- list()
+                solid_out_02 <- list()
+                solid_out_03 <- list()
+                solid_out_04 <- list()
+                solid_out_05 <- list()
+                solid_out_06 <- list()
+            } else if (all(raw_out_06 == "paired-end (SOLiD)")) {
+                pair_out_01 <- list()
+                pair_out_02 <- list()
+                pair_out_03 <- list()
+                pair_out_04 <- list()
+                solid_out_01 <- geo_solid_out_01()
+                solid_out_02 <- geo_solid_out_02()
+                solid_out_03 <- geo_solid_out_03()
+                solid_out_04 <- geo_solid_out_04()
+                solid_out_05 <- geo_solid_out_05()
+                solid_out_06 <- geo_solid_out_06()
+            } else if (all(raw_out_06 == "paired-end")) {
+                pair_out_01 <- geo_pair_out_01()
+                pair_out_02 <- geo_pair_out_02()
+                pair_out_03 <- geo_pair_out_03()
+                pair_out_04 <- geo_pair_out_04()
+                solid_out_01 <- list()
+                solid_out_02 <- list()
+                solid_out_03 <- list()
+                solid_out_04 <- list()
+                solid_out_05 <- list()
+                solid_out_06 <- list()
+            } else if ("paired-end" %in% raw_out_06 & "paired-end (SOLiD)" %in% raw_out_06) {
+                pair_out_01 <- geo_pair_out_01()
+                pair_out_02 <- geo_pair_out_02()
+                pair_out_03 <- geo_pair_out_03()
+                pair_out_04 <- geo_pair_out_04()
+                solid_out_01 <- geo_solid_out_01()
+                solid_out_02 <- geo_solid_out_02()
+                solid_out_03 <- geo_solid_out_03()
+                solid_out_04 <- geo_solid_out_04()
+                solid_out_05 <- geo_solid_out_05()
+                solid_out_06 <- geo_solid_out_06()
+            } else if ("paired-end" %in% raw_out_06 & !"paired-end (SOLiD)" %in% raw_out_06) {
+                pair_out_01 <- geo_pair_out_01()
+                pair_out_02 <- geo_pair_out_02()
+                pair_out_03 <- geo_pair_out_03()
+                pair_out_04 <- geo_pair_out_04()
+                solid_out_01 <- list()
+                solid_out_02 <- list()
+                solid_out_03 <- list()
+                solid_out_04 <- list()
+                solid_out_05 <- list()
+                solid_out_06 <- list()
+            } else if (!"paired-end" %in% raw_out_06 & "paired-end (SOLiD)" %in% raw_out_06) {
+                pair_out_01 <- list()
+                pair_out_02 <- list()
+                pair_out_03 <- list()
+                pair_out_04 <- list()
+                solid_out_01 <- geo_solid_out_01()
+                solid_out_02 <- geo_solid_out_02()
+                solid_out_03 <- geo_solid_out_03()
+                solid_out_04 <- geo_solid_out_04()
+                solid_out_05 <- geo_solid_out_05()
+                solid_out_06 <- geo_solid_out_06()
+            }
+            
+
             iris_excel(
                 wd, ser_out, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
-                sam_out_05
+                sam_out_05, sam_out_06, prot_out_01, pipe_out_01, md5_out,
+                proc_out_01, proc_out_02, proc_out_03, 
+                raw_out_01, raw_out_02, raw_out_03, 
+                raw_out_04, raw_out_05, raw_out_06,
+                pair_out_01, pair_out_02, pair_out_03, pair_out_04,
+                solid_out_01, solid_out_02, solid_out_03, solid_out_04,
+                solid_out_05, solid_out_06
             )
 
-            # setwd(paste0("tmp/", wd))
             wd2 <- substring(wd, 5)
             meta <- paste0("metadata-", wd2, ".xlsx")
             file.rename(meta, file)
@@ -4606,22 +5487,23 @@ irisServer <- function(input, output, session) {
         contentType = "application/xlsx"
     )
 
-    # geo_excel_out <- eventReactive(input$geo_submit_all, {
-    #     cts <- ddsout()[[4]]
-    #     cts <- cts_split(cts = cts)
-    #     wd <- cts[[2]]
-    #     ser_out <- geo_ser_out()
-    #     sam_title <- rownames(ddsout()[[2]])
-    #     sam_out_01 <- geo_sam_out_01()
-    #     sam_out_02 <- geo_sam_out_02()
-    #     sam_out_03 <- geo_sam_out_03()
-    #     sam_out_04 <- geo_sam_out_04()
-    #     sam_out_05 <- geo_sam_out_05()
-    #     tmp <- iris_excel(
-    #         wd, ser_out, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
-    #         sam_out_05
-    #     )
-    #     return(tmp)        
-    # })                  
+    output$geo_download_proc_data_1 <- renderUI({
+        if(input$goqc == 0) {
+            return()
+        } else {
+            downloadButton(
+                outputId = "geo_download_proc_data_2", 
+                label = "Download Processed Data (.zip)"
+            )
+        }     
+    })
 
+    output$geo_download_proc_data_2 <- downloadHandler(
+        filename = function() {
+            "proc-data.zip"
+        },
+        content = function(file) {
+            cts <- ddsout()[[4]]
+        }
+    )
 }

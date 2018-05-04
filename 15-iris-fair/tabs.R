@@ -447,11 +447,29 @@ tab.geo <- tabPanel(
             uiOutput("geo_03b_contrib"),
             uiOutput("geo_04_suppfile"),
             uiOutput("geo_05_sra"),
-            uiOutput("geo_submit_series"),
- 
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_series")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_series_check")
+            ),
+            uiOutput("geo_space_01"),
+
+
             uiOutput("geo_samples"),
             uiOutput("geo_samples_list"),
-            uiOutput("geo_submit_sample"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_sample")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_sample_check")
+            ),
+            uiOutput("geo_space_02"),
+
 
             uiOutput("geo_protocols"),
             uiOutput("geo_07_growth_protocol"),
@@ -459,30 +477,100 @@ tab.geo <- tabPanel(
             uiOutput("geo_09_extract_protocol"),
             uiOutput("geo_10_lib_construct_protocol"),
             uiOutput("geo_11_lib_strategy"),
-            uiOutput("geo_submit_protocol"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_protocol")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_protocol_check")
+            ),
+            uiOutput("geo_space_03"),            
+
 
             uiOutput("geo_data_proc_pipeline"),
             div(id = "data_step"),
             uiOutput("geo_12a_data_proc_action"),
             uiOutput("geo_13_genome_build"),
             uiOutput("geo_14_proc_data_files"),
-            uiOutput("geo_submit_pipeline"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_pipeline")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_pipeline_check")
+            ),
+            uiOutput("geo_space_04"),   
 
+
+            uiOutput("geo_proc_head"),
             uiOutput("geo_proc_data"),
             uiOutput("geo_proc_data_list"),
-            uiOutput("geo_submit_proc_data"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_proc_data")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_proc_data_check")
+            ),
+            uiOutput("geo_space_05"),             
+
             
+            uiOutput("geo_raw_head"),
             uiOutput("geo_raw_data"),
             uiOutput("geo_raw_data_list"),
-            uiOutput("geo_submit_raw_data"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_raw_data")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_raw_data_check")
+            ),
+            uiOutput("geo_space_06"),               
 
+
+            uiOutput("geo_pair_head"),
             uiOutput("geo_paired_end"),
             uiOutput("geo_paired_end_list"),
-            uiOutput("geo_submit_paired_end"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_paired_end")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_paired_end_check")
+            ),
+            uiOutput("geo_space_07"),              
 
-            uiOutput("geo_submit_all"),
-            uiOutput("geo_download_excel"),
+
+            uiOutput("geo_solid_head"),
+            uiOutput("geo_solid"),
+            uiOutput("geo_solid_list"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_solid")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_submit_solid_check")
+            ),
+            uiOutput("geo_space_08"),
+
+            uiOutput("geo_downloads"),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_download_excel_1")
+            ),
+            div(
+                style = "display:inline-block",
+                uiOutput("geo_download_proc_data_1")
+            ),
             verbatimTextOutput("geo_debug"),
+            br(),
+            br(),
             br(),
             br(),
             br()    
