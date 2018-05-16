@@ -1,18 +1,126 @@
 #---------------------------------------------------------------------
 # Title:         IRIS - Tabs
 # Author:        Brandon Monier
-# Created:       2018-01-26 at 11:34:53
-# Last Modified: 2018-01-26 at 11:35:57
+# Created:       2018-01-26 11:34:53 CDT
+# Last Modified: 2018-05-16 14:34:54 CDT
 #---------------------------------------------------------------------
 
 # Welcome page ----
 tab.welcome <- tabPanel(
-    title = "Welcome", icon = icon("hand-spock-o"),
+    title = "Welcome", 
+    icon = icon("hand-spock-o"),
     fluid = TRUE,
     sidebarLayout(
         sidebarPanel = NULL,
         mainPanel = mainPanel(
-            includeMarkdown("./markdown/welcome.md")
+            width = 8,
+            div(
+                style = "display:inline-block;",
+                style = "width:1000px;",
+                style = "text-align:center;",
+                style = "margin:auto",
+                h3(
+                    HTML(
+                        "<b>IRIS Web Server</b>"
+                    )
+                ),
+                h4(
+                    HTML(
+                        paste(
+                           "<b>I</b>ntegrated",
+                           "<b>R</b>NA-seq Data Analysis and",
+                           "<b>I</b>nterpretation",
+                           "<b>S</b>ystem"
+                        )
+                    )
+                ),
+                tags$br(),
+                tags$button(
+                    id = "iris_flow_01",
+                    class = "btn action-button",
+                    img(src = "iris-flow-01.png", height = "100px")
+                ),
+                tags$img(
+                    src = "arrow-01.png", 
+                    height = "100px"
+                ),
+                tags$button(
+                    id = "iris_flow_02",
+                    class = "btn action-button",
+                    img(src = "iris-flow-02.png", height = "100px")
+                ),
+                tags$br(),
+                tags$img(
+                    src = "arrow-02.png",
+                    height = "20px"
+                ),
+                tags$br(),
+                tags$button(
+                    id = "iris_flow_03",
+                    class = "btn action-button",
+                    img(src = "iris-flow-03.png", height = "298px")
+                ),
+                tags$img(
+                    src = "arrow-01.png", 
+                    height = "100px"
+                ),                
+                tags$button(
+                    id = "iris_flow_04",
+                    class = "btn action-button",
+                    img(src = "iris-flow-04.png", height = "298px")
+                )
+            ),
+            tags$head(
+                tags$style(
+                    HTML(
+                        "#iris_flow_01{background-color:white;}",
+                        "#iris_flow_02{background-color:white;}",
+                        "#iris_flow_03{background-color:white;}",
+                        "#iris_flow_04{background-color:white;}"
+                    )
+                )
+            ),
+            bsTooltip(
+                id = "iris_flow_01",
+                title = paste(
+                    "To use this server, submit",
+                    "a raw read count matrix and a file for",
+                    "sample treatment data. If you are performing single-",
+                    "cell RNA-seq analysis, you will also need to provide a",
+                    "file for ID lengths."
+                ),
+                placement = "top",
+                options = list(container = "body")
+            ),
+            bsTooltip(
+                id = "iris_flow_02",
+                title = paste(
+                    "Once you have submitted data, this section will aid",
+                    "in the generation of a metadata file for GEO submission."
+                ),
+                placement = "top",
+                options = list(container = "body")
+            ),
+            bsTooltip(
+                id = "iris_flow_03",
+                title = paste(
+                    "You can also proceed here for initial analysis of your",
+                    "count data."
+                ),
+                placement = "top",
+                options = list(container = "body")
+            ),
+            bsTooltip(
+                id = "iris_flow_04",
+                title = paste(
+                    "This section will provide the tools for differential",
+                    "gene expression using 3 Bioconductor packages (DESeq2,",
+                    "edgeR, or limma-voom) and also data export."
+                ),
+                placement = "top",
+                options = list(container = "body")
+            )             
+            # includeMarkdown("./markdown/welcome.md")
         )
     )
 )
@@ -21,8 +129,10 @@ tab.welcome <- tabPanel(
 
 # Submit and QC page ----
 tab.submit <- tabPanel(
-    title = "Submit and QC ", icon = icon("filter"), 
+    title = "Submit and QC ", 
+    icon = icon("filter"), 
     fluid = TRUE,
+    value = "val1",
     sidebarLayout(
         sidebarPanel(
             h4("1. Submission Parameters"),
@@ -30,31 +140,36 @@ tab.submit <- tabPanel(
                 inputId = "examplechoice",
                 label = "How do you want to start?",
                 choices = c(
-                    "Start with a small example data set." = "yes1",
-                    "Start with a big example data set." = "yes2",
-                    "Load my own data." = "no"  
+                    "Start with an example data set (small)." = "yes1",
+                    "Start with an example data set (big)." = "yes2",
+                    "Start with an example data set (scRNA)." = "yes3",
+                    "Load my own data." = "no",
+                    "Load my own data (scRNA)." = "scrna"  
                 )
             ),
             bsTooltip(
                 id = "examplechoice", 
                 title = paste(
-                    "Note: if you choose the big example data set, analysis",
-                    "and visualization time will be considerably longer than",
-                    "small example data set."
+                    "Note: if you choose the big example data set or scRNA",
+                    "example data set, analysis and visualization time will",
+                    "be considerably longer than the small example data set."
                 ),
-                placement = "bottom"
+                placement = "right",
+                options = list(container = "body")
             ),
             uiOutput("file1"),
             uiOutput("file2"),
+            uiOutput("file3"),
             br(),
             h4("2. Data Processing"),
-            textInput(
-                inputId = "prefilt",
-                label = withMathJax(
-                    "Filter cutoff (count data row sums \\( < n\\))"
-                ),
-                value = as.numeric(10)
-            ),
+            uiOutput("filter_choice"),
+            # textInput(
+            #     inputId = "prefilt",
+            #     label = withMathJax(
+            #         "Filter cutoff (count data row sums \\( < n\\))"
+            #     ),
+            #     value = as.numeric(10)
+            # ),
             selectInput(
                 inputId = "transform",
                 label = "Choose transformation method for counts",
@@ -76,9 +191,9 @@ tab.submit <- tabPanel(
             br(),
             p(
                 paste(
-                    "After you click 'submit', you may proceed to either the",
-                    "\"Preliminary Analysis\" or 'DGE Analysis' tab for",
-                    "additional analyses."
+                    "After you click \"submit\", you may proceed to either",
+                    "the \"Preliminary Analysis\", \"DGE Analysis\", or",
+                    "\"GEO\" tabs for additional analyses."
                 )
             )
         ),
@@ -149,8 +264,10 @@ tab.submit <- tabPanel(
 
 # Exploratory Analysis
 tab.prelim <- tabPanel(
-    title = "Preliminary Analysis ", icon = icon("search"),
+    title = "Preliminary Analysis ", 
+    icon = icon("search"),
     fluid = TRUE,
+    value = "val3",
     mainPanel(
         tabsetPanel(
             tabPanel(
@@ -288,8 +405,10 @@ tab.prelim <- tabPanel(
 
 # DEG Analysis ----
 tab.deg <- tabPanel(
-    title = "DGE Analysis ", icon = icon("bar-chart"), 
+    title = "DGE Analysis ", 
+    icon = icon("bar-chart"), 
     fluid = TRUE,
+    value = "val4",
     sidebarLayout(
         sidebarPanel(
             h4("1. Experimental Setup"),
@@ -432,6 +551,7 @@ tab.geo <- tabPanel(
     title = "GEO", 
     icon = icon("database"),
     fluid = TRUE,
+    value = "val2",
     sidebarLayout(
         sidebarPanel = NULL,
         mainPanel = mainPanel(
@@ -568,7 +688,7 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_download_proc_data_1")
             ),
-            verbatimTextOutput("geo_debug"),
+            # verbatimTextOutput("geo_debug"),
             br(),
             br(),
             br(),
@@ -577,6 +697,7 @@ tab.geo <- tabPanel(
         )
     )
 )
+
 
 
 # Help ----
@@ -592,6 +713,7 @@ tab.tutorial <- tabPanel(
 )
 
 
+
 # FAQ ----
 tab.faq <- tabPanel(
     title = "FAQ",
@@ -605,6 +727,7 @@ tab.faq <- tabPanel(
 )
 
 
+
 # About Us ----
 tab.about <- tabPanel(
     title = "About Us",
@@ -616,6 +739,7 @@ tab.about <- tabPanel(
         )
     )
 )
+
 
 
 # System Info ----
