@@ -2,14 +2,14 @@
 # Title:         IRIS - Server Script
 # Author:        Brandon Monier
 # Created:       2018-01-26 11:32:02 CDT
-# Last Modified: 2018-04-11 10:19:27 CDT
+# Last Modified: 2018-05-16 14:34:35 CDT
 #---------------------------------------------------------------------
 
 #---------------------------------------------------------------------
 # CONTENTS
 #---------------------------------------------------------------------
 #
-#   IRIS-DGE server function organization
+#   IRIS server function organization
 #
 #       01 DATA...... data loading
 #       02 QC........ quality control for preliminary analysis
@@ -19,93 +19,94 @@
 #       06 COR....... correlation analysis and visualization
 #       07 SESSION... generate session info
 #       08 GEO....... gene expression omnibus metadata generation
+#       09 TABS...... tab links using `updateNavbarPage`
 #
 #---------------------------------------------------------------------
 #
-#   IRIS-DGE application layout
+#   IRIS application layout
 #
-#       IRIS-DGE
-#           |-  Welcome
-#           |-  Submit and QC
-#               |-  File Summary
-#               |-  Count Summary
-#           |-  Preliminary Analysis
-#               |-  Correlation
-#               |-  PCA
-#               |-  MDS
-#               |-  Heatmap
-#               |-  Biclustering
-#           |-  DGE Analysis
-#               |-  Overview
-#               |-  Plots
-#           |-  GEO
-#               |- Dynamic sample generation (see "GEO" layout)
-#           |-  More
-#               |-  Tutorial
-#               |-  FAQ
-#               |-  About Us
-#               |-  Session Info
+#       IRIS
+#       |-  Welcome
+#       |-  Submit and QC
+#           |-  File Summary
+#           |-  Count Summary
+#       |-  Preliminary Analysis
+#           |-  Correlation
+#           |-  PCA
+#           |-  MDS
+#           |-  Heatmap
+#           |-  Biclustering
+#       |-  DGE Analysis
+#           |-  Overview
+#           |-  Plots
+#       |-  GEO
+#           |- Dynamic sample generation (see "GEO" layout)
+#       |-  More
+#           |-  Tutorial
+#           |-  FAQ
+#           |-  About Us
+#           |-  Session Info
 #
 #---------------------------------------------------------------------
 #
-#   IRIS-DGE gene expression omnibus (GEO) layout
-#   
-#       IRIS-DGE
-#           |-  GEO
-#               |-  Series
-#                   |-  Title
-#                   |-  Summary
-#                   |-  Overall design
-#                   |-  Contributor (DYNAMIC)
-#                   |-  Supplementary file
-#                   |-  SRA center name code
-#               |-  Samples
-#                   |-  Sample name
-#                   |-  Title
-#                   |-  Source name
-#                   |-  Organism
-#                   |-  Chacteristics (BASED ON METADATA)
-#                   |-  Molecule
-#                   |-  Description
-#                   |-  Processed data file (DYNAMIC)
-#                   |-  Raw file (DYNAMIC)
-#               |-  Protocols
-#                   |-  Growth protocol
-#                   |-  Treatment protocol
-#                   |-  Extract protocol
-#                   |-  Library construction protocol
-#                   |-  Library strategy
-#               |-  Data processing pipeline
-#                   |-  Data processing step (DYNAMIC)
-#                   |-  Genome build
-#                   |-  Processed data files format and content
-#               |-  Processed data files
-#                   |-  File name
-#                   |-  File type
-#                   |-  File checksum
-#               |-  Raw files
-#                   |-  File name
-#                   |-  File type
-#                   |-  File checksum
-#                   |-  Instrument model
-#                   |-  Read length
-#                   |-  Single or paired-end
-#               |-  Paired-end experiments (IF RAW FILE -> PAIRED END)
-#                   |-  File name 1
-#                   |-  File name 2
-#                   |-  Average insert size
-#                   |-  Standard deviation
-#               |-  SOLiD experiments (IF RAW FILE -> SOLiD)
-#                   |-  File name 1
-#                   |-  File name 2
-#                   |-  File name 3
-#                   |-  File name 4
-#                   |-  Average insert size
-#                   |-  Standard deviation
-#               |-  Download options
-#                   |-  Metadata (.xlsx)
-#                   |-  Processed data (.zip)
-#                   |-  Both meta- and processed data (.zip)
+#   IRIS gene expression omnibus (GEO) layout
+#
+#       IRIS
+#       |-  GEO
+#           |-  Series
+#               |-  Title
+#               |-  Summary
+#               |-  Overall design
+#               |-  Contributor (DYNAMIC)
+#               |-  Supplementary file
+#               |-  SRA center name code
+#           |-  Samples
+#               |-  Sample name
+#               |-  Title
+#               |-  Source name
+#               |-  Organism
+#               |-  Chacteristics (BASED ON METADATA)
+#               |-  Molecule
+#               |-  Description
+#               |-  Processed data file (DYNAMIC)
+#               |-  Raw file (DYNAMIC)
+#           |-  Protocols
+#               |-  Growth protocol
+#               |-  Treatment protocol
+#               |-  Extract protocol
+#               |-  Library construction protocol
+#               |-  Library strategy
+#           |-  Data processing pipeline
+#               |-  Data processing step (DYNAMIC)
+#               |-  Genome build
+#               |-  Processed data files format and content
+#           |-  Processed data files
+#               |-  File name
+#               |-  File type
+#               |-  File checksum
+#           |-  Raw files
+#               |-  File name
+#               |-  File type
+#               |-  File checksum
+#               |-  Instrument model
+#               |-  Read length
+#               |-  Single or paired-end
+#           |-  Paired-end experiments (IF RAW FILE -> PAIRED END)
+#               |-  File name 1
+#               |-  File name 2
+#               |-  Average insert size
+#               |-  Standard deviation
+#           |-  SOLiD experiments (IF RAW FILE -> SOLiD)
+#               |-  File name 1
+#               |-  File name 2
+#               |-  File name 3
+#               |-  File name 4
+#               |-  Average insert size
+#               |-  Standard deviation
+#           |-  Download options
+#               |-  Metadata (.xlsx)
+#               |-  Processed data (.zip)
+#               |-  Both meta- and processed data (.zip)
 #
 #---------------------------------------------------------------------
 
@@ -130,64 +131,114 @@ irisServer <- function(input, output, session) {
     ## DATA - Source exp. method functions
     source("iris-functions.R")
     source("iris-xlsx.R")
+    source("irisUI.R")
+    source("tabs.R")
 
     ## DATA - Example data
-    f1a <- as.matrix(
-        read.csv(
-            "./data/count-data-small.csv", 
-            header=TRUE, 
-            row.names = 1
-        )
-    )
-    f1b <- read.csv(
-        "./data/col-data-small.csv", 
-        header = TRUE, 
-        row.names = 1
-    )
-    f2a <- as.matrix(
-        read.csv(
-            "./data/count-data-big.csv", 
-            header = TRUE, 
-            row.names = 1
-        )
-    )
-    f2b <- read.csv(
-        "./data/col-data-big.csv", 
-        header = TRUE, 
-        row.names = 1
-    )
+    # f1a <- as.matrix(
+    #     read.csv(
+    #         "./data/count-data-small.csv",
+    #         header=TRUE,
+    #         row.names = 1
+    #     )
+    # )
+    # f1b <- read.csv(
+    #     "./data/col-data-small.csv",
+    #     header = TRUE,
+    #     row.names = 1
+    # )
+    # f2a <- as.matrix(
+    #     read.csv(
+    #         "./data/count-data-big.csv",
+    #         header = TRUE,
+    #         row.names = 1
+    #     )
+    # )
+    # f2b <- read.csv(
+    #     "./data/col-data-big.csv",
+    #     header = TRUE,
+    #     row.names = 1
+    # )
+    # f3a <- read.csv(
+    #     "./data/count-data-scrna.csv",
+    #     header = TRUE,
+    #     row.names = 1
+    # )
+    # f3b <- read.csv(
+    #     "./data/col-data-scrna.csv",
+    #     header = TRUE,
+    #     row.names = 1
+    # )
 
     ## DATA - Data load option - count data
     output$file1 <- renderUI({
-        if (input$examplechoice != "no") {
-            return()
-        } else if (input$examplechoice == "no") {
+        if (input$examplechoice == "no" | input$examplechoice == "scrna") {
             fileInput(
-                inputId = "file1", 
+                inputId = "file1",
                 label = "Submit count data (CSV)",
                 accept = c(
                     "text/csv",
                     "text/comma-separated-values,text/plain",
                     ".csv"
                 )
-            )      
+            )
+        } else {
+            return()
         }
     })
 
     ## DATA - Data load option - metadata
     output$file2 <- renderUI({
-        if (input$examplechoice != "no") {
-            return()
-        } else if (input$examplechoice == "no") {
+        if (input$examplechoice == "no" | input$examplechoice == "scrna") {
             fileInput(
-                inputId = "file2", 
+                inputId = "file2",
                 label = "Submit metadata (CSV)",
                 accept = c(
                     "text/csv",
                     "text/comma-separated-values,text/plain",
                     ".csv"
                 )
-            )      
+            )
+        } else {
+            return()
+        }
+    })
+
+    ## DATA - Data load option - gene length
+    output$file3 <- renderUI({
+        if (input$examplechoice == "scrna") {
+            fileInput(
+                inputId = "file3",
+                label = "Submit ID lengths (CSV)",
+                accept = c(
+                    "text/csv",
+                    "text/comma-separated-values,text/plain",
+                    ".csv"
+                )
+            )
+        } else {
+            return()
+        }
+    })    
+
+    ## DATA - Filter choice
+    output$filter_choice <- renderUI({
+        if (input$examplechoice == "yes3" | input$examplechoice == "scrna") {
+            textInput(
+                inputId = "prefilt",
+                label = withMathJax(
+                    "Filter cutoff (TPM \\( < n\\))"
+                ),
+                value = as.numeric(1)
+            )            
+        } else {
+            textInput(
+                inputId = "prefilt",
+                label = withMathJax(
+                    "Filter cutoff (count data row sums \\( < n\\))"
+                ),
+                value = as.numeric(10)
+            )
         }
     })
 
@@ -199,45 +250,171 @@ irisServer <- function(input, output, session) {
     ###################################################################
     ### SECTION 02 - QUALITY CONTROL (QC)
     ###################################################################
-    ###################################################################    
+    ###################################################################
 
     ## QC - reactive - load and add data to DESeqDataSet class
     ddsout <- eventReactive(input$goqc, {
-        if (input$examplechoice == "yes1") {
-            cts <- f1a
-            coldata <- f1b
-        } else if (input$examplechoice == "yes2") {
-            cts <- f2a
-            coldata <- f2b
-        } else if (input$examplechoice == "no") {
-            cts <- input$file1
-            coldata <- input$file2
+        if (input$examplechoice == "yes1") { # Small example
             cts <- as.matrix(
                 read.csv(
-                    cts$datapath, 
-                    header = TRUE, 
+                    "./data/count-data-small.csv",
+                    header=TRUE,
                     row.names = 1
                 )
             )
             coldata <- read.csv(
-                coldata$datapath, 
-                header = TRUE, 
+                "./data/col-data-small.csv",
+                header = TRUE,
                 row.names = 1
-            )      
+            )
+            cols <- colnames(coldata)
+            coldata[cols] <- lapply(coldata[cols], factor)
+            cts <- cts[, rownames(coldata)]
+            n <- input$prefilt
+            n <- as.numeric(n)
+            cts.filt <- cts[rowSums(cts) > n, ]
+            dds <- DESeqDataSetFromMatrix(
+                countData = cts.filt,
+                colData = coldata,
+                design = ~ 1
+            )
+        } else if (input$examplechoice == "yes2") { # Big example
+            cts <- as.matrix(
+                read.csv(
+                    "./data/count-data-big.csv",
+                    header = TRUE,
+                    row.names = 1
+                )
+            )
+            coldata <- read.csv(
+                "./data/col-data-big.csv",
+                header = TRUE,
+                row.names = 1
+            )
+            cols <- colnames(coldata)
+            coldata[cols] <- lapply(coldata[cols], factor)
+            cts <- cts[, rownames(coldata)]
+            n <- input$prefilt
+            n <- as.numeric(n)
+            cts.filt <- cts[rowSums(cts) > n, ]
+            dds <- DESeqDataSetFromMatrix(
+                countData = cts.filt,
+                colData = coldata,
+                design = ~ 1
+            )            
+        } else if (input$examplechoice == "yes3") { # scRNA example
+            cts <- read.csv(
+                "./data/count-data-scrna.csv",
+                header = TRUE,
+                row.names = 1
+            )
+            coldata <- read.csv(
+                "./data/col-data-scrna.csv",
+                header = TRUE,
+                row.names = 1
+            )
+            gen.len <- read.csv(
+                "./data/gen-len-scrna.csv",
+                header = TRUE,
+                row.names = 1
+            )
+
+            cts.nam <- row.names(cts)
+            gen.len <- gen.len[order(
+                match(row.names(gen.len), row.names(cts))), , drop = FALSE]
+
+            # Normalize for gene length (TPM)
+            x <- cts / as.matrix(gen.len)
+
+            # Normalize for sequencing depth (TPM)
+            tpm.mat <- t( t(x) * 1e6 / colSums(x) )
+
+            # Filter raw counts based TPM values
+            n <- input$prefilt
+            n <- as.numeric(n)
+            tpm.mat <- cts[rowSums(cts) > n, ]
+            cts.filt <- cts[rownames(tpm.mat), ]
+
+            # Assign to DESeqDataSet object
+            dds <- DESeqDataSetFromMatrix(
+                countData = cts.filt,
+                colData = coldata,
+                design = ~ 1
+            )            
+
+        } else if (input$examplechoice == "no") { # user input (normal)
+            cts <- input$file1
+            coldata <- input$file2
+            cts <- as.matrix(
+                read.csv(
+                    cts$datapath,
+                    header = TRUE,
+                    row.names = 1
+                )
+            )
+            coldata <- read.csv(
+                coldata$datapath,
+                header = TRUE,
+                row.names = 1
+            )
+            cols <- colnames(coldata)
+            coldata[cols] <- lapply(coldata[cols], factor)
+            cts <- cts[, rownames(coldata)]
+            n <- input$prefilt
+            n <- as.numeric(n)
+            cts.filt <- cts[rowSums(cts) > n, ]
+            dds <- DESeqDataSetFromMatrix(
+                countData = cts.filt,
+                colData = coldata,
+                design = ~ 1
+            )            
+        } else if (input$examplechoice == "scrna") { # user input (scRNA)
+            cts <- input$file1
+            coldata <- input$file2
+            gen_len <- input$file3
+            cts <- as.matrix(
+                read.csv(
+                    cts$datapath,
+                    header = TRUE,
+                    row.names = 1
+                )
+            )
+            coldata <- read.csv(
+                coldata$datapath,
+                header = TRUE,
+                row.names = 1
+            )
+            gen_len <- read.csv(
+                gen_len$datapath,
+                header = TRUE,
+                row.names = 1
+            )
+
+            cts.nam <- row.names(cts)
+            gen.len <- gen.len[order(
+                match(row.names(gen.len), row.names(cts))), , drop = FALSE]
+
+            # Normalize for gene length (TPM)
+            x <- cts / as.matrix(gen.len)
+
+            # Normalize for sequencing depth (TPM)
+            tpm.mat <- t( t(x) * 1e6 / colSums(x) )
+
+            # Filter raw counts based TPM values
+            n <- input$prefilt
+            n <- as.numeric(n)
+            tpm.mat <- cts[rowSums(cts) > n, ]
+            cts.filt <- cts[rownames(tpm.mat), ]
+
+            # Assign to DESeqDataSet object
+            dds <- DESeqDataSetFromMatrix(
+                countData = cts.filt,
+                colData = coldata,
+                design = ~ 1
+            )             
         }
 
-        ## QC - create DDS object for preliminary analysis
-        cols <- colnames(coldata)
-        coldata[cols] <- lapply(coldata[cols], factor)
-        cts <- cts[, rownames(coldata)]
-        n <- input$prefilt
-        n <- as.numeric(n)
-        cts.filt <- cts[rowSums(cts) > n, ]
-        dds <- DESeqDataSetFromMatrix(
-            countData = cts.filt,
-            colData = coldata,
-            design = ~ 1
-        )
+        # Return objects for downstream analysis
         return(list(dds, coldata, cts.filt, cts))
     })
 
@@ -257,7 +434,7 @@ irisServer <- function(input, output, session) {
             tmp <- dds
             lab <- "Raw counts"
         }
-        return(list(tmp, lab))    
+        return(list(tmp, lab))
     })
 
     ## QC - header (2) - file summary (count data)
@@ -267,7 +444,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -333,7 +510,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -366,16 +543,16 @@ irisServer <- function(input, output, session) {
             })
         })
     })
-    
+
     ## QC - DOWNLOAD BUTTON - Boxplot (pdf)
     output$dlqcboxplotpdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcboxplotpdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Boxplot (pdf)
     output$dlqcboxplotpdfimg <- downloadHandler(
         filename =  function() {
@@ -389,18 +566,18 @@ irisServer <- function(input, output, session) {
                 tran = input$transform
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## QC - DOWNLOAD BUTTON - Boxplot (png)
     output$dlqcboxplotpng <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcboxplotpngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Boxplot (png)
     output$dlqcboxplotpngimg <- downloadHandler(
         filename =  function() {
@@ -417,7 +594,7 @@ irisServer <- function(input, output, session) {
         }
     )
 
-    
+
     ## QC - header (2) - histogram
     output$counthist <- renderUI({
         if(input$goqc == 0) {
@@ -451,16 +628,16 @@ irisServer <- function(input, output, session) {
             })
         })
     })
-    
+
     ## QC - DOWNLOAD BUTTON - Histogram (pdf)
     output$dlqchistpdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqchistpdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Histogram (pdf)
     output$dlqchistpdfimg <- downloadHandler(
         filename =  function() {
@@ -474,18 +651,18 @@ irisServer <- function(input, output, session) {
                 tran = input$transform
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## QC - DOWNLOAD BUTTON - Histogram (png)
     output$dlqchistpng <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqchistpngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Histogram (png)
     output$dlqchistpngimg <- downloadHandler(
         filename =  function() {
@@ -509,7 +686,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -547,16 +724,16 @@ irisServer <- function(input, output, session) {
             })
         })
     })
-    
+
     ## QC - DOWNLOAD BUTTON - Barplot (pdf)
     output$dlqcbarplotpdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcbarplotpdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Barplot (pdf)
     output$dlqcbarplotpdfimg <- downloadHandler(
         filename =  function() {
@@ -568,18 +745,18 @@ irisServer <- function(input, output, session) {
                 tmp = ddsout()[[1]]
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## QC - DOWNLOAD BUTTON - Barplot (png)
     output$dlqcbarplotpng <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcbarplotpngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## QC - DOWNLOAD PLOT - Barplot (png)
     output$dlqcbarplotpngimg <- downloadHandler(
         filename =  function() {
@@ -593,7 +770,7 @@ irisServer <- function(input, output, session) {
             dev.off()
         }
     )
-    
+
     ## QC - header (2) - barplot
     output$counttotal <- renderUI({
         if(input$goqc == 0) {
@@ -601,7 +778,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -616,7 +793,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -644,7 +821,7 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = class(tmp) == "DESeqTransform",
-                message = "Please transform raw counts to visualize PCA."   
+                message = "Please transform raw counts to visualize PCA."
             )
         )
         pca.lab <- plotPCA(
@@ -652,8 +829,8 @@ irisServer <- function(input, output, session) {
             intgroup = input$pcafact
         )
         pca <- plotPCA(
-            tmp, 
-            intgroup = input$pcafact, 
+            tmp,
+            intgroup = input$pcafact,
             returnData = TRUE
         )
         tooltips <- paste0(
@@ -675,18 +852,18 @@ irisServer <- function(input, output, session) {
         layout(
             xaxis = list(title = pca.lab$labels$x),
             yaxis = list(title = pca.lab$labels$y)
-        )   
+        )
     })
-    
+
     ## QC - Show download button - PCA (PDF)
     output$dlqcpcapdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcpcapdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## QC - Download plot - PCA (PDF)
     output$dlqcpcapdfimg <- downloadHandler(
         filename =  function() {
@@ -699,32 +876,32 @@ irisServer <- function(input, output, session) {
                 pcafact = input$pcafact
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## QC - Show download button - PCA (PNG)
     output$dlqcpcapng <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcpcapngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## QC - Download plot - PCA (PNG)
     output$dlqcpcapngimg <- downloadHandler(
         filename =  function() {
             paste("qc-pca.png")
         },
         content = function(file) {
-            png(file, width = 800, height = 750) 
+            png(file, width = 800, height = 750)
             qcPCAPlot(
                 tmp = ddstran()[[1]],
                 pcafact = input$pcafact
             )
             dev.off()
-        } 
-    )    
+        }
+    )
 
     ## QC - header (2) - MDS
     output$headmds <- renderUI({
@@ -733,7 +910,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -758,7 +935,7 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = class(tmp) == "DESeqTransform",
-                message = "Please transform raw counts to visualize MDS."   
+                message = "Please transform raw counts to visualize MDS."
             )
         )
         mds <- dist(t(assay(tmp)))
@@ -785,18 +962,18 @@ irisServer <- function(input, output, session) {
         layout(
             xaxis = list(title = "MDS coordinate 1"),
             yaxis = list(title = "MDS coordinate 2")
-        )   
+        )
     })
-    
+
     ## QC - Show download button - MDS (PDF)
     output$dlqcmdspdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcmdspdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## QC - Download plot - MDS (PDF)
     output$dlqcmdspdfimg <- downloadHandler(
         filename =  function() {
@@ -809,32 +986,32 @@ irisServer <- function(input, output, session) {
                 mdsfact = input$mdsfact
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## QC - Show download button - MDS (PNG)
     output$dlqcmdspng <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcmdspngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## QC - Download plot - MDS (PNG)
     output$dlqcmdspngimg <- downloadHandler(
         filename =  function() {
             paste("qc-mds.png")
         },
         content = function(file) {
-            png(file, width = 800, height = 750) 
+            png(file, width = 800, height = 750)
             qcMDSPlot(
                 tmp = ddstran()[[1]],
                 mdsfact = input$mdsfact
             )
             dev.off()
-        } 
-    )    
+        }
+    )
 
 
 
@@ -920,7 +1097,7 @@ irisServer <- function(input, output, session) {
                 p(
                     em(
                         "It appears that your metadata only contains one factor. Please choose 'Two group comparisons' or load data that contains multiple factors."
-                    ), 
+                    ),
                     style = "color:grey"
                 )
             } else if (input$dgeexpsetup == "exp2") {
@@ -988,7 +1165,7 @@ irisServer <- function(input, output, session) {
                 p(
                     em(
                         "It appears that your metadata only contains one factor. Please choose 'Two group comparisons' or load data that contains multiple factors."
-                    ), 
+                    ),
                     style = "color:grey"
                 )
             } else if (input$dgeexpsetup == "exp3") {
@@ -1067,7 +1244,7 @@ irisServer <- function(input, output, session) {
                 p(
                     em(
                         "It appears that your metadata only contains one factor. Please choose 'Two group comparisons' or load data that contains multiple factors."
-                    ), 
+                    ),
                     style = "color:grey"
                 )
             } else if (input$dgeexpsetup == "exp4") {
@@ -1178,7 +1355,7 @@ irisServer <- function(input, output, session) {
         } else {
             if (input$dgeexpsetup == "exp5") {
                 tmp1 <- ddsout()[[2]]
-                tmp2 <- input$dgeexp5a 
+                tmp2 <- input$dgeexp5a
                 tmp3 <- levels(tmp1[, tmp2])
                 tmp3 <- tmp3[which(tmp3 != input$dgeexp5b)]
                 tmp3 <- paste0(tmp3, "_VS_", input$dgeexp5b)
@@ -1186,22 +1363,22 @@ irisServer <- function(input, output, session) {
                     inputId = "dgeexp5c",
                     label = "Choose comparisons you want made",
                     choices = as.list(tmp3)
-                )        
+                )
             }
         }
-    })     
+    })
 
     ## DGE - exp. setup 6 - ME + group fact - choose ME
     output$dgeexp6a <- renderUI({
         validate(
             need(input$dgemethod != "", "")
-        )    
+        )
         if (input$goqc == 0) {
             return()
         } else {
             if (input$dgeexpsetup == "exp6" & ncol(ddsout()[[2]]) < 2) {
                 return()
-            } else if (input$dgeexpsetup == "exp6") { 
+            } else if (input$dgeexpsetup == "exp6") {
                 tmp <- ddsout()[[2]]
                 tmp <- unique(colnames(tmp))
                 selectInput(
@@ -1217,13 +1394,13 @@ irisServer <- function(input, output, session) {
     output$dgeexp6b <- renderUI({
         validate(
             need(input$dgemethod != "", "")
-        )    
+        )
         if (input$goqc == 0) {
             return()
         } else {
             if (input$dgeexpsetup == "exp6" & ncol(ddsout()[[2]]) < 2) {
                 return()
-            } else if (input$dgeexpsetup == "exp6") { 
+            } else if (input$dgeexpsetup == "exp6") {
                 tmp <- ddsout()[[2]]
                 tmp <- levels(tmp[, input$dgeexp6a])
                 selectInput(
@@ -1239,7 +1416,7 @@ irisServer <- function(input, output, session) {
     output$dgeexp6c <- renderUI({
         validate(
             need(input$dgemethod != "", "")
-        )    
+        )
         if (input$goqc == 0) {
             return()
         } else {
@@ -1260,15 +1437,15 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = !is.null(input$dgeexp6a),
-                message = ""   
+                message = ""
             )
-        )  
+        )
         if (input$goqc == 0) {
             return()
         } else {
             if (input$dgeexpsetup == "exp6" & ncol(ddsout()[[2]]) < 2) {
                 return()
-            } else if (input$dgeexpsetup == "exp6") { 
+            } else if (input$dgeexpsetup == "exp6") {
                 tmp <- ddsout()[[2]]
                 tmp <- tmp[which(tmp[, input$dgeexp6a] == input$dgeexp6b), ]
                 tmp[] <- lapply(tmp, function(x) if(is.factor(x)) factor(x) else x)
@@ -1287,9 +1464,9 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = !is.null(input$dgeexp6a),
-                message = ""   
+                message = ""
             )
-        )  
+        )
         if (input$goqc == 0) {
             return()
         } else {
@@ -1304,31 +1481,31 @@ irisServer <- function(input, output, session) {
                     inputId = "dgeexp6e",
                     label = "Choose comparisons you want made",
                     choices = as.list(tmp3)
-                )        
+                )
             }
         }
-    })   
+    })
 
     ## DGE - exp. setup 7 - user input
     output$dgeexp7a <- renderUI({
         validate(
             need(input$dgemethod != "", "")
-        ) 
+        )
         if (input$goqc == 0) {
             return()
         } else {
             fileInput(
-                inputId = "mod.matrix", 
+                inputId = "mod.matrix",
                 label = "Submit model matrix (CSV)",
                 accept = c(
                     "text/csv",
                     "text/comma-separated-values,text/plain",
                     ".csv"
                 )
-            )      
+            )
         }
-    })    
-    
+    })
+
     ## DGE - exp. setup - formula - header
     output$dgeexpformhead <- renderUI({
         if (input$goqc == 0) {
@@ -1340,7 +1517,7 @@ irisServer <- function(input, output, session) {
                 h5(
                     strong("Your linear model will look like this:")
                 )
-            } else if (input$dgeexpsetup == "exp7") { 
+            } else if (input$dgeexpsetup == "exp7") {
                 return()
             } else {
                 h5(
@@ -1389,7 +1566,7 @@ irisServer <- function(input, output, session) {
                 code(
                     paste0(
                         " ~ ", input$dgeexp3a,
-                        " + ", input$dgeexp3b, 
+                        " + ", input$dgeexp3b,
                         " + ", input$dgeexp3a,
                         ":", input$dgeexp3b
                     )
@@ -1439,7 +1616,7 @@ irisServer <- function(input, output, session) {
                 )
             }
         }
-    })  
+    })
 
     ## DGE - exp. setup 6B - ME + group fact. - formula layout
     output$dgeexpform6b <- renderUI({
@@ -1464,7 +1641,7 @@ irisServer <- function(input, output, session) {
             if (input$dgeexpsetup == "exp6") {
                 code(
                     paste(
-                        "...factor: ", 
+                        "...factor: ",
                         input$dgeexp6a
                     )
                 )
@@ -1503,7 +1680,7 @@ irisServer <- function(input, output, session) {
                     "TMM" = "TMM",
                     "RLE" = "RLE",
                     "upperquartile" = "upperquartile",
-                    "none" = "none" 
+                    "none" = "none"
                 )
             )
         }
@@ -1520,7 +1697,7 @@ irisServer <- function(input, output, session) {
                 inputId = "dgemaincontrasts",
                 label = "Choose contrast",
                 choices = tmp,
-                width = "400px" 
+                width = "400px"
             )
         }
     })
@@ -1573,13 +1750,13 @@ irisServer <- function(input, output, session) {
                         coldata = coldata,
                         perm.h = input$dgeexp2c
                     )
-                    fit.names <- de.genes[[2]]       
+                    fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
                     incProgress(2/2)
                 })
             } else if (input$dgeexpsetup == "exp3") {
                 withProgress(message = "Running limma-voom...", value = 0, {
-                    incProgress(1/2)     
+                    incProgress(1/2)
                     de.genes <- limma.exp3(
                         fact1 = input$dgeexp3a,
                         fact2 = input$dgeexp3b,
@@ -1712,7 +1889,7 @@ irisServer <- function(input, output, session) {
                     fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
                     incProgress(2/2)
-                })        
+                })
             } else if (input$dgeexpsetup == "exp7") {
                 withProgress(message = "Running edgeR...", value = 0, {
                     incProgress(1/2)
@@ -1724,7 +1901,7 @@ irisServer <- function(input, output, session) {
                     fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
                     incProgress(2/2)
-                })        
+                })
             }
         } else if (input$dgemethod == "deseq") {
             if (input$dgeexpsetup == "exp1") {
@@ -1734,7 +1911,7 @@ irisServer <- function(input, output, session) {
                         fact = input$dgeexp1a,
                         cts = cts,
                         coldata = coldata,
-                        perm.h = input$dgeexp1b 
+                        perm.h = input$dgeexp1b
                     )
                     fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
@@ -1763,7 +1940,7 @@ irisServer <- function(input, output, session) {
                         cts = cts,
                         coldata = coldata,
                         fact1.rlvl = input$dgeexp3c,
-                        fact2.rlvl = input$dgeexp3d        
+                        fact2.rlvl = input$dgeexp3d
                     )
                     fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
@@ -1825,9 +2002,9 @@ irisServer <- function(input, output, session) {
                     fit.names <- de.genes[[2]]
                     fit.cont <- de.genes[[1]]
                     incProgress(2/2)
-                })        
+                })
             }
-        } 
+        }
         return(list(fit.cont, fit.names))
     })
 
@@ -1838,7 +2015,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Choose an experimental setup with parameters and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -1853,13 +2030,13 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Choose an experimental setup with parameters and click the 'submit' button to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
             h4("Interactive Plots")
         }
-    }) 
+    })
 
     ## DGE - contrast table
     dgeout2 <- reactive({
@@ -1881,7 +2058,7 @@ irisServer <- function(input, output, session) {
             )
             return(list(contTable))
         }
-    })  
+    })
 
     ## DGE - select input - Visualization type
     output$vistype <- renderUI({
@@ -1900,7 +2077,7 @@ irisServer <- function(input, output, session) {
             )
         }
     })
-    
+
     ## DGE - Filter Data
     dgeout3 <- reactive({
         if (input$godge == 0) {
@@ -1938,7 +2115,7 @@ irisServer <- function(input, output, session) {
                 "<b>ID:</b> ", datobj$id, "<br />",
                 "<b>LFC:</b> ", round(datobj$log2FoldChange, 3), "<br />",
                 "<b>PADJ:</b> ", round(datobj$padj, 3), "<br />",
-                "<b>BM:</b> ", round(datobj$baseMean, 3) 
+                "<b>BM:</b> ", round(datobj$baseMean, 3)
             )
             if (input$godge == 0) {
                 return()
@@ -1947,10 +2124,10 @@ irisServer <- function(input, output, session) {
                     if (!length(s)) {
                         p <- share() %>%
                             plot_ly(
-                                x = ~log10(baseMean), 
+                                x = ~log10(baseMean),
                                 y = ~log2FoldChange,
-                                type = "scatter", 
-                                mode = "markers", 
+                                type = "scatter",
+                                mode = "markers",
                                 color = I("darkgray"),
                                 text = tooltips,
                                 hoverinfo = "text",
@@ -1959,43 +2136,43 @@ irisServer <- function(input, output, session) {
                                 showlegend = TRUE,
                                 xaxis = list(title = "log<sub>10</sub>(baseMean)"),
                                 yaxis = list(title = "log<sub>2</sub>(fold change)")
-                            ) %>% 
+                            ) %>%
                             highlight(
-                                "plotly_selected", 
-                                color = I("royalblue1"), 
+                                "plotly_selected",
+                                color = I("royalblue1"),
                                 selected = attrs_selected(
                                     name = "Filtered"
                                 )
                             )
                     } else if (length(s)) {
                         pp <- dgeout3() %>%
-                            plot_ly() %>% 
+                            plot_ly() %>%
                             add_trace(
-                                x = ~log10(baseMean), 
+                                x = ~log10(baseMean),
                                 y = ~log2FoldChange,
-                                type = "scatter", 
-                                mode = "markers", 
+                                type = "scatter",
+                                mode = "markers",
                                 color = I("darkgray"),
                                 text = tooltips,
-                                hoverinfo = "text", 
+                                hoverinfo = "text",
                                 name = "Unfiltered") %>%
                             layout(
                                 showlegend = TRUE,
                                 xaxis = list(title = "log<sub>10</sub>(baseMean)"),
                                 yaxis = list(title = "log<sub>2</sub>(fold change)")
                             )
-        
+
                         # selected data
                         pp <- add_trace(
-                            pp, 
-                            data = dgeout3()[s, , drop = FALSE], 
-                            x = ~log10(baseMean), 
+                            pp,
+                            data = dgeout3()[s, , drop = FALSE],
+                            x = ~log10(baseMean),
                             y = ~log2FoldChange,
-                            type = "scatter", 
-                            mode = "markers", 
-                            color = I("royalblue1"), 
+                            type = "scatter",
+                            mode = "markers",
+                            color = I("royalblue1"),
                             # text = tooltips,
-                            size = I(8), 
+                            size = I(8),
                             name = "Filtered"
                         )
                     }
@@ -2003,13 +2180,13 @@ irisServer <- function(input, output, session) {
                     if (!length(s)) {
                         p <- share() %>%
                             plot_ly(
-                                x = ~log2FoldChange, 
+                                x = ~log2FoldChange,
                                 y = ~-log10(pvalue),
-                                type = "scatter", 
-                                mode = "markers", 
+                                type = "scatter",
+                                mode = "markers",
                                 color = I("darkgray"),
                                 text = tooltips,
-                                hoverinfo = "text", 
+                                hoverinfo = "text",
                                 name = "Unfiltered") %>%
                             layout(
                                 showlegend = TRUE,
@@ -2017,43 +2194,43 @@ irisServer <- function(input, output, session) {
                                 yaxis = list(title = "-log<sub>10</sub>(p-value)")
                             ) %>%
                             highlight(
-                                "plotly_selected", 
-                                color = I("royalblue1"), 
+                                "plotly_selected",
+                                color = I("royalblue1"),
                                 selected = attrs_selected(
                                     name = "Filtered"
                                 )
                             )
                     } else if (length(s)) {
                         pp <- dgeout3() %>%
-                            plot_ly() %>% 
+                            plot_ly() %>%
                             add_trace(
-                                x = ~log2FoldChange, 
+                                x = ~log2FoldChange,
                                 y = ~-log10(pvalue),
-                                type = "scatter", 
-                                mode = "markers", 
+                                type = "scatter",
+                                mode = "markers",
                                 color = I("darkgray"),
                                 text = tooltips,
-                                hoverinfo = "text", 
+                                hoverinfo = "text",
                                 name = "Unfiltered") %>%
                             layout(
                                 showlegend = TRUE,
                                 xaxis = list(title = "log<sub>2</sub>(fold change)"),
                                 yaxis = list(title = "-log<sub>10</sub>(p-value)")
                             )
-        
+
                         # selected data
                         pp <- add_trace(
-                            pp, 
-                            data = dgeout3()[s, , drop = FALSE], 
-                            x = ~log2FoldChange, 
-                            y = ~-log10(pvalue), 
-                            mode = "markers", 
+                            pp,
+                            data = dgeout3()[s, , drop = FALSE],
+                            x = ~log2FoldChange,
+                            y = ~-log10(pvalue),
+                            mode = "markers",
                             color = I("royalblue1"),
-                            # text = tooltips, 
-                            size = I(8), 
+                            # text = tooltips,
+                            size = I(8),
                             name = "Filtered"
                         )
-                    }      
+                    }
                 }
             }
         }
@@ -2076,32 +2253,32 @@ irisServer <- function(input, output, session) {
                 dt
             } else {
                 DT::formatStyle(
-                    dt, 
-                    "id", 
-                    target = "row", 
+                    dt,
+                    "id",
+                    target = "row",
                     color = DT::styleEqual(m2$id, rep("white", length(m2$id))),
                     backgroundColor = DT::styleEqual(
-                        m2$id, 
+                        m2$id,
                         rep("darkgray", length(m2$id))
                     )
                 )
             }
         }
-    }) 
+    })
 
     ## DGE - Show download button (FILTERED)
     output$downloadfilt <- renderUI({
         validate(
             need(
                 expr = !is.null(input$godge),
-                message = ""   
+                message = ""
             )
         )
         if(input$godge == 0) {
             return()
         } else {
             downloadButton("downfiltData", "Download Filtered Data")
-        }     
+        }
     })
 
     ## DGE - Download FILTERED data
@@ -2109,32 +2286,32 @@ irisServer <- function(input, output, session) {
         filename = function() {
             paste0(
                 input$dgemaincontrasts,
-                "filtered_results_", 
+                "filtered_results_",
                 nrow(dgeout3()[input[["mytable_rows_all"]], ]),
                 ".csv"
             )
         },
         content = function(file) {
             write.csv(
-                dgeout3()[input[["mytable_rows_all"]], ], 
+                dgeout3()[input[["mytable_rows_all"]], ],
                 file, row.names = FALSE
             )
         }
-    )   
+    )
 
     ## DGE - Show download button (ALL)
     output$downloadall <- renderUI({
         validate(
             need(
                 expr = !is.null(input$godge),
-                message = ""   
+                message = ""
             )
         )
         if(input$godge == 0) {
             return()
         } else {
             downloadButton("downallData", "Download All Data")
-        }     
+        }
     })
 
     ## DGE - Download ALL data
@@ -2144,7 +2321,7 @@ irisServer <- function(input, output, session) {
         },
         content = function(file) {
             write.csv(
-                dgeout2()[[1]], 
+                dgeout2()[[1]],
                 file, row.names = FALSE
             )
         }
@@ -2174,7 +2351,7 @@ irisServer <- function(input, output, session) {
             return(list(cont.ls))
         }
     })
-    
+
     ## DGE - table generation
     dgeover <- reactive({
         p <- as.numeric(input$dgepadjcutoff)
@@ -2296,7 +2473,7 @@ irisServer <- function(input, output, session) {
             )
         }
     )
-    
+
     ## DGE - Show Download Button - Conditional - MA or Volcano (PDF)
     output$dldgemavolpdf <- renderUI({
         validate(
@@ -2308,17 +2485,17 @@ irisServer <- function(input, output, session) {
                 return()
             } else {
                 downloadButton("dldgemapdfimg", "Download MA Plot (PDF)")
-            }     
+            }
         } else if (input$plottype == "volplot") {
             ### DGE - Show download button - Volcano plot (PDF)
             if(input$goqc == 0) {
                 return()
             } else {
                 downloadButton("dldgevolpdfimg", "Download Volcano Plot (PDF)")
-            }     
-        }  
+            }
+        }
     })
-        
+
     ## DGE - Show Download Button - Conditional - MA or Volcano (PNG)
     output$dldgemavolpng <- renderUI({
         validate(
@@ -2330,17 +2507,17 @@ irisServer <- function(input, output, session) {
                 return()
             } else {
                 downloadButton("dldgemapngimg", "Download MA Plot (PNG)")
-            }     
+            }
         } else if (input$plottype == "volplot") {
             ### DGE - Show download button - Volcano plot (PNG)
             if(input$goqc == 0) {
                 return()
             } else {
                 downloadButton("dldgevolpngimg", "Download Volcano Plot (PNG)")
-            }     
-        }  
+            }
+        }
     })
-    
+
     ## DGE - Download plot - MA plot (PDF)
     output$dldgemapdfimg <- downloadHandler(
         filename =  function() {
@@ -2355,9 +2532,9 @@ irisServer <- function(input, output, session) {
                 cont = input$dgemaincontrasts
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## DGE - Download plot - MA plot (PNG)
     output$dldgemapngimg <- downloadHandler(
         filename =  function() {
@@ -2372,9 +2549,9 @@ irisServer <- function(input, output, session) {
                 cont = input$dgemaincontrasts
             )
             dev.off()
-        } 
-    )  
- 
+        }
+    )
+
     ## DGE - Download plot - Volcano plot (PDF)
     output$dldgevolpdfimg <- downloadHandler(
         filename =  function() {
@@ -2389,9 +2566,9 @@ irisServer <- function(input, output, session) {
                 cont = input$dgemaincontrasts
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## DGE - Download plot - Volcano plot (PNG)
     output$dldgevolpngimg <- downloadHandler(
         filename =  function() {
@@ -2406,13 +2583,13 @@ irisServer <- function(input, output, session) {
                 cont = input$dgemaincontrasts
             )
             dev.off()
-        } 
-    )  
+        }
+    )
 
-    
-    
-    
-    
+
+
+
+
     ###################################################################
     ###################################################################
     ### SECTION 04 - HEATMAP GENERATION (HEAT)
@@ -2426,7 +2603,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -2502,9 +2679,9 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton("dlqcheatplot1pdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## HEAT - Download plot - Heatmap (PDF)
     output$dlqcheatplot1pdfimg <- downloadHandler(
         filename =  function() {
@@ -2517,41 +2694,41 @@ irisServer <- function(input, output, session) {
                 n = input$heatnumber
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## HEAT - Show download button - Heatmap (PNG)
     output$dlqcheatplot1png <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcheatplot1pngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## HEAT - Download plot - Heatmap (PNG)
     output$dlqcheatplot1pngimg <- downloadHandler(
         filename =  function() {
             paste("qc-heatmap.png")
         },
         content = function(file) {
-            png(file, width = 800, height = 850) 
+            png(file, width = 800, height = 850)
             qcHeatMap(
                 heat = heattran2()[[1]],
                 n = input$heatnumber
             )
             dev.off()
-        } 
-    )  
-    
+        }
+    )
+
     ##HEAT - select input - choose factor - HEATMAP
     output$heatfactor <- renderUI({
         s <- event_data("plotly_click", source = "heatplot")
         validate(
             need(
-                s != "", 
+                s != "",
                 message = "")
-        )    
+        )
         tmp <- ddsout()[[2]]
         selectInput(
             inputId = "heatfactor",
@@ -2568,13 +2745,13 @@ irisServer <- function(input, output, session) {
             s <- event_data("plotly_click", source = "heatplot")
             validate(
                 need(
-                    s != "", 
+                    s != "",
                     message = "Click on one of the heatmap cells to view this plot!"
                 )
             )
             rc.data <- counts(ddsout()[[1]])
             test <- getGenes(
-                rc.data = rc.data, 
+                rc.data = rc.data,
                 id = s[["y"]],
                 coldata = ddsout()[[2]]
             )
@@ -2592,13 +2769,13 @@ irisServer <- function(input, output, session) {
                 color = test[, input$heatfactor],
                 text = tooltips,
                 marker = list(size = 7),
-                hoverinfo = "text" 
+                hoverinfo = "text"
             ) %>%
             layout(
                 title = paste(s[["y"]], "Counts"),
                 xaxis = list(title = paste(input$fact)),
                 yaxis = list(title = "Normalized counts")
-            )      
+            )
         }
     })
 
@@ -2608,9 +2785,9 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton("dlqcheatplot2pdfimg", "Download Static R Plot (PDF)")
-        }     
+        }
     })
-    
+
     ## HEAT - Download plot - Heat counts (PDF)
     output$dlqcheatplot2pdfimg <- downloadHandler(
         filename =  function() {
@@ -2625,25 +2802,25 @@ irisServer <- function(input, output, session) {
                 heatfactor = input$heatfactor
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## HEAT - Show download button - Heat counts (PNG)
     output$dlqcheatplot2png <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
             downloadButton("dlqcheatplot2pngimg", "Download Static R Plot (PNG)")
-        }     
+        }
     })
-    
+
     ## HEAT - Download plot - Heat counts (PNG)
     output$dlqcheatplot2pngimg <- downloadHandler(
         filename =  function() {
             paste("qc-heat-counts.png")
         },
         content = function(file) {
-            png(file, width = 800, height = 750) 
+            png(file, width = 800, height = 750)
             qcHeatCount(
                 s = event_data("plotly_click", source = "heatplot"),
                 rc.data = counts(ddsout()[[1]]),
@@ -2651,11 +2828,11 @@ irisServer <- function(input, output, session) {
                 heatfactor = input$heatfactor
             )
             dev.off()
-        } 
-    )  
+        }
+    )
 
 
-    
+
 
 
     ###################################################################
@@ -2663,7 +2840,7 @@ irisServer <- function(input, output, session) {
     ### SECTION 05 - BICLUSTERING ALGORITHMS (BIC)
     ###################################################################
     ###################################################################
-    
+
     ## BIC - header (2) - Bicluster analysis
     output$headbic <- renderUI({
         if (input$goqc == 0) {
@@ -2671,7 +2848,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -2727,8 +2904,8 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             actionButton(
-                "gobic", 
-                "Launch Analysis", 
+                "gobic",
+                "Launch Analysis",
                 icon = icon("space-shuttle")
             )
         }
@@ -2780,7 +2957,7 @@ irisServer <- function(input, output, session) {
                 res <- biclust::biclust(x = cts.var, method = BCXmotifs() )
                 incProgress(2/2)
             })
-        }            
+        }
         return(list(res, cts.var))
     })
 
@@ -2825,8 +3002,8 @@ irisServer <- function(input, output, session) {
             samp <- length(cn[clust, ][cn[clust, ] == TRUE])
 
             out <- paste0(
-                "This algorithm found ", ids, " IDs amongst ", samp, 
-                " samples in cluster ", clust, ". To see what IDs were found in this cluster, click on the 'Download Cluster IDs' button at the bottom of the page." 
+                "This algorithm found ", ids, " IDs amongst ", samp,
+                " samples in cluster ", clust, ". To see what IDs were found in this cluster, click on the 'Download Cluster IDs' button at the bottom of the page."
             )
             p(paste(out))
         }
@@ -2892,7 +3069,7 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = !is.null(input$gobic),
-                message = ""   
+                message = ""
             )
         )
         if(input$gobic == 0) {
@@ -2904,7 +3081,7 @@ irisServer <- function(input, output, session) {
             } else {
                 downloadButton("downloadbicclust", "Download Cluster IDs")
             }
-        }     
+        }
     })
 
     ## BIC - Download data
@@ -2925,7 +3102,7 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = !is.null(input$gobic),
-                message = ""   
+                message = ""
             )
         )
         if(input$gobic == 0) {
@@ -2937,7 +3114,7 @@ irisServer <- function(input, output, session) {
             } else {
                 downloadButton("downloadbicplotpdfimg", "Download Plot (PDF)")
             }
-        }     
+        }
     })
 
     ## BIC - Download plot
@@ -2953,15 +3130,15 @@ irisServer <- function(input, output, session) {
                 cts.var = bicout()[[2]]
             )
             dev.off()
-        } 
-    )    
+        }
+    )
 
     ## BIC - Show download button (FILTERED) (PNG)
     output$downloadbicplotpng <- renderUI({
         validate(
             need(
                 expr = !is.null(input$gobic),
-                message = ""   
+                message = ""
             )
         )
         if(input$gobic == 0) {
@@ -2973,9 +3150,9 @@ irisServer <- function(input, output, session) {
             } else {
                 downloadButton("downloadbicplotpngimg", "Download Plot (PNG)")
             }
-        }     
+        }
     })
-    
+
     ## BIC - Download plot (PNG)
     output$downloadbicplotpngimg <- downloadHandler(
         filename =  function() {
@@ -2989,8 +3166,8 @@ irisServer <- function(input, output, session) {
                 cts.var = bicout()[[2]]
             )
             dev.off()
-        } 
-    )   
+        }
+    )
 
 
 
@@ -3009,7 +3186,7 @@ irisServer <- function(input, output, session) {
                 br(),
                 em(
                     "Load data and click the 'submit' button on the 'Submit and QC' tab to see the results."
-                ), 
+                ),
                 style = "color:grey"
             )
         } else {
@@ -3031,7 +3208,7 @@ irisServer <- function(input, output, session) {
         validate(
             need(
                 expr = !is.null(corout()),
-                message = ""   
+                message = ""
             )
         )
         withProgress(message = "Rendering correlation matrix...", value = 0, {
@@ -3044,7 +3221,11 @@ irisServer <- function(input, output, session) {
                 tooltips <- paste0(
                     "<b>R:</b> ", round(cor.mat, 3)
                 )
-                tooltips <- matrix(tooltips, ncol = ncol(cor.mat), byrow = FALSE)
+                tooltips <- matrix(
+                    tooltips, 
+                    ncol = ncol(cor.mat), 
+                    byrow = FALSE
+                )
                 plot_ly(
                     x = colnames(cor.mat),
                     y = rownames(cor.mat),
@@ -3062,39 +3243,45 @@ irisServer <- function(input, output, session) {
             }
         })
     })
-    
+
     ## COR - DOWNLOAD BUTTON - Corplot1 (pdf)
     output$dlqccorplot1pdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
-            downloadButton("dlqccorplot1pdfimg", "Download Static R Plot (PDF)")
-        }     
+            downloadButton(
+                "dlqccorplot1pdfimg", 
+                "Download Static R Plot (PDF)"
+            )
+        }
     })
-    
+
     ## COR - DOWNLOAD PLOT - Corplot1 (pdf)
     output$dlqccorplot1pdfimg <- downloadHandler(
         filename =  function() {
             paste("cor-matrix.pdf")
         },
         content = function(file) {
-            pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+            pdf(file, width = 7, height = 6.5, onefile = FALSE)
             corMatPlot(
                 cor.mat = corout()[[1]]
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## COR - DOWNLOAD BUTTON - Corplot1 (png)
     output$dlqccorplot1png <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
-            downloadButton("dlqccorplot1pngimg", "Download Static R Plot (PNG)")
-        }     
+            downloadButton(
+                "dlqccorplot1pngimg", 
+                "Download Static R Plot (PNG)"
+            )
+        }
     })
-    
+
     ## COR - DOWNLOAD PLOT - Corplot1 (png)
     output$dlqccorplot1pngimg <- downloadHandler(
         filename =  function() {
@@ -3119,10 +3306,10 @@ irisServer <- function(input, output, session) {
                 s.cor <- event_data("plotly_click", source = "corplot")
                 validate(
                     need(
-                        s.cor != "", 
+                        s.cor != "",
                         message = "Click on one of the heatmap cells to view this plot!"
                     )
-                )        
+                )
                 cts.tran <- corout()[[2]]
                 cts.tran <- as.data.frame(cts.tran)
                 x <- s.cor[["x"]]
@@ -3138,7 +3325,7 @@ irisServer <- function(input, output, session) {
                     y = cts.tran[, y],
                     text = tooltips,
                     marker = list(size = 2),
-                    hoverinfo = "text" 
+                    hoverinfo = "text"
                 ) %>%
                 layout(
                     title = paste(y, "vs.", x),
@@ -3148,23 +3335,26 @@ irisServer <- function(input, output, session) {
             })
         }
     })
-    
+
     ## COR - DOWNLOAD BUTTON - corplot2 (pdf)
     output$dlqccorplot2pdf <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
-            downloadButton("dlqccorplot2pdfimg", "Download Static R Plot (PDF)")
-        }     
+            downloadButton(
+                "dlqccorplot2pdfimg", 
+                "Download Static R Plot (PDF)"
+            )
+        }
     })
-    
+
     ## COR - DOWNLOAD PLOT - corplot2 (pdf)
     output$dlqccorplot2pdfimg <- downloadHandler(
         filename =  function() {
             paste("cor-scatterplot.pdf")
         },
         content = function(file) {
-            pdf(file, width = 8, height = 6.5, onefile = FALSE) # open the pdf device
+            pdf(file, width = 8, height = 6.5, onefile = FALSE)
             corScatter(
                 s.cor = event_data("plotly_click", source = "corplot"),
                 cts.tran = corout()[[2]],
@@ -3172,18 +3362,21 @@ irisServer <- function(input, output, session) {
                 lab = ddstran()[[2]]
             )
             dev.off()
-        } 
+        }
     )
-    
+
     ## COR - DOWNLOAD BUTTON - corplot2 (png)
     output$dlqccorplot2png <- renderUI({
         if(input$goqc == 0) {
             return()
         } else {
-            downloadButton("dlqccorplot2pngimg", "Download Static R Plot (PNG)")
-        }     
+            downloadButton(
+                "dlqccorplot2pngimg", 
+                "Download Static R Plot (PNG)"
+            )
+        }
     })
-    
+
     ## COR - DOWNLOAD PLOT - corplot2 (png)
     output$dlqccorplot2pngimg <- downloadHandler(
         filename =  function() {
@@ -3199,7 +3392,7 @@ irisServer <- function(input, output, session) {
             dev.off()
         }
     )
-    
+
     ## COR - header (2) - Correlation analysis
     output$headcor2 <- renderUI({
         if (input$goqc == 0) {
@@ -3228,7 +3421,7 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton("dlqcorplot3pdfimg", "Download Plot (PDF)")
-        }     
+        }
     })
 
     ## COR - Download plot - sample distance matrix (PDF)
@@ -3237,12 +3430,12 @@ irisServer <- function(input, output, session) {
             paste("sample-dists.pdf")
         },
         content = function(file) {
-            pdf(file, width = 7, height = 6.5, onefile = FALSE) # open the pdf device
+            pdf(file, width = 7, height = 6.5, onefile = FALSE)
             sampdistPlot(
                 cts = ddstran()[[1]]
             )
             dev.off()
-        } 
+        }
     )
 
     ## COR - Show download button - sample distance matrix (PNG)
@@ -3251,7 +3444,7 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton("dlqcorplot3pngimg", "Download Plot (PNG)")
-        }     
+        }
     })
 
     ## COR - Download plot - sample distance matrix (PNG)
@@ -3260,16 +3453,16 @@ irisServer <- function(input, output, session) {
             paste("sample-dists.png")
         },
         content = function(file) {
-            png(file, width = 800, height = 750) 
+            png(file, width = 800, height = 750)
             sampdistPlot(
                 cts = ddstran()[[1]]
             )
             dev.off()
-        } 
-    )    
-    
-    
-    
+        }
+    )
+
+
+
 
 
     ###################################################################
@@ -3282,11 +3475,11 @@ irisServer <- function(input, output, session) {
     output$sessinfo <- renderPrint({
             sessionInfo()
     })
-    
-    
-    
-    
-        
+
+
+
+
+
     ###################################################################
     ###################################################################
     ### SECTION 08 - GEO METADATA GENERATION (GEO)
@@ -3300,7 +3493,7 @@ irisServer <- function(input, output, session) {
     output$geo_series <- renderUI({
         if(input$goqc == 0) {
             p(
-                em("Please load data first!"), 
+                em("Please load data first!"),
                 style = "color:grey"
             )
         } else {
@@ -3329,7 +3522,7 @@ irisServer <- function(input, output, session) {
                 value = "",
                 width = "500px"
             )
-        }    
+        }
     })
 
     output$geo_02_summary <- renderUI({
@@ -3344,7 +3537,7 @@ irisServer <- function(input, output, session) {
                 rows = 5,
                 resize = "vertical"
             )
-        }    
+        }
     })
 
     output$geo_xx_overall_design <- renderUI({
@@ -3359,8 +3552,8 @@ irisServer <- function(input, output, session) {
                 rows = 5,
                 resize = "vertical"
             )
-        }    
-    })    
+        }
+    })
 
     output$geo_03a_contrib_action <- renderUI({
         if(input$goqc == 0) {
@@ -3370,8 +3563,8 @@ irisServer <- function(input, output, session) {
                 actionButton("addcontrib", "Add Contributor"),
                 actionButton("rmvcontrib", "Remove Contributor")
             )
-        }    
-    })  
+        }
+    })
 
     values <- reactiveValues(num_contrib = 0)
     observeEvent(input$addcontrib, ignoreNULL = FALSE, {
@@ -3387,7 +3580,7 @@ irisServer <- function(input, output, session) {
                     id = paste0("contrib", num),
                     textInput(
                         inputId = paste0(
-                            "geo_contrib_", 
+                            "geo_contrib_",
                             str_pad(num, 3, pad = "0")
                         ),
                         label = paste0(
@@ -3417,8 +3610,8 @@ irisServer <- function(input, output, session) {
                 label = paste0(
                     "4", LETTERS[num], ". Contributor ", num
                 ),
-                value = "NA"                       
-            ) 
+                value = "NA"
+            )
         }
     })
 
@@ -3453,7 +3646,7 @@ irisServer <- function(input, output, session) {
             )
         }
     })
-    
+
     output$geo_submit_series <- renderUI({
         if(input$goqc == 0) {
             return()
@@ -3471,7 +3664,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_series_check <- renderUI({
         validate(
             need(input$geo_submit_series != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -3487,9 +3680,9 @@ irisServer <- function(input, output, session) {
                 hr(),
                 br()
             )
-        }        
+        }
     })
-    
+
 
     #------------------------------------------------------------------
     # GEO - Samples
@@ -3503,23 +3696,23 @@ irisServer <- function(input, output, session) {
                 h4("Samples (7)"),
                 p(
                     paste(
-                        "This section lists and describes each of the", 
-                        "biological Samples under investgation, as well as", 
-                        "any protocols that are specific to individual", 
-                        "Samples. Additional \"processed data files\" or", 
+                        "This section lists and describes each of the",
+                        "biological Samples under investgation, as well as",
+                        "any protocols that are specific to individual",
+                        "Samples. Additional \"processed data files\" or",
                         "\"raw files\" may be included."
                     )
                 ),
                 p(
                     HTML(
                         paste0(
-                            "Based on your metadata, you have ", 
-                            "<b>", nrow(ddsout()[[2]]), "</b> ", 
+                            "Based on your metadata, you have ",
+                            "<b>", nrow(ddsout()[[2]]), "</b> ",
                             "samples. Please fill out the ",
                             "following tabs. Once finished, click on the ",
                             "<b>Submit Sample Info</b> button."
                         )
-                        
+
                     )
                 )
             )
@@ -3540,8 +3733,8 @@ irisServer <- function(input, output, session) {
                         HTML(
                             paste0(
                                 "Based on your metadata, Sample ", i, " is ",
-                                "\"", 
-                                "<b>", rownames(ddsout()[[2]])[i], "</b>", 
+                                "\"",
+                                "<b>", rownames(ddsout()[[2]])[i], "</b>",
                                 "\".",
                                 " You may change the title section if you",
                                 " want something more descriptive."
@@ -3567,11 +3760,11 @@ irisServer <- function(input, output, session) {
                             paste0(
                                 "<b>Note:</b> ",
                                 "Your processed data file name for the ",
-                                "sample ", "\"", 
+                                "sample ", "\"",
                                 "<b>", rownames(ddsout()[[2]])[i], "</b>",
-                                "\"", " is ", "\"", 
-                                "<b>", rownames(ddsout()[[2]])[i], 
-                                ".txt </b>", "\".", 
+                                "\"", " is ", "\"",
+                                "<b>", rownames(ddsout()[[2]])[i],
+                                ".txt </b>", "\".",
                                 "This file is the raw counts pertaining ",
                                 "to that sample. ",
                                 "If you would like to ",
@@ -3584,7 +3777,7 @@ irisServer <- function(input, output, session) {
                     div(id = paste0("geo_pdfile_", i)),
                     uiOutput(paste0("geo_pdfile_action_", i)),
                     br(),
-                    br(),                    
+                    br(),
                     div(id = paste0("geo_rawfile_", i)),
                     uiOutput(paste0("geo_rawfile_action_", i)),
                     br()
@@ -3593,7 +3786,7 @@ irisServer <- function(input, output, session) {
             do.call(tabsetPanel, myTabs)
         }
     })
-    
+
     output$geo_submit_sample <- renderUI({
         if(input$goqc == 0) {
             return()
@@ -3611,7 +3804,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_sample_check <- renderUI({
         validate(
             need(input$geo_submit_sample != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -3627,15 +3820,15 @@ irisServer <- function(input, output, session) {
                 hr(),
                 br()
             )
-        }        
-    })    
-            
+        }
+    })
+
     observe(
         lapply(seq_len(nrow(ddsout()[[2]])), function(i) {
             output[[paste0("geo_sample_title_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0(
-                        "geo_sample_title_", 
+                        "geo_sample_title_",
                         str_pad(i, 3, pad = "0")
                     ),
                     label = paste0("7A", i, ".", " Title"),
@@ -3649,7 +3842,7 @@ irisServer <- function(input, output, session) {
             output[[paste0("geo_sample_source_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0(
-                        "geo_sample_source_", 
+                        "geo_sample_source_",
                         str_pad(i, 3, pad = "0")
                     ),
                     label = paste0("7B", i, ".", " Source Name"),
@@ -3661,7 +3854,7 @@ irisServer <- function(input, output, session) {
             output[[paste0("geo_sample_organism_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0(
-                        "geo_sample_organism_", 
+                        "geo_sample_organism_",
                         str_pad(i, 3, pad = "0")
                     ),
                     label = paste0("7C", i, ".", " Organism"),
@@ -3685,7 +3878,7 @@ irisServer <- function(input, output, session) {
 
             # values2 <- reactiveValues(num_character = -1)
             # observeEvent(
-            #     input[[paste0("add_geo_character_", i)]], 
+            #     input[[paste0("add_geo_character_", i)]],
             #     ignoreNULL = FALSE, {
             #     if (input$goqc == 0) {
             #         return()
@@ -3699,8 +3892,8 @@ irisServer <- function(input, output, session) {
             #                 id = paste0("geo_character_", i, num),
             #                 textInput(
             #                     inputId = paste0(
-            #                         "geo_character_", 
-            #                         str_pad(i, 3, pad = "0"), 
+            #                         "geo_character_",
+            #                         str_pad(i, 3, pad = "0"),
             #                         "_",
             #                         str_pad(num, 3, pad = "0")
             #                     ),
@@ -3727,7 +3920,7 @@ irisServer <- function(input, output, session) {
             #             session = session,
             #             inputId = paste0(
             #                 "geo_character_",
-            #                 str_pad(i, 3, pad = "0"), 
+            #                 str_pad(i, 3, pad = "0"),
             #                 "_",
             #                 str_pad(num, 3, pad = "0")
             #             ),
@@ -3735,7 +3928,7 @@ irisServer <- function(input, output, session) {
             #                 "7D", i, letters[num],
             #                 ". Characteristic ", num
             #             ),
-            #             value = ""                       
+            #             value = ""
             #         )
             #     }
             # })
@@ -3773,7 +3966,7 @@ irisServer <- function(input, output, session) {
 
             values3 <- reactiveValues(num_pdfile = -1)
             observeEvent(
-                input[[paste0("add_geo_pdfile_", i)]], 
+                input[[paste0("add_geo_pdfile_", i)]],
                 ignoreNULL = FALSE, {
                 if (input$goqc == 0) {
                     return()
@@ -3788,7 +3981,7 @@ irisServer <- function(input, output, session) {
                             textInput(
                                 inputId = paste0(
                                     "geo_pdfile_",
-                                    str_pad(i, 3, pad = "0"), 
+                                    str_pad(i, 3, pad = "0"),
                                     "_",
                                     str_pad(num + 1, 3, pad = "0")
                                 ),
@@ -3817,7 +4010,7 @@ irisServer <- function(input, output, session) {
                         session = session,
                         inputId = paste0(
                             "geo_pdfile_",
-                            str_pad(i, 3, pad = "0"), 
+                            str_pad(i, 3, pad = "0"),
                             "_",
                             str_pad(num + 1, 3, pad = "0")
                         ),
@@ -3825,7 +4018,7 @@ irisServer <- function(input, output, session) {
                             "7G", i, letters[num + 1],
                             ". Processed Data File ", num + 1
                         ),
-                        value = "NA"                       
+                        value = "NA"
                     )
                 }
             })
@@ -3845,7 +4038,7 @@ irisServer <- function(input, output, session) {
 
             values4 <- reactiveValues(num_rawfile = -1)
             observeEvent(
-                input[[paste0("add_geo_rawfile_", i)]], 
+                input[[paste0("add_geo_rawfile_", i)]],
                 ignoreNULL = FALSE, {
                 if (input$goqc == 0) {
                     return()
@@ -3859,8 +4052,8 @@ irisServer <- function(input, output, session) {
                             id = paste0("geo_rawfile_", i, num),
                             textInput(
                                 inputId = paste0(
-                                    "geo_rawfile_", 
-                                    str_pad(i, 3, pad = "0"), 
+                                    "geo_rawfile_",
+                                    str_pad(i, 3, pad = "0"),
                                     "_",
                                     str_pad(num, 3, pad = "0")
                                 ),
@@ -3887,7 +4080,7 @@ irisServer <- function(input, output, session) {
                         session = session,
                         inputId = paste0(
                             "geo_rawfile_",
-                            str_pad(i, 3, pad = "0"), 
+                            str_pad(i, 3, pad = "0"),
                             "_",
                             str_pad(num, 3, pad = "0")
                         ),
@@ -3895,10 +4088,10 @@ irisServer <- function(input, output, session) {
                             "7H", i, letters[num],
                             ". Raw Data File ", num
                         ),
-                        value = ""                       
+                        value = ""
                     )
                 }
-            })            
+            })
         })
     )
 
@@ -3918,12 +4111,12 @@ irisServer <- function(input, output, session) {
                     HTML(
                         paste(
                             "Any of the protocols below which are applicable",
-                            "to only a subset of Samples should be included", 
+                            "to only a subset of Samples should be included",
                             "as additional entries of the SAMPLES section",
                             "instead. Once finished, click on the ",
                             "<b>Submit Protocol Info</b> button."
                         )
-                        
+
                     )
                 )
             )
@@ -4015,7 +4208,7 @@ irisServer <- function(input, output, session) {
                         "MBD-Seq" = "MBD-Seq",
                         "MRE-Seq" = "MRE-Seq",
                         "Bisulfite-Seq" = "Bisulfite-Seq",
-                        "Bisulfite-Seq (reduced representation)" = 
+                        "Bisulfite-Seq (reduced representation)" =
                             "Bisulfite-Seq (reduced representation)",
                         "MeDIP-Seq" = "MeDIP-Seq",
                         "DNAse-Hypersensitivity" = "DNAse-Hypersensitivity",
@@ -4025,13 +4218,13 @@ irisServer <- function(input, output, session) {
                         "RIP-Seq" = "RIP-Seq",
                         "ChIA-PET" = "ChIA-PET",
                         "OTHER" = "OTHER"
-                    ),            
+                    ),
                     width = "500px"
                 )
             )
         }
     })
-    
+
     output$geo_submit_protocol <- renderUI({
         if(input$goqc == 0) {
             return()
@@ -4049,7 +4242,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_protocol_check <- renderUI({
         validate(
             need(input$geo_submit_protocol != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -4065,8 +4258,8 @@ irisServer <- function(input, output, session) {
                 hr(),
                 br()
             )
-        }        
-    })  
+        }
+    })
 
 
 
@@ -4091,7 +4284,7 @@ irisServer <- function(input, output, session) {
                             "applicable. Once finished, click on the ",
                             "<b>Submit Pipeline Info</b> button."
                         )
-                        
+
                     )
                 )
             )
@@ -4106,8 +4299,8 @@ irisServer <- function(input, output, session) {
                 actionButton("adddatastep", "Add Data Proc. Step"),
                 actionButton("rmvdatastep", "Remove Data Proc. Step")
             )
-        }    
-    })  
+        }
+    })
 
     values5 <- reactiveValues(num_data_step = 0)
     observeEvent(input$adddatastep, ignoreNULL = FALSE, {
@@ -4123,11 +4316,11 @@ irisServer <- function(input, output, session) {
                     id = paste0("data_step_", num),
                     textInput(
                         inputId = paste0(
-                            "data_step_", 
+                            "data_step_",
                             str_pad(num, 3, pad = "0")
                         ),
                         label = paste0(
-                            "13", LETTERS[num], 
+                            "13", LETTERS[num],
                             ". Data Processing Step ", num
                         ),
                         width = "500px"
@@ -4151,11 +4344,11 @@ irisServer <- function(input, output, session) {
                     str_pad(num, 3, pad = "0")
                 ),
                 label = paste0(
-                    "13", LETTERS[num], 
+                    "13", LETTERS[num],
                     ". Data Processing Step ", num
                 ),
-                value = "NA"                       
-            ) 
+                value = "NA"
+            )
         }
         # removeUI(selector = paste0("#data_step_", num))
         # values5$num_data_step <- values5$num_data_step - 1
@@ -4192,7 +4385,7 @@ irisServer <- function(input, output, session) {
             )
         }
     })
-    
+
     output$geo_submit_pipeline <- renderUI({
         if(input$goqc == 0) {
             return()
@@ -4210,7 +4403,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_pipeline_check <- renderUI({
         validate(
             need(input$geo_submit_pipeline != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -4226,9 +4419,9 @@ irisServer <- function(input, output, session) {
                 hr(),
                 br()
             )
-        }        
+        }
     })
-  
+
 
 
     #------------------------------------------------------------------
@@ -4252,7 +4445,7 @@ irisServer <- function(input, output, session) {
         )
         validate(
             need(
-                input$geo_submit_sample != 0, 
+                input$geo_submit_sample != 0,
                 paste(
                     "You have not submitted your sample info yet.",
                     "This tab section will not be populated until",
@@ -4269,11 +4462,11 @@ irisServer <- function(input, output, session) {
                     HTML(
                         paste(
                             "<b>Note:</b>",
-                            "Based on your sample information, you have", 
-                            "<b>", length(x), "</b>", 
+                            "Based on your sample information, you have",
+                            "<b>", length(x), "</b>",
                             "additional processed data files.",
                             "This will <b>not</b> affect your final metadata",
-                            "file."  
+                            "file."
                         )
                     )
                 )
@@ -4290,18 +4483,18 @@ irisServer <- function(input, output, session) {
                 p(
                     HTML(
                         paste(
-                            "Based on your sample information, you have", 
+                            "Based on your sample information, you have",
                             "<b>", length(x), "</b>",
                             "addtional processed data file(s).",
                             "Please fill out the following tabs.",
                             "Once finished, click on the ",
                             "<b>Submit Additional Processed Data</b> button."
-                        )   
+                        )
                     )
                 )
             )
         }
-    })  
+    })
 
     output$geo_proc_data_list <- renderUI({
         x <- pdf_out()
@@ -4317,7 +4510,7 @@ irisServer <- function(input, output, session) {
                         HTML(
                             paste0(
                                 "Based on your sample submission, Proc. Data",
-                                " File ", i, " is ", 
+                                " File ", i, " is ",
                                 "\"", "<b>", paste0(x[[i]]), "</b>", "\"."
                             )
                         )
@@ -4335,10 +4528,10 @@ irisServer <- function(input, output, session) {
                     )
                 )
             })
-            do.call(tabsetPanel, myTabs)   
+            do.call(tabsetPanel, myTabs)
         }
     })
-    
+
     output$geo_submit_proc_data <- renderUI({
         validate(
             need(input$goqc != 0, "")
@@ -4347,7 +4540,7 @@ irisServer <- function(input, output, session) {
             need(input$geo_submit_sample != 0, "")
         )
         x <- pdf_out()
-        
+
         if (length(x) == 0) {
             return()
         } else {
@@ -4364,7 +4557,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_proc_data_check <- renderUI({
         validate(
             need(input$geo_submit_proc_data != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -4379,8 +4572,8 @@ irisServer <- function(input, output, session) {
         list(
             hr(),
             br()
-        )   
-    })  
+        )
+    })
 
 
 
@@ -4396,15 +4589,15 @@ irisServer <- function(input, output, session) {
                 h4("Raw Data Files (17)")
             )
         }
-    })        
-    
+    })
+
     output$geo_raw_data <- renderUI({
         validate(
             need(input$goqc != 0, "")
         )
         validate(
             need(
-                input$geo_submit_sample != 0, 
+                input$geo_submit_sample != 0,
                 paste(
                     "You have not submitted your sample info yet.",
                     "This tab section will not be populated until",
@@ -4413,7 +4606,7 @@ irisServer <- function(input, output, session) {
             )
         )
         x <- raw_out()
-        
+
         if (length(x) == 0) {
             list(
                 p(
@@ -4445,12 +4638,12 @@ irisServer <- function(input, output, session) {
                 p(
                     HTML(
                         paste(
-                            "Based on your sample information, you have", 
+                            "Based on your sample information, you have",
                             "<b>", length(x), "</b>",
                             "raw data file(s).",
                             "Please fill out the following tabs."
                         )
-                        
+
                     )
                 )
             )
@@ -4491,33 +4684,33 @@ irisServer <- function(input, output, session) {
                         inputId = paste0("instmod_", names(x)[i]),
                         label = paste0("17C", i, ". Instrument Model"),
                         choices = c(
-                            "Illumina Genome Analyzer" = 
+                            "Illumina Genome Analyzer" =
                                 "Illumina Genome Analyzer",
-                            "Illumina Genome Analyzer II" = 
+                            "Illumina Genome Analyzer II" =
                                 "Illumina Genome Analyzer II",
-                            "Illumina Genome Analyzer IIx" = 
+                            "Illumina Genome Analyzer IIx" =
                                 "Illumina Genome Analyzer IIx",
-                            "Illumina HiSeq 2000" = 
+                            "Illumina HiSeq 2000" =
                                 "Illumina HiSeq 2000",
-                            "Illumina HiSeq 1000" = 
+                            "Illumina HiSeq 1000" =
                                 "Illumina HiSeq 1000",
-                            "Illumina MiSeq" = 
+                            "Illumina MiSeq" =
                                 "Illumina MiSeq",
-                            "AB SOLiD System" = 
+                            "AB SOLiD System" =
                                 "AB SOLiD System",
-                            "AB SOLiD System 2.0" = 
+                            "AB SOLiD System 2.0" =
                                 "AB SOLiD System 2.0",
-                            "AB SOLiD System 3.0" = 
+                            "AB SOLiD System 3.0" =
                                 "AB SOLiD System 3.0",
-                            "AB SOLiD 4 System" = 
+                            "AB SOLiD 4 System" =
                                 "AB SOLiD 4 System",
-                            "AB SOLiD 4hq System" = 
+                            "AB SOLiD 4hq System" =
                                 "AB SOLiD 4hq System",
-                            "AB SOLiD PI System" = 
+                            "AB SOLiD PI System" =
                                 "AB SOLiD PI System",
-                            "AB 5500xl Genetic Analyzer" = 
+                            "AB 5500xl Genetic Analyzer" =
                                 "AB 5500xl Genetic Analyzer",
-                            "AB 5500 Genetic Analyzer" = 
+                            "AB 5500 Genetic Analyzer" =
                                 "AB 5500 Genetic Analyzer",
                             "454 GS" = "454 GS",
                             "454 GS 20" = "454 GS 20",
@@ -4549,10 +4742,10 @@ irisServer <- function(input, output, session) {
                         )
                     )
                 )
-            }) 
+            })
         }
         do.call(tabsetPanel, myTabs)
-    }) 
+    })
 
     output$geo_submit_raw_data <- renderUI({
         validate(
@@ -4562,7 +4755,7 @@ irisServer <- function(input, output, session) {
             need(input$geo_submit_sample != 0, "")
         )
         x <- raw_out()
-        
+
         if (length(x) == 0) {
             return()
         } else {
@@ -4579,7 +4772,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_raw_data_check <- renderUI({
         validate(
             need(input$geo_submit_raw_data != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -4594,8 +4787,8 @@ irisServer <- function(input, output, session) {
         list(
             hr(),
             br()
-        )       
-    })     
+        )
+    })
 
 
 
@@ -4611,7 +4804,7 @@ irisServer <- function(input, output, session) {
                 h4("Paired-end Experiments (18)")
             )
         }
-    })     
+    })
 
     output$geo_paired_end <- renderUI({
         validate(
@@ -4619,7 +4812,7 @@ irisServer <- function(input, output, session) {
         )
         validate(
             need(
-                input$geo_submit_raw_data != 0, 
+                input$geo_submit_raw_data != 0,
                 paste(
                     "You have not submitted your raw data info yet.",
                     "This tab section will not be populated until",
@@ -4631,7 +4824,7 @@ irisServer <- function(input, output, session) {
         x <- raw_data_file_out()
         x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
         x_pair <- x_pair[x_pair == "paired-end"]
-        
+
         if (length(x_pair) == 0) {
             list(
                 p(
@@ -4657,7 +4850,7 @@ irisServer <- function(input, output, session) {
                         )
                     )
                 )
-            )            
+            )
         } else {
             list(
                 p(
@@ -4673,12 +4866,12 @@ irisServer <- function(input, output, session) {
                 p(
                     HTML(
                         paste(
-                            "Based on your sample information, you have", 
+                            "Based on your sample information, you have",
                             "<b>", length(x_pair), "</b>",
                             "file(s) that are paired-end.",
                             "Please fill out the following tab(s)."
                         )
-                        
+
                     )
                 )
             )
@@ -4690,10 +4883,10 @@ irisServer <- function(input, output, session) {
         x <- raw_data_file_out()
         x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
         x_pair <- x_pair[x_pair == "paired-end"]
-        
+
         # Get all raw data
         y <- raw_out()
-        
+
         # Get raw data that's paired-end
         tmp_x <- x_pair
         names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
@@ -4701,11 +4894,11 @@ irisServer <- function(input, output, session) {
         tmp_y <- unlist(tmp_y, use.names = FALSE)
 
         x_inst <- x[grep("^instmod_geo_rawfile_", names(x))]
-        x_inst_solid <- x_inst[x_inst == "AB SOLiD System" 
-        | x_inst == "AB SOLiD System 2.0" 
-        | x_inst == "AB SOLiD System 3.0" 
-        | x_inst == "AB SOLiD 4 System" 
-        | x_inst == "AB SOLiD 4hq System" 
+        x_inst_solid <- x_inst[x_inst == "AB SOLiD System"
+        | x_inst == "AB SOLiD System 2.0"
+        | x_inst == "AB SOLiD System 3.0"
+        | x_inst == "AB SOLiD 4 System"
+        | x_inst == "AB SOLiD 4hq System"
         | x_inst == "AB SOLiD PI System"]
 
         if(length(x_pair) == 0 | length(x_pair) %% 2 != 0) {
@@ -4748,7 +4941,7 @@ irisServer <- function(input, output, session) {
                     )
                 )
             })
-            do.call(tabsetPanel, myTabs)   
+            do.call(tabsetPanel, myTabs)
         }
     })
 
@@ -4758,10 +4951,10 @@ irisServer <- function(input, output, session) {
         x <- raw_data_file_out()
         x_pair <- x[grep("^spend_geo_rawfile_", names(x))]
         x_pair <- x_pair[x_pair == "paired-end"]
-        
+
         # Get all raw data
         y <- raw_out()
-        
+
         # Get raw data that's paired-end
         tmp_x <- x_pair
         names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
@@ -4769,11 +4962,11 @@ irisServer <- function(input, output, session) {
         tmp_y <- unlist(tmp_y, use.names = FALSE)
 
         x_inst <- x[grep("^instmod_geo_rawfile_", names(x))]
-        x_inst_solid <- x_inst[x_inst == "AB SOLiD System" 
-        | x_inst == "AB SOLiD System 2.0" 
-        | x_inst == "AB SOLiD System 3.0" 
-        | x_inst == "AB SOLiD 4 System" 
-        | x_inst == "AB SOLiD 4hq System" 
+        x_inst_solid <- x_inst[x_inst == "AB SOLiD System"
+        | x_inst == "AB SOLiD System 2.0"
+        | x_inst == "AB SOLiD System 3.0"
+        | x_inst == "AB SOLiD 4 System"
+        | x_inst == "AB SOLiD 4hq System"
         | x_inst == "AB SOLiD PI System"]
 
         if(length(x_pair) == 0 | length(x_pair) %% 2 != 0) {
@@ -4792,7 +4985,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_paired_end_check <- renderUI({
         validate(
             need(input$geo_submit_paired_end != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -4807,7 +5000,7 @@ irisServer <- function(input, output, session) {
         list(
             hr(),
             br()
-        )        
+        )
     })
 
 
@@ -4832,7 +5025,7 @@ irisServer <- function(input, output, session) {
         )
         validate(
             need(
-                input$geo_submit_raw_data != 0, 
+                input$geo_submit_raw_data != 0,
                 paste(
                     "You have not submitted your raw data info yet.",
                     "This tab section will not be populated until",
@@ -4844,7 +5037,7 @@ irisServer <- function(input, output, session) {
         x <- raw_data_file_out()
         x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
         x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
-        
+
         if (length(x_solid) == 0) {
             list(
                 p(
@@ -4870,7 +5063,7 @@ irisServer <- function(input, output, session) {
                         )
                     )
                 )
-            )            
+            )
         } else {
             list(
                 p(
@@ -4886,12 +5079,12 @@ irisServer <- function(input, output, session) {
                 p(
                     HTML(
                         paste(
-                            "Based on your sample information, you have", 
+                            "Based on your sample information, you have",
                             "<b>", length(x_solid), "</b>",
                             "files that use SOLiD technology.",
                             "Please fill out the following tab(s)."
                         )
-                        
+
                     )
                 )
             )
@@ -4903,10 +5096,10 @@ irisServer <- function(input, output, session) {
         x <- raw_data_file_out()
         x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
         x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
-        
+
         # Get all raw data
         y <- raw_out()
-        
+
         # Get raw data that's paired-end
         tmp_x <- x_solid
         names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
@@ -4962,7 +5155,7 @@ irisServer <- function(input, output, session) {
                         label = paste0("19D", i, ". File Name 4"),
                         choices = tmp_y,
                         width = "500px"
-                    ),                                        
+                    ),
                     textInput(
                         inputId = paste0(
                             "solid_ais_", str_pad(i, 3, pad = "0")),
@@ -4978,19 +5171,19 @@ irisServer <- function(input, output, session) {
                     )
                 )
             })
-            do.call(tabsetPanel, myTabs)   
+            do.call(tabsetPanel, myTabs)
         }
-    })    
+    })
 
     output$geo_submit_solid <- renderUI({
         # Get raw data metadata...
         x <- raw_data_file_out()
         x_solid <- x[grep("^spend_geo_rawfile_", names(x))]
         x_solid <- x_solid[x_solid == "paired-end (SOLiD)"]
-        
+
         # Get all raw data
         y <- raw_out()
-        
+
         # Get raw data that's paired-end
         tmp_x <- x_solid
         names(tmp_x) <- gsub("^spend_", "", names(tmp_x))
@@ -5013,7 +5206,7 @@ irisServer <- function(input, output, session) {
     output$geo_submit_solid_check <- renderUI({
         validate(
             need(input$geo_submit_solid != 0, "")
-        )        
+        )
         list(
             h5(
                 HTML("<b>Submitted!</b>")
@@ -5028,8 +5221,8 @@ irisServer <- function(input, output, session) {
         list(
             hr(),
             br()
-        )        
-    })          
+        )
+    })
 
 
 
@@ -5077,7 +5270,7 @@ irisServer <- function(input, output, session) {
     geo_sam_out_04 <- eventReactive(input$geo_submit_sample, {
         x <- rownames(ddsout()[[2]])
         return(x)
-    })    
+    })
 
     geo_sam_out_05 <- eventReactive(input$geo_submit_sample, {
         x <- reactiveValuesToList(input)
@@ -5193,7 +5386,7 @@ irisServer <- function(input, output, session) {
         x <- x[!x %in% ""]
         x <- x[order(names(x))]
         return(x)
-    })                     
+    })
 
     md5_out <- eventReactive(input$geo_submit_sample, {
         x <- cts_out()[[1]]
@@ -5203,7 +5396,7 @@ irisServer <- function(input, output, session) {
     cts_out <- eventReactive(input$geo_submit_sample, {
         cts <- ddsout()[[4]]
         cts <- cts_split(cts = cts)
-        md5 <- cts[[1]]        
+        md5 <- cts[[1]]
         wd <- cts[[2]]
         return(list(md5, wd))
     })
@@ -5265,7 +5458,7 @@ irisServer <- function(input, output, session) {
         x <- x[order(names(x))]
         return(x)
     })
-    
+
     geo_solid_out_01 <- eventReactive(input$geo_submit_solid, {
         x <- reactiveValuesToList(input)
         x <- x[grep("^solid_r1_row_", names(x))]
@@ -5292,7 +5485,7 @@ irisServer <- function(input, output, session) {
         x <- x[grep("^solid_r4_row_", names(x))]
         x <- x[order(names(x))]
         return(x)
-    }) 
+    })
 
     geo_solid_out_05 <- eventReactive(input$geo_submit_solid, {
         x <- reactiveValuesToList(input)
@@ -5306,7 +5499,7 @@ irisServer <- function(input, output, session) {
         x <- x[grep("^solid_std_", names(x))]
         x <- x[order(names(x))]
         return(x)
-    })        
+    })
 
     output$geo_debug <- renderPrint({
 
@@ -5323,12 +5516,18 @@ irisServer <- function(input, output, session) {
                         paste(
                             "Once you have all of your information submitted,",
                             "please click on one (<i>or more</i>) of the",
-                            "options."
+                            "options: <ul><li><b>Download Metadata</b>", 
+                            "will return",
+                            "the metadata file populated with the prior",
+                            "questionnaire in an Excel file format.</li>",
+                            "<li><b>Download Processed Data</b> will return a",
+                            ".zip file of raw counts for each sample that",
+                            "you have submitted to IRIS.</li></ul>"
                         )
                     )
                 )
             )
-        } 
+        }
     })
 
     output$geo_download_excel_1 <- renderUI({
@@ -5336,12 +5535,12 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton(
-                outputId = "geo_download_excel_2", 
+                outputId = "geo_download_excel_2",
                 label = "Download Metadata (.xlsx)"
             )
-        }     
+        }
     })
-    
+
     output$geo_download_excel_2 <- downloadHandler(
         filename =  function() {
             "metadata.xlsx"
@@ -5371,7 +5570,7 @@ irisServer <- function(input, output, session) {
                 proc_out_02 <- geo_proc_out_02()
                 proc_out_03 <- geo_proc_out_03()
             }
-            
+
             if (length(raw_out) == 0) {
                 raw_out_01 <- list()
                 raw_out_02 <- list()
@@ -5466,13 +5665,12 @@ irisServer <- function(input, output, session) {
                 solid_out_05 <- geo_solid_out_05()
                 solid_out_06 <- geo_solid_out_06()
             }
-            
 
-            iris_excel(
+            getExcelMetadata(
                 wd, ser_out, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
                 sam_out_05, sam_out_06, prot_out_01, pipe_out_01, md5_out,
-                proc_out_01, proc_out_02, proc_out_03, 
-                raw_out_01, raw_out_02, raw_out_03, 
+                proc_out_01, proc_out_02, proc_out_03,
+                raw_out_01, raw_out_02, raw_out_03,
                 raw_out_04, raw_out_05, raw_out_06,
                 pair_out_01, pair_out_02, pair_out_03, pair_out_04,
                 solid_out_01, solid_out_02, solid_out_03, solid_out_04,
@@ -5492,10 +5690,10 @@ irisServer <- function(input, output, session) {
             return()
         } else {
             downloadButton(
-                outputId = "geo_download_proc_data_2", 
+                outputId = "geo_download_proc_data_2",
                 label = "Download Processed Data (.zip)"
             )
-        }     
+        }
     })
 
     output$geo_download_proc_data_2 <- downloadHandler(
@@ -5503,7 +5701,54 @@ irisServer <- function(input, output, session) {
             "proc-data.zip"
         },
         content = function(file) {
-            cts <- ddsout()[[4]]
+            wd <- cts_out()[[2]]
+            setwd(paste0("tmp/", wd, "/"))
+            files <- list.files(pattern = "\\.txt$")
+            zip(file, files)
+
+            # cts <- ddsout()[[4]]
         }
     )
+
+
+
+
+
+    ###################################################################
+    ###################################################################
+    ### SECTION 09 - TAB LINKS (TABS)
+    ###################################################################
+    ###################################################################
+
+    observeEvent(input$iris_flow_01, {
+        updateNavbarPage(
+            session, 
+            "tab_structure", 
+            selected = "val1"
+        )
+    }, ignoreInit = TRUE)
+
+    observeEvent(input$iris_flow_02, {
+        updateNavbarPage(
+            session, 
+            "tab_structure", 
+            selected = "val2"
+        )
+    }, ignoreInit = TRUE)
+
+    observeEvent(input$iris_flow_03, {
+        updateNavbarPage(
+            session, 
+            "tab_structure", 
+            selected = "val3"
+        )
+    }, ignoreInit = TRUE)
+
+    observeEvent(input$iris_flow_04, {
+        updateNavbarPage(
+            session, 
+            "tab_structure", 
+            selected = "val4"
+        )
+    }, ignoreInit = TRUE)            
 }
