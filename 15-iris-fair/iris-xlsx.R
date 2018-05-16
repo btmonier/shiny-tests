@@ -2,15 +2,15 @@
 # Title:         IRIS - XLSX Return
 # Author:        Brandon Monier
 # Created:       2018-04-19 17:10:54 CDT
-# Last Modified: 
+# Last Modified: 2018-05-16 17:16:54 CDT
 #---------------------------------------------------------------------
 
-iris_excel <- function(
+getExcelMetadata <- function(
     wd, geo_ser, sam_out_01, sam_out_02, sam_out_03, sam_out_04,
     sam_out_05, sam_out_06, prot_out_01, pipe_out_01, md5_out,
     proc_out_01, proc_out_02, proc_out_03, raw_out_01, raw_out_02,
     raw_out_03, raw_out_04, raw_out_05, raw_out_06, pair_out_01, pair_out_02,
-    pair_out_03, pair_out_04, solid_out_01, solid_out_02, solid_out_03, 
+    pair_out_03, pair_out_04, solid_out_01, solid_out_02, solid_out_03,
     solid_out_04, solid_out_05, solid_out_06
 ) {
 
@@ -22,7 +22,7 @@ iris_excel <- function(
     meta <- paste0("metadata-", wd2, ".xlsx")
 
     file.rename(
-        from = "seq-template.xlsx", 
+        from = "seq-template.xlsx",
         to = meta
     )
 
@@ -75,7 +75,7 @@ iris_excel <- function(
         "",
         "SAMPLES",
         paste(
-            "# This section lists and describes each of the biological", 
+            "# This section lists and describes each of the biological",
             "samples under investgation, as well as any protocols that are",
             "specific to individual Samples."
         ),
@@ -165,7 +165,7 @@ iris_excel <- function(
         "",
         "DATA PROCESSING PIPELINE",
         paste(
-            "# Data processing steps include base-calling, alignment", 
+            "# Data processing steps include base-calling, alignment",
             "filtering, peak-calling, generation of normalized abundance",
             "measurements etc..."
         ),
@@ -174,7 +174,7 @@ iris_excel <- function(
             "version, parameters, if applicable."
         ),
         "# Include additional steps, as necessary."
-    )    
+    )
 
     data_step <- pipe_out_01[grep("^data_step_", names(pipe_out_01))]
     geo_pipe <- unlist(pipe_out_01, use.names = FALSE)
@@ -191,7 +191,7 @@ iris_excel <- function(
             "of the SAMPLES section, provide additional information below."
         ),
         "PROCESSED DATA FILES"
-    )    
+    )
 
     geo_pdf_01 <- sam_out_04
     for (i in seq_len(length(geo_pdf_01))) {
@@ -215,7 +215,7 @@ iris_excel <- function(
     meta_06a <- c(
         "",
         paste(
-            "# For each file listed in the raw file columns of the SAMPLES", 
+            "# For each file listed in the raw file columns of the SAMPLES",
             "section provide additional information below."
         ),
         "RAW FILES"
@@ -224,19 +224,19 @@ iris_excel <- function(
 
     geo_raw_01 <- unlist(raw_out_01, use.names = FALSE)
     geo_raw_01 <- c("file name", geo_raw_01)
-    
+
     geo_raw_02 <- unlist(raw_out_02, use.names = FALSE)
     geo_raw_02 <- c("file type", geo_raw_02)
-    
+
     geo_raw_03 <- unlist(raw_out_03, use.names = FALSE)
     geo_raw_03 <- c("file checksum", geo_raw_03)
 
     geo_raw_04 <- unlist(raw_out_04, use.names = FALSE)
     geo_raw_04 <- c("instrument model", geo_raw_04)
-    
+
     geo_raw_05 <- unlist(raw_out_05, use.names = FALSE)
     geo_raw_05 <- c("read length", geo_raw_05)
-    
+
     geo_raw_06 <- unlist(raw_out_06, use.names = FALSE)
     geo_raw_06 <- c("single or paired-end", geo_raw_06)
 
@@ -302,7 +302,7 @@ iris_excel <- function(
             )
         ) + 1,
         startCol = 2
-    )    
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
@@ -391,7 +391,7 @@ iris_excel <- function(
                 meta_01a, ser_00_title, meta_02a
             )
         ) + 1,
-        startCol = 4 + length(geo_sam_char) + 2        
+        startCol = 4 + length(geo_sam_char) + 2
     )
     writeData(
         wb,
@@ -402,9 +402,9 @@ iris_excel <- function(
                 meta_01a, ser_00_title, meta_02a
             )
         ) + 1,
-        startCol = 4 + length(geo_sam_char) + 3      
+        startCol = 4 + length(geo_sam_char) + 3
     )
-   
+
     if(!all(unlist(test_05, use.names = FALSE) == "")) {
         for (i in seq_len(length(sam_out_05))) {
             writeData(
@@ -464,19 +464,19 @@ iris_excel <- function(
         x = meta_04a,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a
             )
         ) + 1,
         startCol = 1
-    )    
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = pipe_title_00,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a
             )
         ) + 1,
@@ -488,7 +488,7 @@ iris_excel <- function(
         x = geo_pipe,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a
             )
         ) + 1,
@@ -500,19 +500,19 @@ iris_excel <- function(
         x = meta_05a,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00
             )
         ) + 1,
         startCol = 1
-    )   
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = geo_pdf_01,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a
             )
         ) + 1,
@@ -524,7 +524,7 @@ iris_excel <- function(
         x = geo_pdf_02,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a
             )
         ) + 1,
@@ -536,7 +536,7 @@ iris_excel <- function(
         x = md5_out,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a
             )
         ) + 1,
@@ -548,75 +548,75 @@ iris_excel <- function(
         x = geo_proc_01,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01
-            )            
+            )
         ) + 1,
         startCol = 1
-    )          
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = geo_proc_02,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01
-            )            
+            )
         ) + 1,
         startCol = 2
-    )   
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = geo_proc_03,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01
-            )            
+            )
         ) + 1,
         startCol = 3
-    )   
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = meta_06a,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01
-            )            
+            )
         ) + 1,
         startCol = 1
-    )     
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = geo_raw_01,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 1
-    )   
+    )
     writeData(
         wb,
         sheet = "METADATA TEMPLATE ",
         x = geo_raw_02,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 2
     )
@@ -626,10 +626,10 @@ iris_excel <- function(
         x = geo_raw_03,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 3
     )
@@ -639,10 +639,10 @@ iris_excel <- function(
         x = geo_raw_04,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 4
     )
@@ -652,10 +652,10 @@ iris_excel <- function(
         x = geo_raw_05,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 5
     )
@@ -665,10 +665,10 @@ iris_excel <- function(
         x = geo_raw_06,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a
-            )            
+            )
         ) + 1,
         startCol = 6
     )
@@ -678,10 +678,10 @@ iris_excel <- function(
         x = meta_07a,
         startRow = length(
             c(
-                meta_01a, ser_00_title, meta_02a, geo_samples, 
+                meta_01a, ser_00_title, meta_02a, geo_samples,
                 meta_03a, meta_04a, pipe_title_00, meta_05a,
                 geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01
-            )            
+            )
         ) + 1,
         startCol = 1
     )
@@ -694,13 +694,13 @@ iris_excel <- function(
             x = c("filename 1", geo_pair_01, geo_solid_01),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 1            
+            startCol = 1
         )
         writeData(
             wb,
@@ -708,13 +708,13 @@ iris_excel <- function(
             x = c("filename 2", geo_pair_02, geo_solid_02),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 2            
+            startCol = 2
         )
         writeData(
             wb,
@@ -726,13 +726,13 @@ iris_excel <- function(
             ),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 3            
+            startCol = 3
         )
         writeData(
             wb,
@@ -744,13 +744,13 @@ iris_excel <- function(
             ),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 4           
+            startCol = 4
         )
         writeData(
             wb,
@@ -758,13 +758,13 @@ iris_excel <- function(
             x = c("average insert size", geo_pair_03, geo_solid_05),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 5           
+            startCol = 5
         )
         writeData(
             wb,
@@ -772,13 +772,13 @@ iris_excel <- function(
             x = c("standard deviation", geo_pair_04, geo_solid_06),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 6          
+            startCol = 6
         )
     } else {
         writeData(
@@ -787,13 +787,13 @@ iris_excel <- function(
             x = c("filename 1", geo_pair_01),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 1            
+            startCol = 1
         )
         writeData(
             wb,
@@ -801,13 +801,13 @@ iris_excel <- function(
             x = c("filename 2", geo_pair_02),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 2            
+            startCol = 2
         )
         writeData(
             wb,
@@ -815,13 +815,13 @@ iris_excel <- function(
             x = c("average insert size", geo_pair_03),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 3          
+            startCol = 3
         )
         writeData(
             wb,
@@ -829,14 +829,14 @@ iris_excel <- function(
             x = c("standard deviation", geo_pair_04),
             startRow = length(
                 c(
-                    meta_01a, ser_00_title, meta_02a, geo_samples, 
+                    meta_01a, ser_00_title, meta_02a, geo_samples,
                     meta_03a, meta_04a, pipe_title_00, meta_05a,
                     geo_pdf_01, geo_proc_01, meta_06a, geo_raw_01,
                     meta_07a
-                )            
+                )
             ) + 1,
-            startCol = 4         
-        )        
+            startCol = 4
+        )
     }
 
 
@@ -870,22 +870,22 @@ iris_excel <- function(
         fontColour = "#0000FF"
     )
     addStyle(
-        wb, 
-        sheet = 1, 
-        bodyStyle2, 
-        rows = 1:50, 
-        cols = 1:50, 
+        wb,
+        sheet = 1,
+        bodyStyle2,
+        rows = 1:50,
+        cols = 1:50,
         gridExpand = TRUE
-    )    
+    )
     addStyle(
-        wb, 
-        sheet = 1, 
-        bodyStyle1, 
+        wb,
+        sheet = 1,
+        bodyStyle1,
         rows = c(
-            1:6, 8, 
-            8 + length(ser_00_title) + 3, 
+            1:6, 8,
+            8 + length(ser_00_title) + 3,
             8 + length(ser_00_title) + 4,
-            8 + length(ser_00_title) + length(meta_02a) + 
+            8 + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + 3,
             8 + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + length(meta_03a) + 3,
@@ -894,18 +894,18 @@ iris_excel <- function(
             8 + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + length(meta_03a) + 5,
             8 + length(ser_00_title) + length(meta_02a) +
-            length(geo_samples) + length(meta_03a) + length(meta_04a) + 
+            length(geo_samples) + length(meta_03a) + length(meta_04a) +
             length(pipe_title_00) + 2,
             8 + length(ser_00_title) + length(meta_02a) +
-            length(geo_samples) + length(meta_03a) + length(meta_04a) + 
+            length(geo_samples) + length(meta_03a) + length(meta_04a) +
             length(pipe_title_00) + length(meta_05a) + length(geo_pdf_01) +
             2,
             8 + length(ser_00_title) + length(meta_02a) +
-            length(geo_samples) + length(meta_03a) + length(meta_04a) + 
+            length(geo_samples) + length(meta_03a) + length(meta_04a) +
             length(pipe_title_00) + length(meta_05a) + length(geo_pdf_01) +
-            length(meta_06a) + length(geo_raw_01) + 2            
-        ), 
-        cols = 1:50, 
+            length(meta_06a) + length(geo_raw_01) + 2
+        ),
+        cols = 1:50,
         gridExpand = TRUE
     )
     addStyle(
@@ -926,7 +926,7 @@ iris_excel <- function(
             length(pipe_title_00) + length(meta_05a) + length(geo_pdf_01) +
             length(meta_06a) + length(geo_raw_01) + length(meta_07a) + 1
         ),
-        cols = 1:50, 
+        cols = 1:50,
         gridExpand = TRUE
     )
     addStyle(
@@ -942,7 +942,7 @@ iris_excel <- function(
         sheet = 1,
         bodyStyle5,
         rows = c(
-            7, 
+            7,
             length(meta_01a) + length(ser_00_title) + 2,
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + 2,
@@ -968,7 +968,7 @@ iris_excel <- function(
         sheet = 1,
         bodyStyle6,
         rows = c(
-            length(meta_01a) + 
+            length(meta_01a) +
             1:length(head(ser_00_title, n = length(ser_00_title) - 2)),
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + 6,
@@ -977,7 +977,7 @@ iris_excel <- function(
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + 8,
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
-            length(geo_samples) + length(meta_03a) + length(meta_04a) + 
+            length(geo_samples) + length(meta_03a) + length(meta_04a) +
             1:length(pipe_title_00)
         ),
         cols = 1,
@@ -988,17 +988,17 @@ iris_excel <- function(
         sheet = 1,
         bodyStyle7,
         rows = c(
-            length(meta_01a) + 
+            length(meta_01a) +
             length(head(ser_00_title, n = length(ser_00_title) - 2)) + 1,
-            length(meta_01a) + 
+            length(meta_01a) +
             length(head(ser_00_title, n = length(ser_00_title) - 2)) + 2,
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
             length(geo_samples) + 4,
             length(meta_01a) + length(ser_00_title) + length(meta_02a) +
-            length(geo_samples) + 5            
+            length(geo_samples) + 5
         ),
         cols = 1,
         gridExpand = TRUE
-    )        
+    )
     saveWorkbook(wb, meta, overwrite = TRUE)
 }
