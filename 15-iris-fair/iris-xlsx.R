@@ -122,7 +122,7 @@ getExcelMetadata <- function(
     geo_sam_mol <- c("molecule", geo_sam_mol)
 
     # Sample description
-    geo_sam_desc <- sam_out_03[1]
+    geo_sam_desc <- sam_out_03[2]
     geo_sam_desc <- unlist(geo_sam_desc, use.names = FALSE)
     geo_sam_desc <- c("description", geo_sam_desc)
 
