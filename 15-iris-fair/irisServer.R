@@ -2,7 +2,7 @@
 # Title:         IRIS - Server Script
 # Author:        Brandon Monier
 # Created:       2018-01-26 11:32:02 CDT
-# Last Modified: 2018-05-16 14:34:35 CDT
+# Last Modified: 2018-05-17 14:37:43 CDT
 #---------------------------------------------------------------------
 
 #---------------------------------------------------------------------
@@ -30,7 +30,7 @@
 #       |-  Submit and QC
 #           |-  File Summary
 #           |-  Count Summary
-#       |-  Preliminary Analysis
+#       |-  Discovery-Driven Analysis
 #           |-  Correlation
 #           |-  PCA
 #           |-  MDS
@@ -133,42 +133,6 @@ irisServer <- function(input, output, session) {
     source("iris-xlsx.R")
     source("irisUI.R")
     source("tabs.R")
-
-    ## DATA - Example data
-    # f1a <- as.matrix(
-    #     read.csv(
-    #         "./data/count-data-small.csv",
-    #         header=TRUE,
-    #         row.names = 1
-    #     )
-    # )
-    # f1b <- read.csv(
-    #     "./data/col-data-small.csv",
-    #     header = TRUE,
-    #     row.names = 1
-    # )
-    # f2a <- as.matrix(
-    #     read.csv(
-    #         "./data/count-data-big.csv",
-    #         header = TRUE,
-    #         row.names = 1
-    #     )
-    # )
-    # f2b <- read.csv(
-    #     "./data/col-data-big.csv",
-    #     header = TRUE,
-    #     row.names = 1
-    # )
-    # f3a <- read.csv(
-    #     "./data/count-data-scrna.csv",
-    #     header = TRUE,
-    #     row.names = 1
-    # )
-    # f3b <- read.csv(
-    #     "./data/col-data-scrna.csv",
-    #     header = TRUE,
-    #     row.names = 1
-    # )
 
     ## DATA - Data load option - count data
     output$file1 <- renderUI({
@@ -3521,7 +3485,7 @@ irisServer <- function(input, output, session) {
                 label = "1. Title",
                 value = "",
                 width = "500px"
-            )
+            )           
         }
     })
 
@@ -3536,8 +3500,8 @@ irisServer <- function(input, output, session) {
                 width = "500px",
                 rows = 5,
                 resize = "vertical"
-            )
-        }
+            )             
+        }     
     })
 
     output$geo_xx_overall_design <- renderUI({
@@ -3589,9 +3553,11 @@ irisServer <- function(input, output, session) {
                         width = "500px"
                     )
                 )
-            )
+            )        
         }
     })
+
+
 
     observeEvent(input$rmvcontrib, {
         num <- values$num_contrib
@@ -3612,8 +3578,9 @@ irisServer <- function(input, output, session) {
                 ),
                 value = "NA"
             )
-        }
+        }    
     })
+
 
     output$geo_04_suppfile <- renderUI({
         if(input$goqc == 0) {
@@ -3863,89 +3830,27 @@ irisServer <- function(input, output, session) {
                 )
             })
 
-            # output[[paste0("geo_character_action_", i)]] <- renderUI({
-            #     list(
-            #         actionButton(
-            #             paste0("add_geo_character_", i),
-            #             "Add Characteristic"
-            #         ),
-            #         actionButton(
-            #             paste0("rmv_geo_character_", i),
-            #             "Remove Characteristic"
-            #         )
-            #     )
-            # })
-
-            # values2 <- reactiveValues(num_character = -1)
-            # observeEvent(
-            #     input[[paste0("add_geo_character_", i)]],
-            #     ignoreNULL = FALSE, {
-            #     if (input$goqc == 0) {
-            #         return()
-            #     } else {
-            #         values2$num_character <- values2$num_character + 1
-            #         num <- values2$num_character
-            #         insertUI(
-            #             selector = paste0("#geo_character_", i),
-            #             where = "beforeEnd",
-            #             div(
-            #                 id = paste0("geo_character_", i, num),
-            #                 textInput(
-            #                     inputId = paste0(
-            #                         "geo_character_",
-            #                         str_pad(i, 3, pad = "0"),
-            #                         "_",
-            #                         str_pad(num, 3, pad = "0")
-            #                     ),
-            #                     label = paste0(
-            #                         "7D", i, letters[num],
-            #                         ". Characteristic ", num
-            #                     ),
-            #                     width = "500px"
-            #                 )
-            #             )
-            #         )
-            #     }
-            # })
-
-            # observeEvent(input[[paste0("rmv_geo_character_", i)]], {
-            #     num <- values2$num_character
-            #     # Don't let the user remove the very first contrib
-            #     if (num == 1) {
-            #         return()
-            #     } else {
-            #         removeUI(selector = paste0("#geo_character_", i, num))
-            #         values2$num_character <- values2$num_character - 1
-            #         updateTextInput(
-            #             session = session,
-            #             inputId = paste0(
-            #                 "geo_character_",
-            #                 str_pad(i, 3, pad = "0"),
-            #                 "_",
-            #                 str_pad(num, 3, pad = "0")
-            #             ),
-            #             label = paste0(
-            #                 "7D", i, letters[num],
-            #                 ". Characteristic ", num
-            #             ),
-            #             value = ""
-            #         )
-            #     }
-            # })
-
             output[[paste0("geo_sample_molecule_", i)]] <- renderUI({
-                textInput(
+                selectInput(
                     inputId = paste0("geo_sample_molecule_", i),
-                    label = paste0("7E", i, ".", " Molecule"),
-                    value = "",
+                    label = paste0("7D", i, ".", " Molecule"),
+                    choices = c(
+                        "total RNA" = "total RNA",
+                        "polyA RNA" = "polyA RNA",
+                        "cytoplasmic RNA" = "cytoplasmic RNA",
+                        "nuclear RNA" = "nuclear RNA",
+                        "genomic DNA" = "genomic DNA",
+                        "protein" = "protein",
+                        "other" = "other"
+                    ),
                     width = "500px"
-                )
+                )                
             })
 
             output[[paste0("geo_sample_description_", i)]] <- renderUI({
                 textInput(
                     inputId = paste0("geo_sample_description_", i),
-                    label = paste0("7F", i, ".", " Description"),
+                    label = paste0("7E", i, ".", " Description"),
                     value = "",
                     width = "500px"
                 )
@@ -3986,7 +3891,7 @@ irisServer <- function(input, output, session) {
                                     str_pad(num + 1, 3, pad = "0")
                                 ),
                                 label = paste0(
-                                    "7G", i, letters[num + 1],
+                                    "7F", i, letters[num + 1],
                                     ". Processed Data File ", num + 1
                                 ),
                                 width = "500px"
@@ -4015,7 +3920,7 @@ irisServer <- function(input, output, session) {
                             str_pad(num + 1, 3, pad = "0")
                         ),
                         label = paste0(
-                            "7G", i, letters[num + 1],
+                            "7F", i, letters[num + 1],
                             ". Processed Data File ", num + 1
                         ),
                         value = "NA"
@@ -4058,7 +3963,7 @@ irisServer <- function(input, output, session) {
                                     str_pad(num, 3, pad = "0")
                                 ),
                                 label = paste0(
-                                    "7H", i, letters[num],
+                                    "7G", i, letters[num],
                                     ". Raw Data File ", num
                                 ),
                                 width = "500px"
@@ -4085,7 +3990,7 @@ irisServer <- function(input, output, session) {
                             str_pad(num, 3, pad = "0")
                         ),
                         label = paste0(
-                            "7H", i, letters[num],
+                            "7G", i, letters[num],
                             ". Raw Data File ", num
                         ),
                         value = ""
@@ -4110,11 +4015,8 @@ irisServer <- function(input, output, session) {
                 p(
                     HTML(
                         paste(
-                            "Any of the protocols below which are applicable",
-                            "to only a subset of Samples should be included",
-                            "as additional entries of the SAMPLES section",
-                            "instead. Once finished, click on the ",
-                            "<b>Submit Protocol Info</b> button."
+                            "Please provide information about what",
+                            "protocols were used to conduct this experiment."
                         )
 
                     )
