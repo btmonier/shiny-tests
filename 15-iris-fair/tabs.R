@@ -7,7 +7,7 @@
 
 # Welcome page ----
 tab.welcome <- tabPanel(
-    title = "Welcome", 
+    title = "Welcome",
     icon = icon("hand-spock-o"),
     fluid = TRUE,
     sidebarLayout(
@@ -18,7 +18,7 @@ tab.welcome <- tabPanel(
                 style = "display:inline-block;",
                 style = "width:1000px;",
                 style = "text-align:center;",
-                style = "margin:auto",
+                style = "margin:auto;",
                 tags$br(),
                 tags$img(
                     src = "iris-logo-01.png",
@@ -33,7 +33,7 @@ tab.welcome <- tabPanel(
                     img(src = "iris-flow-01.png", height = "100px")
                 ),
                 tags$img(
-                    src = "arrow-01.png", 
+                    src = "arrow-01.png",
                     height = "100px"
                 ),
                 tags$button(
@@ -53,9 +53,9 @@ tab.welcome <- tabPanel(
                     img(src = "iris-flow-03.png", height = "298px")
                 ),
                 tags$img(
-                    src = "arrow-01.png", 
+                    src = "arrow-03.png",
                     height = "100px"
-                ),                
+                ),
                 tags$button(
                     id = "iris_flow_04",
                     class = "btn action-button",
@@ -111,7 +111,7 @@ tab.welcome <- tabPanel(
                 ),
                 placement = "top",
                 options = list(container = "body")
-            )             
+            )
             # includeMarkdown("./markdown/welcome.md")
         )
     )
@@ -121,8 +121,8 @@ tab.welcome <- tabPanel(
 
 # Submit and QC page ----
 tab.submit <- tabPanel(
-    title = "Submit and QC ", 
-    icon = icon("filter"), 
+    title = "Submit and QC ",
+    icon = icon("filter"),
     fluid = TRUE,
     value = "val1",
     sidebarLayout(
@@ -136,11 +136,11 @@ tab.submit <- tabPanel(
                     "Start with an example data set (big)." = "yes2",
                     "Start with an example data set (scRNA)." = "yes3",
                     "Load my own data." = "no",
-                    "Load my own data (scRNA)." = "scrna"  
+                    "Load my own data (scRNA)." = "scrna"
                 )
             ),
             bsTooltip(
-                id = "examplechoice", 
+                id = "examplechoice",
                 title = paste(
                     "Note: if you choose the big example data set or scRNA",
                     "example data set, analysis and visualization time will",
@@ -170,13 +170,13 @@ tab.submit <- tabPanel(
                     "Regularized log: rlog(n)" = "rlog",
                     "Variance stabilizing transform: vst(n)" = "vst",
                     "No transformation" = "raw"
-                )       
+                )
             ),
             br(),
             h4("3. Launch Overview"),
             actionButton(
-                inputId = "goqc", 
-                "Submit", 
+                inputId = "goqc",
+                "Submit",
                 icon = icon("space-shuttle")
             ),
             br(),
@@ -184,7 +184,7 @@ tab.submit <- tabPanel(
             p(
                 paste(
                     "After you click \"submit\", you may proceed to either",
-                    "the \"Preliminary Analysis\", \"DGE Analysis\", or",
+                    "the \"Data-Driven Analysis\", \"DGE Analysis\", or",
                     "\"GEO\" tabs for additional analyses."
                 )
             )
@@ -210,11 +210,11 @@ tab.submit <- tabPanel(
                     uiOutput("countbox"),
                     plotlyOutput("boxplot"),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqcboxplotpdf")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqcboxplotpng")
                     ),
                     br(),
@@ -223,11 +223,11 @@ tab.submit <- tabPanel(
                     uiOutput("counthist"),
                     plotlyOutput("hist"),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqchistpdf")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqchistpng")
                     ),
                     br(),
@@ -236,11 +236,11 @@ tab.submit <- tabPanel(
                     uiOutput("counttotal"),
                     plotlyOutput("barplot"),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqcbarplotpdf")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dlqcbarplotpng")
                     ),
                     br(),
@@ -256,7 +256,7 @@ tab.submit <- tabPanel(
 
 # Exploratory Analysis
 tab.prelim <- tabPanel(
-    title = "Preliminary Analysis ", 
+    title = "Discovery-Driven Analyses ",
     icon = icon("search"),
     fluid = TRUE,
     value = "val3",
@@ -267,11 +267,11 @@ tab.prelim <- tabPanel(
                 uiOutput("headcor"),
                 plotlyOutput("corplot1"),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqccorplot1pdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqccorplot1png")
                 ),
                 br(),
@@ -279,11 +279,11 @@ tab.prelim <- tabPanel(
                 br(),
                 plotlyOutput("corplot2"),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqccorplot2pdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqccorplot2png")
                 ),
                 br(),
@@ -292,11 +292,11 @@ tab.prelim <- tabPanel(
                 uiOutput("headcor2"),
                 plotOutput("corplot3", width = 600, height = 550),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcorplot3pdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcorplot3png")
                 ),
                 br(),
@@ -334,11 +334,11 @@ tab.prelim <- tabPanel(
                 plotlyOutput("heatplot1"),
                 br(),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcheatplot1pdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcheatplot1png")
                 ),
                 br(),
@@ -348,11 +348,11 @@ tab.prelim <- tabPanel(
                 plotlyOutput("heatplot2"),
                 br(),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcheatplot2pdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("dlqcheatplot2png")
                 ),
                 br(),
@@ -375,15 +375,15 @@ tab.prelim <- tabPanel(
                 uiOutput("headbicheatsummary"),
                 plotOutput("bicheatplot", height = 800, width = 600),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("downloadbicfilt")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("downloadbicplotpdf")
                 ),
                 div(
-                    style = "display:inline-block", 
+                    style = "display:inline-block",
                     uiOutput("downloadbicplotpng")
                 ),
                 br(),
@@ -397,8 +397,8 @@ tab.prelim <- tabPanel(
 
 # DEG Analysis ----
 tab.deg <- tabPanel(
-    title = "DGE Analysis ", 
-    icon = icon("bar-chart"), 
+    title = "DGE Analysis ",
+    icon = icon("bar-chart"),
     fluid = TRUE,
     value = "val4",
     sidebarLayout(
@@ -487,11 +487,11 @@ tab.deg <- tabPanel(
                     plotlyOutput("dgeplot2", height = 600),
                     br(),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dldgeoverpdf")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dldgeoverpng")
                     ),
                     br(),
@@ -507,11 +507,11 @@ tab.deg <- tabPanel(
                     plotlyOutput("dgeplot"),
                     br(),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dldgemavolpdf")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("dldgemavolpng")
                     ),
                     br(),
@@ -520,11 +520,11 @@ tab.deg <- tabPanel(
                     DT::dataTableOutput("mytable"),
                     br(),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("downloadfilt")
                     ),
                     div(
-                        style = "display:inline-block", 
+                        style = "display:inline-block",
                         uiOutput("downloadall")
                     ),
                     br(),
@@ -540,7 +540,7 @@ tab.deg <- tabPanel(
 
 # GEO ----
 tab.geo <- tabPanel(
-    title = "GEO", 
+    title = "GEO",
     icon = icon("database"),
     fluid = TRUE,
     value = "val2",
@@ -597,7 +597,7 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_submit_protocol_check")
             ),
-            uiOutput("geo_space_03"),            
+            uiOutput("geo_space_03"),
 
 
             uiOutput("geo_data_proc_pipeline"),
@@ -613,7 +613,7 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_submit_pipeline_check")
             ),
-            uiOutput("geo_space_04"),   
+            uiOutput("geo_space_04"),
 
 
             uiOutput("geo_proc_head"),
@@ -627,9 +627,9 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_submit_proc_data_check")
             ),
-            uiOutput("geo_space_05"),             
+            uiOutput("geo_space_05"),
 
-            
+
             uiOutput("geo_raw_head"),
             uiOutput("geo_raw_data"),
             uiOutput("geo_raw_data_list"),
@@ -641,7 +641,7 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_submit_raw_data_check")
             ),
-            uiOutput("geo_space_06"),               
+            uiOutput("geo_space_06"),
 
 
             uiOutput("geo_pair_head"),
@@ -655,7 +655,7 @@ tab.geo <- tabPanel(
                 style = "display:inline-block",
                 uiOutput("geo_submit_paired_end_check")
             ),
-            uiOutput("geo_space_07"),              
+            uiOutput("geo_space_07"),
 
 
             uiOutput("geo_solid_head"),
@@ -685,7 +685,7 @@ tab.geo <- tabPanel(
             br(),
             br(),
             br(),
-            br()    
+            br()
         )
     )
 )
