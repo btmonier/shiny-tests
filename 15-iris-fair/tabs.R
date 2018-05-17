@@ -19,21 +19,13 @@ tab.welcome <- tabPanel(
                 style = "width:1000px;",
                 style = "text-align:center;",
                 style = "margin:auto",
-                h3(
-                    HTML(
-                        "<b>IRIS Web Server</b>"
-                    )
+                tags$br(),
+                tags$img(
+                    src = "iris-logo-01.png",
+                    width = "800px"
                 ),
-                h4(
-                    HTML(
-                        paste(
-                           "<b>I</b>ntegrated",
-                           "<b>R</b>NA-seq Data Analysis and",
-                           "<b>I</b>nterpretation",
-                           "<b>S</b>ystem"
-                        )
-                    )
-                ),
+                tags$br(),
+                tags$br(),
                 tags$br(),
                 tags$button(
                     id = "iris_flow_01",
